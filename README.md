@@ -27,7 +27,7 @@ while the screen is dark.
 </div>
 
 <p align="center">
-<a href="docs/screens/components.png"><img src="docs/screens/components.png?v=2" width="88%" alt="Wakely components grid"></a>
+<a href="docs/screens/components-v2.png"><img src="docs/screens/components-v2.png" width="88%" alt="Wakely components grid"></a>
 </p>
 
 <p align="center">
@@ -35,7 +35,7 @@ while the screen is dark.
 </p>
 
 <p align="center">
-<a href="docs/screens/general.png"><img src="docs/screens/general.png?v=2" width="43%" alt="Wakely General settings"></a>
+<a href="docs/screens/general-v2.png"><img src="docs/screens/general-v2.png" width="43%" alt="Wakely General settings"></a>
 &nbsp;
 <a href="docs/installer.png"><img src="docs/installer.png" width="43%" alt="Wakely drag-to-Applications installer"></a>
 </p>
