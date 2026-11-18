@@ -11,7 +11,7 @@ agentLight [off] — IMPLEMENTED: menu bar icon tint follows agent counts (green
 sleepUntilReset [off] — PARTIAL: owned one-off wakes are scheduled 60s after a locally observed Claude Code or Codex reset, reconciled on lid close and cancelled on lid open, disable and quit; the reset reader is a defensive adapter for local usage metadata, no wake was hardware-verified, and a protocol-2 helper rejects the wake operations
 
 [KEYBOARD]
-capsLock [on] — IMPLEMENTED: watcher turns the Caps Lock key into arm/disarm; the typing filter additionally needs Accessibility and is not required for arming
+capsLock [on] — IMPLEMENTED: watcher turns the Caps Lock key into arm/disarm; the key still types in caps and no typing filter or Accessibility is needed
 cleaningLock [off] — PROTECTED/MANUAL-ONLY: input lock starts only on an explicit Lock for Cleaning request, needs Accessibility, and ends at its timer or when a session arms
 lidCloseSound [on] — IMPLEMENTED: one sound per close while armed, requested as the hinge crosses 30 degrees so the speaker is still powered (the registry transition is the fallback); asset decoding is unit-tested, actual audibility is not verified by this report
 quietClose [off] — IMPLEMENTED: mutes on a real lid close and restores the previous mute state on open or session end

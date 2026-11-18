@@ -59,7 +59,7 @@ enum ComponentCatalog {
         // MARK: Keyboard
         ComponentDefinition(id: "capsLock", name: "Caps Lock",
             tagline: "The Caps Lock light shows your Mac is staying awake.",
-            detail: "Turn Caps Lock on and Wakely arms itself; turn it off and Wakely disarms. The light on the key is the indicator, so you can see across the room that the Mac will stay awake.",
+            detail: "Turn Caps Lock on and Wakely arms itself; turn it off and Wakely disarms. The light on the key is the indicator, and the key still types in caps like it always did.",
             category: .keyboard, icon: "capsLock", needsHelper: false),
         ComponentDefinition(id: "cleaningLock", name: "Cleaning Lock",
             tagline: "Lock the keyboard for a minute while you wipe it.",

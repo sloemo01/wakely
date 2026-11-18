@@ -56,8 +56,6 @@ enum CapsLockLight {
     private static var lastObserved = false
     private(set) static var lastKnown = false
     private static var ignoreUntil = Date.distantPast
-    private static var lastTapAttempt = Date.distantPast
-    private static var loggedMissingTrust = false
     static var onCapsLockChange: ((Bool) -> Void)?
 
     private static func systemConnection() -> io_connect_t {
@@ -101,20 +99,12 @@ enum CapsLockLight {
             connection = 0
         }
         ignoreUntil = .distantPast
-        lastTapAttempt = .distantPast
-        loggedMissingTrust = false
         Diagnostics.log("caps lock switch stopped")
     }
 
     private static func poll() {
         guard policy.watching else { return }
         let secure = IsSecureEventInputEnabled()
-        let state = isLit
-        if let target = policy.updateSecureInput(secure, capsOn: state) {
-            // Keep the switch watcher from interpreting password protection as
-            // a user request to disarm/rearm the power engine.
-            _ = writeLockState(target)
-        }
         reconcileTypingFilter()
         let actual = isLit
         if secure || Date() < ignoreUntil {
@@ -129,7 +119,7 @@ enum CapsLockLight {
     }
 
     static func reportTrust() {
-        Diagnostics.log("accessibility trusted=\(AXIsProcessTrusted()) (caps lock typing filter)")
+        Diagnostics.log("accessibility trusted=\(AXIsProcessTrusted())")
     }
 
     static var isLit: Bool {
@@ -172,75 +162,18 @@ enum CapsLockLight {
         return verified
     }
 
-    /// Pause/resume session typing protection without stopping component watching.
-    /// Missing Accessibility is reported once, never opened or prompted here.
+    /// Caps Lock is an ordinary key. The light is the indicator and the key
+    /// still types in caps, so no key events are filtered. This clears a tap
+    /// left behind by a build that did filter them.
     @discardableResult
     static func installTypingFilter(active: Bool) -> Bool {
-        policy.request(active)
-        if policy.watching {
-            if let target = policy.updateSecureInput(IsSecureEventInputEnabled(), capsOn: isLit) {
-                _ = writeLockState(target)
-            }
-        }
-        reconcileTypingFilter()
-        return !active || (policy.shouldFilter && filter.map { CGEvent.tapIsEnabled(tap: $0) } == true)
+        policy.request(false)
+        destroyTypingFilter()
+        return true
     }
 
     private static func reconcileTypingFilter() {
-        guard policy.shouldFilter else {
-            destroyTypingFilter()
-            return
-        }
-        guard AXIsProcessTrusted() else {
-            destroyTypingFilter()
-            if !loggedMissingTrust {
-                loggedMissingTrust = true
-                Diagnostics.log("caps lock typing filter unavailable: Accessibility not granted")
-            }
-            return
-        }
-        loggedMissingTrust = false
-        if let tap = filter {
-            if !CGEvent.tapIsEnabled(tap: tap) { CGEvent.tapEnable(tap: tap, enable: true) }
-            return
-        }
-        // Retry after grants/recovery without rapidly attempting tap creation.
-        guard Date().timeIntervalSince(lastTapAttempt) >= 1 else { return }
-        lastTapAttempt = Date()
-        let mask = CGEventMask(1 << CGEventType.keyDown.rawValue)
-        guard let tap = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap,
-                                          options: .defaultTap, eventsOfInterest: mask,
-                                          callback: { _, type, event, _ in
-            // The source is attached exclusively to the main run loop. Do not
-            // modify an event if the platform unexpectedly invokes us elsewhere.
-            guard Thread.isMainThread else { return Unmanaged.passUnretained(event) }
-            return MainActor.assumeIsolated {
-                CapsLockLight.handleEvent(type: type, event: event)
-            }
-        }, userInfo: nil) else { return }
-        guard let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0) else {
-            CFMachPortInvalidate(tap)
-            return
-        }
-        filter = tap
-        filterSource = source
-        CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
-        CGEvent.tapEnable(tap: tap, enable: true)
-        Diagnostics.log("caps lock typing filter active")
-    }
-
-    private static func handleEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-            if policy.shouldFilter && !IsSecureEventInputEnabled(), let tap = filter {
-                CGEvent.tapEnable(tap: tap, enable: true)
-            }
-            return Unmanaged.passUnretained(event)
-        }
-        guard policy.shouldFilter, !IsSecureEventInputEnabled(), type == .keyDown else {
-            return Unmanaged.passUnretained(event)
-        }
-        event.flags.remove(.maskAlphaShift)
-        return Unmanaged.passUnretained(event)
+        destroyTypingFilter()
     }
 
     private static func destroyTypingFilter() {

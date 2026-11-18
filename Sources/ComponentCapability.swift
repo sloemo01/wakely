@@ -65,7 +65,7 @@ enum ComponentCapabilityPolicy {
 
         // MARK: Keyboard
         .init(componentID: "capsLock", status: .implemented,
-              reason: "watcher turns the Caps Lock key into arm/disarm; the typing filter additionally needs Accessibility and is not required for arming"),
+              reason: "watcher turns the Caps Lock key into arm/disarm; the key still types in caps and no typing filter or Accessibility is needed"),
         .init(componentID: "cleaningLock", status: .protectedManualOnly,
               reason: "turning the switch on explicitly starts a timed input lock after Accessibility is granted; Escape, timeout, session-arming safety or switching off ends it and resets the switch"),
         .init(componentID: "lidCloseSound", status: .implemented,

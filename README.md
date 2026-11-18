@@ -103,7 +103,7 @@ distribution limits.
 ```bash
 WAKELY_SIGN_IDENTITY='Developer ID Application: YOUR NAME (TEAMID)' \
   WAKELY_DISTRIBUTION=1 ./build.sh
-bash package-dmg.sh Wakely-2.0.0.dmg
+bash package-dmg.sh Wakely-2.0.1.dmg
 ```
 
 Distribution mode enables the hardened runtime and timestamps. Packaging
@@ -112,8 +112,8 @@ with a fixed Finder layout; it does not build, download, launch or change
 privacy grants. Notarization is a separate step:
 
 ```bash
-xcrun notarytool submit dist/Wakely-2.0.0.dmg --wait
-xcrun stapler staple dist/Wakely-2.0.0.dmg
+xcrun notarytool submit dist/Wakely-2.0.1.dmg --wait
+xcrun stapler staple dist/Wakely-2.0.1.dmg
 ```
 
 Test the notarized image on a clean macOS account before publishing it.
@@ -127,8 +127,7 @@ Test the notarized image on a clean macOS account before publishing it.
 4. Enable only the components you need. Wakely asks for Accessibility, Location,
    notifications or helper access at the point a component needs it.
 
-Accessibility is required for Cleaning Lock and optional for Caps Lock typing
-protection. Wi-Fi detection needs Location. Components that change protected
+Accessibility is required for Cleaning Lock. Wi-Fi detection needs Location. Components that change protected
 system settings share one helper installation, available from
 **General → Privileged Helper**. Basic awake assertions need none of these
 grants.
