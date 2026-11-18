@@ -1,26 +1,78 @@
+<div align="center">
+
+<img src="docs/wakely-icon.png" width="112" alt="Wakely app icon">
+
 # Wakely
 
-Wakely is a menu-bar app for macOS that decides when your Mac stays awake. It
-can keep a MacBook running with the lid closed and no external display, so long
-jobs, downloads and coding agents carry on while the screen is dark.
+**Keep your Mac awake. Close the lid. Keep working.**
 
-Everything runs locally. There is no account, no telemetry and no background
-service unless you explicitly set up the optional helper for a component that
-needs privileged access.
+A small native macOS menu-bar app that holds a closed-lid session without an
+external display, so downloads, renders, builds and coding agents keep running
+while the screen is dark.
+
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-1d1d1f?style=flat-square&logo=apple&logoColor=white)](#requirements)
+[![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-arm64-1d1d1f?style=flat-square)](#requirements)
+[![License](https://img.shields.io/github/license/sloemo01/wakely?style=flat-square&color=1d1d1f)](LICENSE)
+[![Components](https://img.shields.io/badge/components-31-1d1d1f?style=flat-square)](#components)
+
+<p>
+<a href="#install">Install</a> &nbsp;·&nbsp;
+<a href="#components">Components</a> &nbsp;·&nbsp;
+<a href="#custom-components">Custom components</a> &nbsp;·&nbsp;
+<a href="#custom-screens">Custom screens</a> &nbsp;·&nbsp;
+<a href="#build">Build</a> &nbsp;·&nbsp;
+<a href="#privacy">Privacy</a>
+</p>
+
+</div>
+
+<p align="center">
+<a href="docs/screens/components.png"><img src="docs/screens/components.png" width="88%" alt="Wakely components grid"></a>
+</p>
+
+<p align="center">
+<sub><b>Components.</b> Thirty-one behaviours, one switch each. The explanation is the setting.</sub>
+</p>
+
+<p align="center">
+<a href="docs/screens/general.png"><img src="docs/screens/general.png" width="43%" alt="Wakely General settings"></a>
+&nbsp;
+<a href="docs/installer.png"><img src="docs/installer.png" width="43%" alt="Wakely drag-to-Applications installer"></a>
+</p>
+
+<p align="center">
+<sub><b>General.</b> Appearance, startup, helper and safety. &nbsp;·&nbsp; <b>Install.</b> Drag, drop, done.</sub>
+</p>
+
+Wakely holds two macOS power assertions, darkens the built-in display on lid
+close, and keeps the framebuffer live. Opening the lid or disarming ends the
+session and restores normal sleep. Nothing leaves the Mac: no account, no
+telemetry, no background service unless you opt into a privileged component.
 
 ## What it does
 
-- **Arm a closed-lid session.** The built-in display goes dark, the framebuffer
-  stays live, and the Mac keeps working. Opening the lid or disarming ends the
-  session and restores normal sleep.
+- **Arm a closed-lid session.** The built-in display goes dark while the Mac
+  keeps working. No external display or dummy HDMI plug is needed.
 - **Keep the Mac awake with the lid open.** Choose an indefinite or timed
-  session from the menu.
-- **Add components.** Thirty-one built-in behaviours cover agents, power,
-  security, connections, keyboard shortcuts and scheduled sessions.
-- **Build your own.** Describe a component or a whole screen to a coding agent;
-  Wakely supplies the prompt, watches the folder and loads the result.
-- **Learn by doing.** The guided tour highlights the real cards, inline
-  controls, creation forms and menu instead of showing a separate slideshow.
+  session from the menu bar.
+- **Compose behaviours.** Agents, power, security, connections and keyboard
+  shortcuts are opt-in components, each with an honest description of its limits.
+- **Extend it with an agent.** Describe a component or a whole screen; Wakely
+  supplies the prompt, watches the folder and loads the result.
+- **Learn the real UI.** The guided tour highlights actual cards, inline
+  controls and menu rows instead of showing a separate slideshow.
+
+## How it works
+
+1. **Power assertions.** `PreventUserIdleSystemSleep` and `PreventSystemSleep`
+   keep the machine awake. `pmset -g assertions` shows both under Wakely's names.
+2. **Lid state.** The lid state comes from the `IOPMrootDomain` IORegistry
+   property, polled at 2 Hz.
+3. **A dark display, not a closed one.** On lid close the built-in panel is set
+   to brightness 0 through `DisplayServicesSetBrightness`; the framebuffer stays
+   live, so screen capture and computer-use agents still have a screen.
+4. **Safety first.** Low battery while unplugged, serious or critical thermal
+   pressure, and quitting all disarm and release the assertions.
 
 ## Requirements
 
@@ -55,10 +107,9 @@ bash package-dmg.sh Wakely-2.0.0.dmg
 ```
 
 Distribution mode enables the hardened runtime and timestamps. Packaging
-verifies the existing bundle and stages a designed drag-to-Applications window
+verifies the existing bundle and writes a designed drag-to-Applications window
 with a fixed Finder layout; it does not build, download, launch or change
-privacy grants. Notarization is a
-separate step:
+privacy grants. Notarization is a separate step:
 
 ```bash
 xcrun notarytool submit dist/Wakely-2.0.0.dmg --wait
@@ -69,13 +120,10 @@ Test the notarized image on a clean macOS account before publishing it.
 
 ## Install
 
-![Drag Wakely into Applications](docs/installer.png)
-
 1. Quit any running copy of Wakely.
-2. Drag **Wakely.app** to Applications, or copy `build/Wakely.app` there for a
-   local build.
-3. Launch `/Applications/Wakely.app` and keep one installed copy with a stable
-   signing identity.
+2. Drag **Wakely.app** into **Applications**, or copy `build/Wakely.app` there
+   for a local build.
+3. Keep one installed copy with a stable signing identity.
 4. Enable only the components you need. Wakely asks for Accessibility, Location,
    notifications or helper access at the point a component needs it.
 
@@ -90,8 +138,6 @@ grants.
 Click the menu-bar mark to arm or disarm Wakely, open Settings or quit. The menu
 changes with the components you have enabled; disabled components do not add
 rows.
-
-URL commands:
 
 ```text
 wakely://arm
@@ -121,11 +167,7 @@ Every component is wired to real behaviour; none is a decorative toggle.
 Five are on by default: Agent Screen, Agent Status, Lid-Close Sound, Caps Lock
 and Always On While Plugged In. A few components change privileged settings
 (fans, power policy, NVRAM, scheduled wakes, Touch ID policy); they say so on
-their card and stay off until you set up the helper.
-
-Safety is enforced in the engine: low battery while unplugged, serious or
-critical thermal pressure, and quitting all disarm and release the power
-assertions.
+their card and stay off until the helper is installed.
 
 ## Custom components
 
@@ -138,21 +180,16 @@ appears in the **Custom** group, off until you enable it.
 ~/Library/Application Support/Wakely/Components/components/<id>/
 ```
 
-The app watches that folder and reloads on change. Right-click a custom card to
+The app watches the folder and reloads on change. Right-click a custom card to
 edit it with your agent, reveal it in Finder or remove it. Invalid components
 show their first validation error and a copyable fix prompt.
 
-The SDK, schema and checker ship inside the app; the same kit is installed for
-your agent on first launch.
-
 ## Custom screens
 
-A screen is a full tab written as a small native SwiftUI bundle. From
-**Components → Add a screen**, describe the page you want; Wakely gives your
+A screen is a full native SwiftUI tab, built as a small bundle. From
+**Components → Add a screen**, describe the page you want; Wakely gives the
 agent the manifest format, build command and design rules. When the compiled
 screen appears, Wakely validates it and adds the tab.
-
-Each screen is one folder:
 
 ```text
 ~/Library/Application Support/Wakely/Screens/screens/<uuid>/
@@ -161,21 +198,20 @@ Each screen is one folder:
   Screen.dylib
 ```
 
-Screens run in-process with the app's fonts and theme. They cannot import
-Wakely's internal types, so the generation prompt includes self-contained
-recipes for panels, buttons, switches and the adaptive palette.
+Screens inherit the app's pixel typography, adaptive palette, shared title and
+subtitle, and the Bayer-dithered scroll edges used by the built-in panes.
 
 ## Privacy
 
 - No analytics, accounts or network calls for normal operation.
-- Components request access only when enabled, and opening a settings pane does
-  not grant it.
-- Diagnostics stay in `~/Library/Application Support/Wakely/diagnostics.log`
+- Components request access only when enabled; opening a settings pane does not
+  grant it.
+- Diagnostics stay local in `~/Library/Application Support/Wakely/diagnostics.log`
   and are copied only when you press **Copy**.
 - Quitting releases power assertions and restores display brightness and any
   settings a component changed.
 
-## Repository layout
+## Repository
 
 ```text
 Sources/      app, engine, components, UI and custom-screen loader
@@ -183,7 +219,8 @@ Helper/       optional privileged helper
 Watchdog/     crash-recovery watchdog
 Resources/    icons, fonts, sounds, localizations and SDK kit
 Tests/        policy, model, UI-safety and integration checks
-docs/         signing, capability report and design notes
+docs/         signing, capability report and screenshots
+tools/        DMG background generator
 build.sh      compile, assemble and sign
 ```
 
