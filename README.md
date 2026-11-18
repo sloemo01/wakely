@@ -12,7 +12,7 @@ while the screen is dark.
 
 [![macOS 14+](https://img.shields.io/badge/macOS-14%2B-1d1d1f?style=flat-square&logo=apple&logoColor=white)](#requirements)
 [![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-arm64-1d1d1f?style=flat-square)](#requirements)
-[![License](https://img.shields.io/github/license/sloemo01/wakely?style=flat-square&color=1d1d1f)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-1d1d1f?style=flat-square)](LICENSE)
 [![Components](https://img.shields.io/badge/components-31-1d1d1f?style=flat-square)](#components)
 
 <p>
