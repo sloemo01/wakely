@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "id": "short-sessions",
+  "name": "Time Cap",
+  "tagline": "Stops a closed-lid session once the timer runs out.",
+  "description": {
+    "text": "Once the lid has been shut for {limit}, Wakely ends the session so the Mac can sleep. It {alert} you when that happens.",
+    "values": {
+      "limit": { "kind": "duration", "default": 90 },
+      "alert": { "kind": "choice", "options": ["warns", "doesn't warn"], "default": "warns" }
+    }
+  },
+  "rules": [
+    { "on": "closedFor", "after": "limit", "do": [ { "endSession": "Time cap reached" } ] },
+    { "on": "closedFor", "after": "limit", "when": { "choiceIs": { "alert": "warns" } },
+      "do": [ { "notify": "Time cap reached. The Mac can sleep now." } ] }
+  ]
+}

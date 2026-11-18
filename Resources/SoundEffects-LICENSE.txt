@@ -1,0 +1,21 @@
+Wakely lid-close sound effects
+
+close-sound-shell.m4a
+close-sound-pearl.m4a
+close-sound-tide.m4a
+close-sound-sonar.m4a
+close-sound-bubble.m4a
+close-sound-arcade.m4a
+close-sound-lullaby.m4a
+These seven sounds were synthesized from scratch for this project's sound set
+and contain no third-party audio.
+
+close-sound-chime.m4a
+"Chime sound" by jgreer
+https://freesound.org/people/jgreer/sounds/333629/
+Downloaded from Freesound on 2026-08-17. Its author dedicated it to the
+public domain under Creative Commons CC0 1.0 Universal; attribution is not
+required. The bundled version was trimmed, filtered, faded and level-matched.
+
+CC0 1.0 Universal:
+https://creativecommons.org/publicdomain/zero/1.0/

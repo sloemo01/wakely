@@ -1,0 +1,13 @@
+# Build and release output
+build/
+dist/
+*.dmg
+
+# Local signing material — never commit private keys or certificates
+signing/
+
+# macOS and Python noise
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo

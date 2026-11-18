@@ -1,0 +1,45 @@
+Wakely capability report — read-only, not a behavior test
+No component was enabled, disabled, played, ejected, or asked for a permission.
+Capability labels updated by source audit 2026-11-12; on/off values are the older runtime snapshot, not current state.
+IMPLEMENTED 21 | PARTIAL 7 | PROTECTED/MANUAL-ONLY 3 | UNSUPPORTED 0
+[AGENTS]
+agentScreen [on] — PARTIAL: holds a display-sleep assertion during armed agent work with a 120s grace; the display-tool eligibility metadata and filtering are not implemented
+agentStatus [off] — PARTIAL: menu counts and provider/PID rows work; per-session names and structured Claude registry metadata are not implemented
+finishWorkThenSleep [off] — IMPLEMENTED: bounded hold on explicitly observed agent work (4h cap, 15min waiting cap, 180s release grace)
+agentNotifications [off] — IMPLEMENTED: per-agent busy->idle and waiting transitions from AgentMonitor, suppressed while that agent's app or terminal is frontmost; delivery goes through osascript, so macOS notification settings can suppress it
+agentLight [off] — IMPLEMENTED: menu bar icon tint follows agent counts (green working, orange waiting); nothing is installed or configured
+sleepUntilReset [off] — PARTIAL: owned one-off wakes are scheduled 60s after a locally observed Claude Code or Codex reset, reconciled on lid close and cancelled on lid open, disable and quit; the reset reader is a defensive adapter for local usage metadata, no wake was hardware-verified, and a protocol-2 helper rejects the wake operations
+
+[KEYBOARD]
+capsLock [on] — IMPLEMENTED: watcher turns the Caps Lock key into arm/disarm; the typing filter additionally needs Accessibility and is not required for arming
+cleaningLock [off] — PROTECTED/MANUAL-ONLY: input lock starts only on an explicit Lock for Cleaning request, needs Accessibility, and ends at its timer or when a session arms
+lidCloseSound [on] — IMPLEMENTED: one sound per close while armed, requested as the hinge crosses 30 degrees so the speaker is still powered (the registry transition is the fallback); asset decoding is unit-tested, actual audibility is not verified by this report
+quietClose [off] — IMPLEMENTED: mutes on a real lid close and restores the previous mute state on open or session end
+
+[SECURITY]
+passwordAfterClose [off] — PARTIAL: the privileged helper turns system Touch ID unlock off at lid close and restores it at the next observed unlock, or at lid open, wake, launch or quit when the screen is provably unlocked; locked or unknown states defer the restore so that unlock still needs a password or Apple Watch, and hardware is unverified
+bagCheck [off] — IMPLEMENTED: one notice 60s after the lid is closed with Wakely unarmed
+
+[POWER]
+alwaysOnPluggedIn [off] — IMPLEMENTED: automatic hold while the Mac is on AC power
+homeServer [off] — PARTIAL: the plugged-in hold and a gated login-item relaunch exist, the privileged helper sets `pmset -c autorestart` where this Mac reports it, and automatic rearm is budgeted to 5 per hour; firmware auto-boot and a live restart are unverified
+lowPowerWhileClosed [off] — IMPLEMENTED: the privileged helper switches battery low power mode on for a closed armed session and restores the saved value on session end, lid open, disable and quit; it does nothing on AC power or when pmset does not report lowpowermode
+batteryBudget [off] — IMPLEMENTED: per-session battery accounting for a closed armed session; disarms at the configured budget
+keepAwake [off] — PROTECTED/MANUAL-ONLY: starts only from an explicit menu choice and holds a separate lid-open assertion; it never arms a closed session
+sleepMeansSleep [off] — PARTIAL: the privileged helper suppresses supported battery powernap, proximitywake and womp settings while enabled and restores their saved values on disable; third-party scheduled wake events and unsupported wake sources are not cancelled
+stayOffWhenOpened [off] — PARTIAL: the privileged helper sets boot-on-lid-open off while the module is enabled, but only a Mac that accepts `nvram auto-boot` changes behavior; a refusal keeps the old setting and is reported instead of claimed
+finishJobsThenSleep [off] — IMPLEMENTED: bounded hold on known transfer/backup processes plus chosen bundle ids (8h cap, 120s release grace)
+sleepWhenIdle [off] — IMPLEMENTED: disarms a closed session after 300s with no agents, remote sessions, network activity or jobs, and can re-arm on new activity
+sleepTimer [off] — IMPLEMENTED: fades output over the last minute, disarms, then sleeps after a cancellable delay that a newer session invalidates
+fanBoost [off] — PARTIAL: the privileged helper forces a fan target through SMC only on models that expose F0Md and F0Tg; other models refuse the request, the boost starts with the session rather than tracking load, and 0 means automatic on restore
+ejectOnSleep [off] — IMPLEMENTED: ejects external volumes at real system sleep; skips Time Machine, selected drives, external displays and armed sessions, and volume enumeration plus ejection run off the main thread
+
+[CONNECTIONS]
+bluetoothOffWhileClosed [off] — IMPLEMENTED: turns Bluetooth off only at real system sleep with the lid closed, unarmed and no external display; restores on wake, session start and quit
+awakeWhileConnected [off] — IMPLEMENTED: hold while lsof/who report remote SSH or screen-sharing sessions, with a 600s grace after the last one drops
+lidShortcuts [off] — IMPLEMENTED: runs the named Shortcut on a real lid open/close; a missing or renamed Shortcut is not detected by this report
+armWhileAppRuns [off] — IMPLEMENTED: hold while the chosen bundle id is running
+armOnWiFi [off] — IMPLEMENTED: hold while joined to the chosen SSID on AC power; reading the SSID needs Location permission, and without it the condition is never true
+armOnSchedule [off] — IMPLEMENTED: weekday and time window on AC power, including overnight windows that belong to their start day
+armWhenDriveConnects [off] — IMPLEMENTED: hold while a selected external volume is mounted; identity is by volume UUID with a path fallback
+A capability is not a PASS: it describes the shipped code path, not observed behavior.

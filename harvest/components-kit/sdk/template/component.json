@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "id": "my-component",
+  "name": "My Component",
+  "tagline": "Stays awake with the lid closed while your app runs.",
+  "keywords": [],
+  "description": {
+    "text": "While {apps} runs, Wakely keeps your Mac awake with the lid closed, and lets it sleep normally when the app quits.",
+    "values": {
+      "apps": { "kind": "apps", "default": [] }
+    }
+  },
+  "rules": [
+    { "keepAwakeWhile": { "appRunning": "apps" } }
+  ]
+}

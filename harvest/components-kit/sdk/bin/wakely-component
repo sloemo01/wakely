@@ -1,0 +1,9 @@
+#!/bin/sh
+# Runs Wakely's component checker (written by Wakely; do not edit).
+HELPER='/Applications/Wakely.app/Contents/Helpers/wakely-component'
+if [ ! -x "$HELPER" ]; then
+  echo "wakely-component: the checker was not found at $HELPER." >&2
+  echo "Open Wakely once so it rewrites this kit, or read components/<id>/.status.json, which Wakely writes after every change." >&2
+  exit 2
+fi
+exec "$HELPER" --kit '/Users/apple/Library/Application Support/Wakely/Components' "$@"

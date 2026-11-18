@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Wakely component (format 1)",
+  "description": "components/<id>/component.json. See sdk/reference.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "id", "name", "tagline", "description", "rules"],
+  "properties": {
+    "format": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z](?:[a-z0-9]|-(?=[a-z0-9])){1,39}$", "description": "Same as the folder name." },
+    "name": { "type": "string", "minLength": 3, "maxLength": 30, "description": "Title Case." },
+    "tagline": { "type": "string", "minLength": 10, "maxLength": 90, "description": "One sentence; the card fits about 64 characters." },
+    "keywords": { "type": "array", "maxItems": 12, "items": { "type": "string", "minLength": 1, "maxLength": 30 } },
+    "description": {
+      "oneOf": [
+        { "type": "string", "minLength": 20, "maxLength": 480 },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["text"],
+          "properties": {
+            "text": { "type": "string", "minLength": 20, "maxLength": 480, "description": "Write {key} where each value reads." },
+            "values": { "type": "object", "maxProperties": 6, "additionalProperties": { "$ref": "#/$defs/value" } }
+          }
+        }
+      ]
+    },
+    "rules": { "type": "array", "minItems": 1, "maxItems": 12, "items": { "$ref": "#/$defs/rule" } }
+  },
+  "$defs": {
+    "value": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A value the user edits in place. Required fields depend on kind: duration, minutes, percent and number need default; number also needs max and unit; choice needs options and default.",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["duration", "minutes", "percent", "number", "choice", "apps"] },
+        "default": { "oneOf": [ { "type": "integer" }, { "type": "string" }, { "type": "array", "items": { "type": "string", "minLength": 1 } } ], "description": "Whole minutes for duration and minutes, a whole number for percent and number, one of the options (or 0/1) for choice, bundle identifiers for apps." },
+        "min": { "type": "integer" },
+        "max": { "type": "integer" },
+        "step": { "type": "integer", "minimum": 1 },
+        "unit": { "type": "string" },
+        "unitPlural": { "type": "string" },
+        "options": { "type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "duration" } }, "required": ["kind"] },
+          "then": {
+            "required": ["default"],
+            "properties": {
+              "default": { "type": "integer", "minimum": 15, "maximum": 720 },
+              "min": { "type": "integer", "minimum": 15, "maximum": 720 },
+              "max": { "type": "integer", "minimum": 15, "maximum": 720 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "minutes" } }, "required": ["kind"] },
+          "then": {
+            "required": ["default"],
+            "properties": {
+              "default": { "type": "integer", "minimum": 1, "maximum": 720 },
+              "min": { "type": "integer", "minimum": 1, "maximum": 720 },
+              "max": { "type": "integer", "minimum": 1, "maximum": 720 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "percent" } }, "required": ["kind"] },
+          "then": {
+            "required": ["default"],
+            "properties": {
+              "default": { "type": "integer", "minimum": 1, "maximum": 100 },
+              "min": { "type": "integer", "minimum": 1, "maximum": 100 },
+              "max": { "type": "integer", "minimum": 1, "maximum": 100 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "number" } }, "required": ["kind"] },
+          "then": {
+            "required": ["default", "max", "unit"],
+            "properties": {
+              "default": { "type": "integer" },
+              "max": { "type": "integer" },
+              "unit": { "type": "string", "minLength": 1, "maxLength": 40 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "choice" } }, "required": ["kind"] },
+          "then": {
+            "required": ["default", "options"],
+            "properties": {
+              "default": { "oneOf": [ { "type": "integer", "enum": [0, 1] }, { "type": "string", "minLength": 1 } ], "description": "One of the two options, or its index 0 or 1." }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "apps" } }, "required": ["kind"] },
+          "then": {
+            "properties": {
+              "default": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+            }
+          }
+        }
+      ]
+    },
+    "percentOperand": { "oneOf": [ { "type": "integer", "minimum": 1, "maximum": 100 }, { "type": "string", "minLength": 1, "description": "A percent value key." } ], "description": "A whole percent from 1 to 100, or a percent value key." },
+    "minutesOperand": { "oneOf": [ { "type": "integer", "minimum": 1, "maximum": 720 }, { "type": "string", "minLength": 1, "description": "A duration or minutes value key." } ], "description": "Whole minutes from 1 to 720, or a duration/minutes value key." },
+    "condition": {
+      "description": "One condition. all, any and not combine conditions up to four levels deep.",
+      "oneOf": [
+        { "enum": ["onCharger", "onBattery", "externalDisplay", "lidClosed", "sessionActive"] },
+        { "type": "object", "additionalProperties": false, "required": ["appRunning"], "properties": { "appRunning": { "oneOf": [ { "type": "string", "minLength": 1 }, { "type": "array", "minItems": 1, "maxItems": 8, "items": { "type": "string", "minLength": 1 } } ], "description": "An apps value key, or 1 to 8 bundle identifiers." } } },
+        { "type": "object", "additionalProperties": false, "required": ["batteryAbove"], "properties": { "batteryAbove": { "$ref": "#/$defs/percentOperand" } } },
+        { "type": "object", "additionalProperties": false, "required": ["batteryBelow"], "properties": { "batteryBelow": { "$ref": "#/$defs/percentOperand" } } },
+        { "type": "object", "additionalProperties": false, "required": ["timeBetween"], "properties": { "timeBetween": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$" } } } },
+        { "type": "object", "additionalProperties": false, "required": ["choiceIs"], "properties": { "choiceIs": { "type": "object", "minProperties": 1, "maxProperties": 1, "additionalProperties": { "type": "string", "minLength": 1 }, "description": "A choice value key and one of its options." } } },
+        { "type": "object", "additionalProperties": false, "required": ["all"], "properties": { "all": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/condition" } } } },
+        { "type": "object", "additionalProperties": false, "required": ["any"], "properties": { "any": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/condition" } } } },
+        { "type": "object", "additionalProperties": false, "required": ["not"], "properties": { "not": { "$ref": "#/$defs/condition" } } }
+      ]
+    },
+    "holdCondition": {
+      "description": "The condition of a keepAwakeWhile rule. lidClosed and sessionActive are rejected here, at any depth.",
+      "oneOf": [
+        { "enum": ["onCharger", "onBattery", "externalDisplay"] },
+        { "type": "object", "additionalProperties": false, "required": ["appRunning"], "properties": { "appRunning": { "oneOf": [ { "type": "string", "minLength": 1 }, { "type": "array", "minItems": 1, "maxItems": 8, "items": { "type": "string", "minLength": 1 } } ], "description": "An apps value key, or 1 to 8 bundle identifiers." } } },
+        { "type": "object", "additionalProperties": false, "required": ["batteryAbove"], "properties": { "batteryAbove": { "$ref": "#/$defs/percentOperand" } } },
+        { "type": "object", "additionalProperties": false, "required": ["batteryBelow"], "properties": { "batteryBelow": { "$ref": "#/$defs/percentOperand" } } },
+        { "type": "object", "additionalProperties": false, "required": ["timeBetween"], "properties": { "timeBetween": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$" } } } },
+        { "type": "object", "additionalProperties": false, "required": ["choiceIs"], "properties": { "choiceIs": { "type": "object", "minProperties": 1, "maxProperties": 1, "additionalProperties": { "type": "string", "minLength": 1 }, "description": "A choice value key and one of its options." } } },
+        { "type": "object", "additionalProperties": false, "required": ["all"], "properties": { "all": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/holdCondition" } } } },
+        { "type": "object", "additionalProperties": false, "required": ["any"], "properties": { "any": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/holdCondition" } } } },
+        { "type": "object", "additionalProperties": false, "required": ["not"], "properties": { "not": { "$ref": "#/$defs/holdCondition" } } }
+      ]
+    },
+    "action": {
+      "oneOf": [
+        { "type": "object", "additionalProperties": false, "required": ["endSession"], "properties": { "endSession": { "type": "string", "minLength": 2, "maxLength": 60, "description": "The reason Wakely shows." } } },
+        { "type": "object", "additionalProperties": false, "required": ["notify"], "properties": { "notify": { "oneOf": [ { "type": "string", "minLength": 2, "maxLength": 140 }, { "type": "object", "additionalProperties": false, "required": ["body"], "properties": { "title": { "type": "string", "maxLength": 40 }, "body": { "type": "string", "maxLength": 140 } } } ] } } }
+      ]
+    },
+    "rule": {
+      "oneOf": [
+        { "type": "object", "additionalProperties": false, "required": ["keepAwakeWhile"], "properties": { "keepAwakeWhile": { "$ref": "#/$defs/holdCondition" } } },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["on", "do"],
+          "properties": {
+            "on": { "enum": ["lidClosed", "lidOpened", "sessionStarted", "sessionEnded", "closedSessionStarted", "closedSessionEnded", "wake", "pluggedIn", "unplugged", "batteryBelow", "closedFor", "sessionFor"] },
+            "after": { "$ref": "#/$defs/minutesOperand", "description": "Minutes or a duration/minutes value key. Required for closedFor and sessionFor." },
+            "below": { "$ref": "#/$defs/percentOperand", "description": "Percent or a percent value key. Required for batteryBelow." },
+            "when": { "$ref": "#/$defs/condition", "description": "Optional. Checked when the event fires." },
+            "do": { "type": "array", "minItems": 1, "maxItems": 4, "items": { "$ref": "#/$defs/action" } }
+          },
+          "allOf": [
+            { "if": { "properties": { "on": { "enum": ["closedFor", "sessionFor"] } }, "required": ["on"] }, "then": { "required": ["after"] } },
+            { "if": { "properties": { "on": { "const": "batteryBelow" } }, "required": ["on"] }, "then": { "required": ["below"] } }
+          ]
+        }
+      ]
+    }
+  }
+}

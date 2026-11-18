@@ -1,0 +1,52 @@
+#!/bin/sh
+# Builds and runs the OSS component tool for authoring Wakely components.
+# The binary is rebuilt only when a source file is newer than it.
+
+set -eu
+
+here=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
+root=$(CDPATH= cd "$here/.." && pwd -P)
+build="$root/build/tools"
+binary="$build/wakely-component"
+sources="$root/Tools/ComponentTool"
+
+if ! command -v xcrun >/dev/null 2>&1; then
+  echo "wakely-component: xcrun was not found. Install the Xcode Command Line Tools: xcode-select --install" >&2
+  exit 2
+fi
+if ! xcrun --find swiftc >/dev/null 2>&1; then
+  echo "wakely-component: no Swift compiler was found. Install the Xcode Command Line Tools: xcode-select --install" >&2
+  exit 2
+fi
+if [ ! -f "$root/Sources/ComponentValidator.swift" ] || [ ! -f "$sources/main.swift" ]; then
+  echo "wakely-component: expected Sources/ComponentValidator.swift and Tools/ComponentTool/main.swift under $root" >&2
+  exit 2
+fi
+
+fresh=0
+if [ -x "$binary" ]; then
+  fresh=1
+  for source in "$root/Sources/ComponentValidator.swift" "$sources"/*.swift; do
+    [ -f "$source" ] || continue
+    if [ "$source" -nt "$binary" ]; then
+      fresh=0
+      break
+    fi
+  done
+fi
+
+if [ "$fresh" -eq 0 ]; then
+  mkdir -p "$build/componentcache"
+  temporary="$binary.build.$$"
+  trap 'rm -f "$temporary"' EXIT HUP INT TERM
+  echo "wakely-component: compiling the component tool..." >&2
+  xcrun swiftc \
+    -swift-version 5 \
+    -target arm64-apple-macos14.0 \
+    -module-cache-path "$build/componentcache" \
+    -o "$temporary" \
+    "$root/Sources/ComponentValidator.swift" "$sources"/*.swift
+  mv -f "$temporary" "$binary"
+fi
+
+WAKELY_COMPONENT_TOOL_ROOT="$root" exec "$binary" "$@"

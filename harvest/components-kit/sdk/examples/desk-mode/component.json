@@ -1,0 +1,11 @@
+{
+  "format": 1,
+  "id": "desk-mode",
+  "name": "Stay Docked",
+  "tagline": "Keeps a docked Mac awake with the lid closed.",
+  "keywords": ["dock", "display", "charger", "desk"],
+  "description": "Docking here means power plus a second display. With both connected, Wakely holds the Mac awake while the lid is shut. Remove either one and normal sleep returns.",
+  "rules": [
+    { "keepAwakeWhile": { "all": ["onCharger", "externalDisplay"] } }
+  ]
+}

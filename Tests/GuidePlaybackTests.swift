@@ -1,0 +1,55 @@
+import Foundation
+
+@main
+struct GuidePlaybackTests {
+    static func main() {
+        let t = Date(timeIntervalSince1970: 1000)
+        func near(_ a: Double, _ b: Double) { precondition(abs(a - b) < 0.00001) }
+        var p = GuidePlayback()
+        precondition(!p.isRunning && !p.isFinished && !p.userPaused)
+        p.updateActivity(active: true, reduceMotion: false, at: t)
+        near(p.position(at: t.addingTimeInterval(1)), 1)
+        near(p.position(at: t.addingTimeInterval(-20)), 0)
+        precondition(p.beat(at: t.addingTimeInterval(1.7)) == 1)
+        near(p.position(at: t.addingTimeInterval(100000)), GuidePlayback.duration)
+        p.finish(at: t.addingTimeInterval(1))
+        precondition(p.isRunning)
+        p.togglePause(at: t.addingTimeInterval(1), canAnimate: true)
+        precondition(p.userPaused && !p.isRunning)
+        near(p.position(at: t.addingTimeInterval(100)), 1)
+        p.updateActivity(active: true, reduceMotion: false, at: t.addingTimeInterval(100))
+        precondition(!p.isRunning, "Activity must preserve user pause")
+        p.togglePause(at: t.addingTimeInterval(100), canAnimate: true)
+        near(p.position(at: t.addingTimeInterval(101)), 2)
+        p.updateActivity(active: false, reduceMotion: false, at: t.addingTimeInterval(101))
+        near(p.position(at: t.addingTimeInterval(1000)), 2)
+        p.updateActivity(active: true, reduceMotion: false, at: t.addingTimeInterval(1000))
+        near(p.position(at: t.addingTimeInterval(1000)), 2)
+        p.finish(at: t.addingTimeInterval(2000))
+        precondition(p.isFinished && !p.isRunning && p.beat(at: t) == 2)
+        precondition(p.frame(at: t) <= Int(GuidePlayback.duration * 5))
+        p.updateActivity(active: true, reduceMotion: false, at: t)
+        precondition(!p.isRunning)
+        p.replay(at: t, canAnimate: true)
+        precondition(p.isRunning && !p.isFinished && !p.userPaused)
+        near(p.position(at: t), 0)
+        p.updateActivity(active: true, reduceMotion: true, at: t.addingTimeInterval(0.5))
+        precondition(!p.isRunning)
+        near(p.position(at: t.addingTimeInterval(999)), 0.5)
+        p.replay(at: t, canAnimate: false)
+        precondition(!p.isRunning)
+        near(p.position(at: t.addingTimeInterval(999)), 0)
+        p.togglePause(at: t, canAnimate: false)
+        precondition(!p.isRunning)
+        for index in [Int.min, -1, 0, 1, 2, 3, Int.max] {
+            p.selectBeat(index)
+            precondition(p.beat(at: t) == min(2, max(0, index)))
+            precondition(p.userPaused && !p.isRunning)
+            near(p.position(at: t.addingTimeInterval(999)), Double(min(2, max(0, index))) * GuidePlayback.beatDuration)
+        }
+        p.replay(at: t, canAnimate: true)
+        p.freeze(at: t.addingTimeInterval(-100))
+        near(p.elapsed, 0)
+        print("PASS: bounded playback, pause/resume, hidden freeze, preserved user pause, replay, manual beats, reduce-motion no clock and backwards time")
+    }
+}

@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "id": "night-render",
+  "name": "After Hours",
+  "tagline": "Holds a closed Mac awake while overnight renders finish.",
+  "keywords": ["render", "overnight", "export", "night"],
+  "description": {
+    "text": "A running {apps} keeps the Mac awake with the lid closed from 10 PM to 7 AM. During the day, sleep works as usual.",
+    "values": {
+      "apps": { "kind": "apps", "default": [] }
+    }
+  },
+  "rules": [
+    { "keepAwakeWhile": { "all": [ { "appRunning": "apps" }, { "timeBetween": ["22:00", "07:00"] } ] } }
+  ]
+}

@@ -1,0 +1,1990 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>${applicationName} status</key>
+	<string>Estado de ${applicationName}</string>
+	<key>%1$@ and %2$@</key>
+	<string>%1$@ y %2$@</string>
+	<key>%1$@ from %2$@, while your Mac is plugged in, Wakely arms by itself, so you can close the lid. It arms at the start time, or when you open the lid during those hours, and posts one notification each time it arms. It never wakes a sleeping Mac. At the end time, Wakely disarms so your Mac sleeps normally. Unplug it and your Mac sleeps normally too. If you turn Wakely off during those hours, it waits until they start again.</key>
+	<string>%1$@ de %2$@, mientras la Mac está enchufada, Wakely se activa solo, así que puedes cerrar la tapa. Se activa a la hora de inicio, o cuando abres la tapa durante esas horas, y muestra una notificación cada vez que se activa. Nunca despierta una Mac en reposo. A la hora de fin, Wakely se desactiva para que la Mac entre en reposo como siempre. Si la desenchufas, la Mac también entra en reposo como siempre. Si desactivas Wakely durante esas horas, espera hasta que vuelvan a empezar.</string>
+	<key>%1$@ from %2$@, while your Mac is plugged in, Wakely arms by itself, so you can close the lid. It arms when any of these hours start, or when you open the lid during them, and posts one notification each time it arms. Hours that overlap or meet count as one stretch. It never wakes a sleeping Mac. When they end, Wakely disarms so your Mac sleeps normally. Unplug it and your Mac sleeps normally too. If you turn Wakely off during them, it waits until the next hours start.</key>
+	<string>%1$@ de %2$@, mientras la Mac está enchufada, Wakely se activa solo, así que puedes cerrar la tapa. Se activa cuando empieza cualquiera de estas horas, o cuando abres la tapa durante ellas, y muestra una notificación cada vez que se activa. Las horas que se solapan o se tocan cuentan como un solo tramo. Nunca despierta una Mac en reposo. Cuando terminan, Wakely se desactiva para que la Mac entre en reposo como siempre. Si la desenchufas, la Mac también entra en reposo como siempre. Si desactivas Wakely durante ellas, espera hasta que empiecen las siguientes horas.</string>
+	<key>%1$@ or %2$@</key>
+	<string>%1$@ o %2$@</string>
+	<key>%1$@ to %2$@</key>
+	<string>%1$@ a %2$@</string>
+	<key>%1$@, %2$@</key>
+	<string>%1$@, %2$@</string>
+	<key>%@ (not found)</key>
+	<string>%@ (no encontrada)</string>
+	<key>%@ Wakely still restores lid sleep on normal disarm and quit; restart the Mac after a forced kill if lid behavior looks wrong.</key>
+	<string>%@ Wakely sigue restaurando el reposo al cerrar la tapa cuando se desactiva normalmente o se cierra la app; reinicia la Mac después de un cierre forzado si el comportamiento de la tapa parece incorrecto.</string>
+	<key>%@ could not be ejected when your Mac went to sleep, so they stayed connected. Eject them in Finder before you unplug them.</key>
+	<string>%@ no se pudieron expulsar cuando tu Mac entró en reposo, así que siguieron conectados. Expúlsalos en el Finder antes de desconectarlos.</string>
+	<key>%@ is missing from this build. Contact hello@wakely.dev.</key>
+	<string>El documento «%@» no está incluido en esta versión. Comunícate con hello@wakely.dev.</string>
+	<key>%@ kept it awake.</key>
+	<string>La mantuvo activa: %@.</string>
+	<key>%@ left</key>
+	<string>quedan %@</string>
+	<key>%@ off for a limited time</key>
+	<string>%@ de descuento por tiempo limitado</string>
+	<key>%@ speed</key>
+	<string>al %@ de velocidad</string>
+	<key>%@, off</key>
+	<string>%@, desactivado</string>
+	<key>%@, on</key>
+	<string>%@, activado</string>
+	<key>%d Waiting on You</key>
+	<string>%d esperándote</string>
+	<key>%d Working</key>
+	<string>%d trabajando</string>
+	<key>%d Working, %d Waiting on You</key>
+	<string>%d trabajando, %d esperándote</string>
+	<key>%d agents finished</key>
+	<string>%d agentes terminaron</string>
+	<key>%d agents need you</key>
+	<string>%d agentes te necesitan</string>
+	<key>%d agents waiting on you</key>
+	<string>%d agentes esperándote</string>
+	<key>%d agents working</key>
+	<string>%d agentes trabajando</string>
+	<key>%d agents, %@</key>
+	<string>%d agentes, %@</string>
+	<key>%d apps finished</key>
+	<string>%d apps terminadas</string>
+	<key>%d apps reached the hold limit</key>
+	<string>%d apps alcanzaron el límite</string>
+	<key>%d closed</key>
+	<string>%d cerrados</string>
+	<key>%d ended with an error</key>
+	<string>%d terminaron con un error</string>
+	<key>%d finished</key>
+	<string>%d terminados</string>
+	<key>%d h</key>
+	<string>%d h</string>
+	<key>%d h %d min</key>
+	<string>%d h %d min</string>
+	<key>%d interrupted</key>
+	<string>%d interrumpidos</string>
+	<key>%d min</key>
+	<string>%d min</string>
+	<key>%d components</key>
+	<string>%d componentes</string>
+	<key>%d more</key>
+	<string>%d más</string>
+	<key>%d paused</key>
+	<string>%d en pausa</string>
+	<key>%d reached the hold limit</key>
+	<string>%d alcanzaron el límite</string>
+	<key>%d stopped reporting</key>
+	<string>%d dejaron de dar señales</string>
+	<key>%d waiting on you</key>
+	<string>%d esperándote</string>
+	<key>%d working in the background</key>
+	<string>%d trabajando en segundo plano</string>
+	<key>%d working, %d waiting on you</key>
+	<string>%d trabajando, %d esperándote</string>
+	<key>+ add app</key>
+	<string>+ agregar app</string>
+	<key>+ add drive</key>
+	<string>+ agregar disco</string>
+	<key>+ add hours</key>
+	<string>+ agregar horas</string>
+	<key>1 agent waiting on you</key>
+	<string>1 agente esperándote</string>
+	<key>1 agent working</key>
+	<string>1 agente trabajando</string>
+	<key>1 agent, %@</key>
+	<string>1 agente, %@</string>
+	<key>1 app finished</key>
+	<string>1 app terminada</string>
+	<key>1 app reached the hold limit</key>
+	<string>1 app alcanzó el límite</string>
+	<key>1 minute after the earliest limit resets, your Mac wakes on the charger and stays awake while those agents work again. If none is working after 2 minutes, it sleeps.</key>
+	<string>1 minuto después de que se restablezca el primer límite, tu Mac se despierta con el cargador y sigue activa mientras esos agentes vuelven a trabajar. Si ninguno trabaja tras 2 minutos, entra en reposo.</string>
+	<key>1 component</key>
+	<string>1 componente</string>
+	<key>15 percent, then sleep</key>
+	<string>15 por ciento y luego reposo</string>
+	<key>2 Hours</key>
+	<string>2 horas</string>
+	<key>2 hours</key>
+	<string>2 horas</string>
+	<key>A black display that stays on uses more battery than one that is off, so it stays on only while agents use it, and turns off two minutes after they stop.</key>
+	<string>Una pantalla negra encendida gasta más batería que una apagada, así que solo sigue encendida mientras los agentes la usan y se apaga dos minutos después de que paren.</string>
+	<key>A closed Mac sleeps once nothing is working.</key>
+	<string>Una Mac cerrada entra en reposo cuando nada está trabajando.</string>
+	<key>A closed MacBook, still running</key>
+	<string>Una MacBook con la tapa cerrada que sigue funcionando</string>
+	<key>A closed session uses only the battery you allow, then sleeps.</key>
+	<string>Una sesión con la tapa cerrada usa solo la batería que permites y luego la Mac entra en reposo.</string>
+	<key>A closed session uses up to 15 percent of battery, then sleeps.</key>
+	<string>Una sesión con la tapa cerrada usa hasta un 15 por ciento de batería y luego la Mac entra en reposo.</string>
+	<key>A developer tool</key>
+	<string>Una herramienta de desarrollo</string>
+	<key>A drive was not ejected</key>
+	<string>Un disco no se expulsó</string>
+	<key>A few amber blinks</key>
+	<string>Unos parpadeos ámbar</string>
+	<key>A friend</key>
+	<string>Un amigo</string>
+	<key>A light across the room</key>
+	<string>Una luz al otro lado de la habitación</string>
+	<key>A menu bar row shows how many %1$@ agents are working or waiting on you. Open it to see each one by name, and click one to bring its app forward. Nothing in your agents is set up or changed.</key>
+	<string>Una fila del menú de la barra de menús muestra cuántos agentes de %1$@ están trabajando o esperándote. Ábrela para ver cada uno por nombre y haz clic en uno para traer su app al frente. No se configura ni cambia nada en tus agentes.</string>
+	<key>A menu bar row shows how many Claude Code and Codex agents are working or waiting on you. Open it to see each one by name, and click one to bring its app forward. Nothing in your agents is set up or changed.</key>
+	<string>Una fila del menú de la barra de menús muestra cuántos agentes de Claude Code y Codex están trabajando o esperándote. Ábrela para ver cada uno por nombre y haz clic en uno para traer su app al frente. No se configura ni cambia nada en tus agentes.</string>
+	<key>A menu bar row shows how many of %1$@ are working or waiting on you. Open it to see each one by name, and click one to bring its app forward. Nothing in your agents is set up or changed.</key>
+	<string>Una fila del menú de la barra de menús muestra cuántos de %1$@ están trabajando o esperándote. Ábrela para ver cada uno por nombre y haz clic en uno para traer su app al frente. No se configura ni cambia nada en tus agentes.</string>
+	<key>A minute after each of your accounts resets, your Mac wakes and stays awake while any agent works. If none is working a few minutes later, it sleeps until the next reset.</key>
+	<string>Un minuto después de que se restablezca cada una de tus cuentas, tu Mac se despierta y sigue activa mientras algún agente trabaja. Si ninguno trabaja unos minutos después, vuelve al reposo hasta el siguiente restablecimiento.</string>
+	<key>A notification %1$@ when one of your agents stops for your approval or a question, or finishes longer work. Click it to bring that agent's app forward. Nothing pops up while that app is already in front, or while notifications for Wakely are off in %2$@.</key>
+	<string>Una notificación %1$@ cuando uno de tus agentes se detiene para pedir tu aprobación o hacerte una pregunta, o termina un trabajo largo. Haz clic en ella para traer al frente la app de ese agente. No aparece nada si esa app ya está al frente o si las notificaciones de Wakely están desactivadas en %2$@.</string>
+	<key>A notification with a sound when a Claude Code or Codex agent stops for your approval or a question, or finishes longer work. Click it to bring that agent's app forward. Nothing pops up while that app is already in front, or while notifications for Wakely are off in %1$@.</key>
+	<string>Una notificación con sonido cuando un agente de Claude Code o Codex se detiene para pedir tu aprobación o hacerte una pregunta, o termina un trabajo largo. Haz clic en ella para traer al frente la app de ese agente. No aparece nada si esa app ya está al frente o si las notificaciones de Wakely están desactivadas en %1$@.</string>
+	<key>A notification with a sound when a Claude Code or Codex agent stops for your approval or a question, or finishes longer work. Click it to bring that agent's app forward. Nothing pops up while that app is already in front.</key>
+	<string>Una notificación con sonido cuando un agente de Claude Code o Codex se detiene para pedir tu aprobación o hacerte una pregunta, o termina un trabajo largo. Haz clic en ella para traer al frente la app de ese agente. No aparece nada si esa app ya está al frente.</string>
+	<key>A report is waiting to be sent.</key>
+	<string>Hay un informe pendiente de envío.</string>
+	<key>A shut-down Mac stays off when you open the lid or plug it in.</key>
+	<string>Una Mac apagada sigue apagada al abrir la tapa o conectarla.</string>
+	<key>A sound confirms your Mac is staying awake.</key>
+	<string>Un sonido confirma que la Mac sigue activa.</string>
+	<key>AI chat</key>
+	<string>Chat de IA</string>
+	<key>About</key>
+	<string>Acerca de</string>
+	<key>Accept</key>
+	<string>Aceptar</string>
+	<key>Accessibility</key>
+	<string>Accesibilidad</string>
+	<key>Accessibility access</key>
+	<string>Acceso de accesibilidad</string>
+	<key>Activate</key>
+	<string>Activar</string>
+	<key>Add App</key>
+	<string>Agregar app</string>
+	<key>Add Drive</key>
+	<string>Agregar disco</string>
+	<key>Add Hours</key>
+	<string>Agregar horas</string>
+	<key>After a restart, Wakely starts when you log in and arms if your Mac is plugged in.</key>
+	<string>Después de reiniciar, Wakely se abre al iniciar sesión y se activa si la Mac está enchufada.</string>
+	<key>After the wake</key>
+	<string>Después de despertarse</string>
+	<key>Agent Light</key>
+	<string>Luz de agentes</string>
+	<key>Agent Notifications</key>
+	<string>Notificaciones de agentes</string>
+	<key>Agent Screen</key>
+	<string>Pantalla para agentes</string>
+	<key>Agent Status</key>
+	<string>Estado de los agentes</string>
+	<key>Agents</key>
+	<string>Agentes</string>
+	<key>Agents can use the screen with the lid closed.</key>
+	<string>Los agentes pueden usar la pantalla con la tapa cerrada.</string>
+	<key>Agents or overnight jobs</key>
+	<string>Agentes o tareas nocturnas</string>
+	<key>Agree and Join</key>
+	<string>Aceptar y unirse</string>
+	<key>All</key>
+	<string>Todos</string>
+	<key>All Components</key>
+	<string>Todos los componentes</string>
+	<key>All set</key>
+	<string>Todo listo</string>
+	<key>Allow</key>
+	<string>Permitir</string>
+	<key>Allow Wakely in Login Items</key>
+	<string>Permitir Wakely en Ítems de inicio</string>
+	<key>Allow Wakely in System Settings &gt; General &gt; Login Items to enable forced-crash recovery.</key>
+	<string>Permite Wakely en Configuración del Sistema &gt; General &gt; Ítems de inicio para habilitar la recuperación después de un cierre forzado.</string>
+	<key>Allowed</key>
+	<string>Permitido</string>
+	<key>Allow…</key>
+	<string>Permitir…</string>
+	<key>Already have a key? Enter it</key>
+	<string>¿Ya tienes una clave? Ingrésala</string>
+	<key>Already purchased? Enter a license</key>
+	<string>¿Ya compraste Wakely? Ingresa una licencia</string>
+	<key>Always</key>
+	<string>Siempre</string>
+	<key>Always On While Plugged In</key>
+	<string>Siempre activa enchufada</string>
+	<key>Always On While Plugged In is on, so your Mac now sleeps normally with the lid closed. Wakely arms again when you plug it back in.</key>
+	<string>«Siempre activa enchufada» está activado, así que la Mac ahora entra en reposo como siempre con la tapa cerrada. Wakely se activará de nuevo cuando vuelvas a enchufarla.</string>
+	<key>Always On While Plugged In is set not to arm on battery. Plug in your Mac and Wakely arms by itself.</key>
+	<string>«Siempre activa enchufada» está configurado para no activarse con batería. Enchufa la Mac y Wakely se activará solo.</string>
+	<key>Always On at Home and the trigger components can arm again when you plug in.</key>
+	<string>«Siempre activa en casa» y los componentes de activadores pueden volver a activarse cuando enchufes la Mac.</string>
+	<key>Always armed, lid closed, for a Mac that serves.</key>
+	<string>Siempre activado, con la tapa cerrada, para una Mac que hace de servidor.</string>
+	<key>Always on while Home Server is on, so Wakely is back after a restart.</key>
+	<string>Siempre activado mientras Servidor doméstico esté activado, para que Wakely vuelva después de reiniciar.</string>
+	<key>Amber</key>
+	<string>Ámbar</string>
+	<key>Amber while your agents work, blinking when one needs you, and green once they finish.</key>
+	<string>Ámbar mientras tus agentes trabajan, parpadeando cuando uno te necesita y verde cuando terminan.</string>
+	<key>An agent</key>
+	<string>Un agente</string>
+	<key>An agent hit its usage limit.</key>
+	<string>Un agente alcanzó su límite de uso.</string>
+	<key>An agent needs you.</key>
+	<string>Un agente te necesita.</string>
+	<key>An article or list</key>
+	<string>Un artículo o una lista</string>
+	<key>Analytics details</key>
+	<string>Detalles sobre los datos de análisis</string>
+	<key>Animation</key>
+	<string>Animación</string>
+	<key>Another app or automation put your Mac to sleep while Wakely was armed. Check your charging, scheduling, and automation settings before trying again.</key>
+	<string>Otra app o automatización puso la Mac en reposo mientras Wakely estaba activado. Revisa la configuración de carga, programación y automatización antes de volver a intentarlo.</string>
+	<key>Any shortcut works. This page checks for the two names each time it opens.</key>
+	<string>Sirve cualquier atajo. Esta página busca los dos nombres cada vez que se abre.</string>
+	<key>App</key>
+	<string>App</string>
+	<key>App not found</key>
+	<string>No se encontró la app</string>
+	<key>Approve Wakely in System Settings › General › Login Items.</key>
+	<string>Autoriza Wakely en Configuración del Sistema › General › Ítems de inicio.</string>
+	<key>Apps</key>
+	<string>Apps</string>
+	<key>Arcade</key>
+	<string>Arcade</string>
+	<key>Arm</key>
+	<string>Activar</string>
+	<key>Arm ${applicationName}</key>
+	<string>Activar ${applicationName}</string>
+	<key>Arm Wakely</key>
+	<string>Activar Wakely</string>
+	<key>Arm Wakely if it is off, disarm it if it is on.</key>
+	<string>Activa Wakely si está desactivado o desactívalo si está activado.</string>
+	<key>Arm When a Drive Connects</key>
+	<string>Activar al conectar un disco</string>
+	<key>Arm While an App Runs</key>
+	<string>Activar mientras una app se ejecuta</string>
+	<key>Arm for Next Close</key>
+	<string>Activar para la próxima vez que cierres la tapa</string>
+	<key>Arm on a Schedule</key>
+	<string>Activar según un horario</string>
+	<key>Arm on a Wi-Fi Network</key>
+	<string>Activar en una red Wi-Fi</string>
+	<key>Arm with</key>
+	<string>Activar con</string>
+	<key>Armed</key>
+	<string>Activado</string>
+	<key>Armed for Next Close</key>
+	<string>Activado para la próxima vez que cierres la tapa</string>
+	<key>Arming</key>
+	<string>Activación</string>
+	<key>Arming blocked</key>
+	<string>No se puede activar Wakely</string>
+	<key>Arms by itself when your Mac is plugged in and on your Wi-Fi.</key>
+	<string>Se activa solo cuando la Mac está enchufada y en tu red Wi-Fi.</string>
+	<key>As soon as your component works, its card shows up in Components, off until you turn it on. To change it later, right-click its card and choose Edit with Your Agent.</key>
+	<string>En cuanto tu componente funcione, su tarjeta aparece en Componentes, desactivada hasta que la actives. Para cambiarlo después, haz clic derecho en su tarjeta y elige «Editar con tu agente».</string>
+	<key>Asked you a question</key>
+	<string>Te hizo una pregunta</string>
+	<key>Asleep means asleep</key>
+	<string>Sigue en reposo</string>
+	<key>Asleep, Bluetooth off</key>
+	<string>En reposo, Bluetooth apagado</string>
+	<key>Asleep, drives ejected</key>
+	<string>En reposo, discos expulsados</string>
+	<key>At 20% on battery power, Wakely turns off and your Mac sleeps normally.</key>
+	<string>Al 20 % de batería, Wakely se desactiva y la Mac entra en reposo con normalidad.</string>
+	<key>At a start time on a day you chose, with your Mac plugged in and the lid open, Wakely arms by itself, with one notification. The menu bar icon shows it's armed, so you can close the lid.</key>
+	<string>A una hora de inicio, en un día que elegiste, con la Mac enchufada y la tapa abierta, Wakely se activa solo, con una notificación. El ícono de la barra de menús muestra que está activado, así que puedes cerrar la tapa.</string>
+	<key>Awake</key>
+	<string>Activa</string>
+	<key>Awake Indefinitely</key>
+	<string>Activa sin límite</string>
+	<key>Awake Until %@</key>
+	<string>Activa hasta las %@</string>
+	<key>Awake While Agents Work</key>
+	<string>Activa mientras los agentes trabajen</string>
+	<key>Awake While Connected</key>
+	<string>Activa con conexión remota</string>
+	<key>Back</key>
+	<string>Atrás</string>
+	<key>Background task</key>
+	<string>Tarea en segundo plano</string>
+	<key>Bag Check</key>
+	<string>Control de mochila</string>
+	<key>Bag Check stays quiet while a display is connected, because macOS keeps a docked Mac awake on purpose.</key>
+	<string>Control de mochila no avisa mientras haya una pantalla conectada, porque macOS mantiene activa a propósito una Mac conectada a un monitor.</string>
+	<key>Battery</key>
+	<string>Batería</string>
+	<key>Battery Budget</key>
+	<string>Presupuesto de batería</string>
+	<key>Battery budget</key>
+	<string>Presupuesto de batería</string>
+	<key>Battery dropped to %d%%. The low-battery safety disarmed Wakely so your Mac can sleep instead of running flat.</key>
+	<string>La batería bajó al %d%%. La protección de batería baja desactivó Wakely para que la Mac pueda entrar en reposo en lugar de quedarse sin batería.</string>
+	<key>Before you delete Wakely</key>
+	<string>Antes de eliminar Wakely</string>
+	<key>Beta</key>
+	<string>Beta</string>
+	<key>Blinking amber</key>
+	<string>Ámbar parpadeante</string>
+	<key>Bluetooth</key>
+	<string>Bluetooth</string>
+	<key>Bluetooth Off While Closed</key>
+	<string>Bluetooth apagado con la tapa cerrada</string>
+	<key>Bluetooth access</key>
+	<string>Acceso a Bluetooth</string>
+	<key>Bluetooth turns off while your closed Mac sleeps.</key>
+	<string>Bluetooth se apaga mientras tu Mac duerme con la tapa cerrada.</string>
+	<key>Bubble</key>
+	<string>Burbuja</string>
+	<key>Build, macOS version, Mac model and your track. No logs.</key>
+	<string>Compilación, versión de macOS, modelo de Mac y tu canal. Sin registros.</string>
+	<key>Buy</key>
+	<string>Comprar</string>
+	<key>Buy Wakely</key>
+	<string>Compra Wakely</string>
+	<key>Buy Wakely for %@</key>
+	<string>Compra Wakely por %@</string>
+	<key>Buy Wakely · %@ once</key>
+	<string>Compra Wakely · %@ una sola vez</string>
+	<key>Buy once for %@ and keep your agents running with the lid closed.</key>
+	<string>Cómpralo una vez por %@ y mantén tus agentes funcionando con la tapa cerrada.</string>
+	<key>Buy once, keep it forever</key>
+	<string>Compra una vez, úsalo para siempre</string>
+	<key>Cancel</key>
+	<string>Cancelar</string>
+	<key>Cancel Automatic Re-arm</key>
+	<string>Cancelar la reactivación automática</string>
+	<key>Caps Lock</key>
+	<string>Bloq Mayús</string>
+	<key>Caps Lock becomes Wakely's switch and stops typing capital letters. Turn it on and Wakely is armed %1$@. The light follows Wakely however you arm it, and the Wakely mark turns Caps Lock green. In password fields, Caps Lock turns off while you type and comes back on when you leave.</key>
+	<string>Bloq Mayús se convierte en el interruptor de Wakely y deja de escribir en mayúsculas. Actívalo y Wakely se mantiene activado %1$@. La luz sigue a Wakely sin importar cómo lo actives, y el símbolo de Wakely en la barra de menús se vuelve del verde de Bloq Mayús. En los campos de contraseña, Bloq Mayús se desactiva mientras escribes y se vuelve a activar al salir.</string>
+	<key>Caps Lock becomes Wakely's switch and stops typing capital letters. Turn it on and Wakely is armed until you turn it off. The light follows Wakely however you arm it, and the Wakely mark turns Caps Lock green.</key>
+	<string>Bloq Mayús se convierte en el interruptor de Wakely y deja de escribir en mayúsculas. Actívalo y Wakely se mantiene activado hasta que lo desactives. La luz sigue a Wakely sin importar cómo lo actives, y el símbolo de Wakely en la barra de menús se vuelve del verde de Bloq Mayús.</string>
+	<key>Caps Lock becomes Wakely's switch and stops typing capital letters. Turn it on and Wakely is armed until you turn it off. The light follows Wakely however you arm it, and the Wakely mark turns Caps Lock green. In password fields, Caps Lock turns off while you type and comes back on when you leave.</key>
+	<string>Bloq Mayús se convierte en el interruptor de Wakely y deja de escribir en mayúsculas. Actívalo y Wakely se mantiene activado hasta que lo desactives. La luz sigue a Wakely sin importar cómo lo actives, y el símbolo de Wakely en la barra de menús se vuelve del verde de Bloq Mayús. En los campos de contraseña, Bloq Mayús se desactiva mientras escribes y se vuelve a activar al salir.</string>
+	<key>Caps Lock is the switch</key>
+	<string>Bloq Mayús es el interruptor</string>
+	<key>Check Now</key>
+	<string>Buscar ahora</string>
+	<key>Check for Updates</key>
+	<string>Buscar actualizaciones</string>
+	<key>Check for updates</key>
+	<string>Buscar actualizaciones</string>
+	<key>Check interval</key>
+	<string>Intervalo de comprobación</string>
+	<key>Checking…</key>
+	<string>Comprobando…</string>
+	<key>Chime</key>
+	<string>Campanilla</string>
+	<key>Choose</key>
+	<string>Elegir</string>
+	<key>Choose Another App…</key>
+	<string>Elegir otra app…</string>
+	<key>Choose Lock for Cleaning in the menu bar and a black cover fills every screen for %1$@ with a countdown. Keys and clicks do nothing while it is up. Hold Esc for %2$@ to end it early; it always ends when the countdown runs out, or sooner if another app stays in front for 2 seconds. If Wakely arms while it is up, the cover ends at once so the menu bar can show it.</key>
+	<string>Elige «Bloquear para limpiar» en la barra de menús y una cubierta negra con una cuenta regresiva llena todas las pantallas durante %1$@. Mientras está puesta, las teclas y los clics no hacen nada. Mantén presionada Esc %2$@ para terminarla antes; siempre termina cuando acaba la cuenta regresiva, o antes si otra app se queda delante 2 segundos. Si Wakely se activa mientras está puesta, la cubierta termina al instante para que la barra de menús pueda mostrarlo.</string>
+	<key>Choose Lock for Cleaning in the menu bar and a black cover fills every screen for 60 seconds with a countdown. Keys and clicks do nothing while it is up. Hold Esc for 3 seconds to end it early; it always ends after 60 seconds, or sooner if another app stays in front for 2 seconds. If Wakely arms while it is up, the cover ends at once so the menu bar can show it.</key>
+	<string>Elige «Bloquear para limpiar» en la barra de menús y una cubierta negra con una cuenta regresiva llena todas las pantallas durante 60 segundos. Mientras está puesta, las teclas y los clics no hacen nada. Mantén presionada Esc 3 segundos para terminarla antes; siempre termina a los 60 segundos, o antes si otra app se queda delante 2 segundos. Si Wakely se activa mientras está puesta, la cubierta termina al instante para que la barra de menús pueda mostrarlo.</string>
+	<key>Choose Lock for Cleaning in the menu bar. A cover fills every screen for 60 seconds while keys and clicks do nothing. Hold Esc for 3 seconds to end it early.</key>
+	<string>Elige «Bloquear para limpiar» en la barra de menús. Una cubierta llena todas las pantallas durante 60 segundos mientras las teclas y los clics no hacen nada. Mantén presionada Esc 3 segundos para terminarla antes.</string>
+	<key>Choose On above the components to see only the ones you use. The number next to it counts them.</key>
+	<string>Elige Activado encima de los componentes para ver solo los que usas. El número de al lado los cuenta.</string>
+	<key>Choose Sleep in 30 Minutes in the Wakely menu and your Mac goes to sleep 30 minutes later. The menu shows the minutes left; choose the row again to cancel. Over the last minute the sound fades out, and the volume comes back where it was when your Mac wakes or when you cancel. At the end, Wakely turns off and puts your Mac to sleep, even if other apps would keep it awake. If something still keeps it awake 30 seconds later, a notification names it.</key>
+	<string>Elige «Reposo en 30 minutos» en el menú de Wakely y tu Mac entrará en reposo 30 minutos después. El menú muestra los minutos que quedan; elige la fila otra vez para cancelar. Durante el último minuto el sonido se desvanece, y el volumen vuelve a donde estaba cuando tu Mac se despierta o cuando cancelas. Al final, Wakely se desactiva y pone tu Mac en reposo, aunque otras apps la mantendrían activa. Si algo la sigue manteniendo activa 30 segundos después, una notificación lo nombra.</string>
+	<key>Choose a start and an end time. Every day between them, while your Mac is plugged in, Wakely arms by itself, so you can close the lid. It arms at the start time, or when you open the lid during those hours, and posts one notification each time it arms. It never wakes a sleeping Mac. At the end time, Wakely disarms so your Mac sleeps normally. Unplug it and your Mac sleeps normally too. If you turn Wakely off during those hours, it waits until they start again.</key>
+	<string>Elige una hora de inicio y una de fin. Cada día entre ambas, mientras la Mac está enchufada, Wakely se activa solo, así que puedes cerrar la tapa. Se activa a la hora de inicio, o cuando abres la tapa durante esas horas, y muestra una notificación cada vez que se activa. Nunca despierta una Mac en reposo. A la hora de fin, Wakely se desactiva para que la Mac entre en reposo como siempre. Si la desenchufas, la Mac también entra en reposo como siempre. Si desactivas Wakely durante esas horas, espera hasta que vuelvan a empezar.</string>
+	<key>Choose at least one Wakely setting to change.</key>
+	<string>Elige al menos un ajuste de Wakely para cambiarlo.</string>
+	<key>Choose how Wakely arms.</key>
+	<string>Elige cómo se activa Wakely.</string>
+	<key>Choose it while apps work</key>
+	<string>Elígelo mientras las apps trabajan</string>
+	<key>Choose one app. While it runs and your Mac is plugged in, Wakely arms by itself, so you can close the lid and let the app keep working. It arms only with the lid open and posts one notification each time it arms. When the app quits, your Mac sleeps normally. Unplug it and your Mac sleeps normally too. If you turn Wakely off while the app runs, it waits until the app quits and opens again.</key>
+	<string>Elige una app. Mientras se ejecuta y la Mac está enchufada, Wakely se activa solo, así que puedes cerrar la tapa y dejar que la app siga trabajando. Solo se activa con la tapa abierta y muestra una notificación cada vez que se activa. Cuando la app se cierra, la Mac entra en reposo como siempre. Si la desenchufas, la Mac también entra en reposo como siempre. Si desactivas Wakely mientras la app se ejecuta, espera hasta que la app se cierre y se vuelva a abrir.</string>
+	<key>Choose one external drive. While it's connected and your Mac is plugged in, Wakely arms by itself, so you can close the lid and let a backup or copy keep running. It arms only with the lid open and posts one notification each time it arms. When you eject or unplug the drive, your Mac sleeps normally. Unplug the charger and your Mac sleeps normally too. If you turn Wakely off while the drive is connected, it waits until the drive is connected again. Eject on Sleep never ejects this drive.</key>
+	<string>Elige un disco externo. Mientras está conectado y la Mac está enchufada, Wakely se activa solo, así que puedes cerrar la tapa y dejar que una copia de seguridad o una copia siga en marcha. Solo se activa con la tapa abierta y muestra una notificación cada vez que se activa. Cuando expulsas o desconectas el disco, la Mac entra en reposo como siempre. Si desenchufas el cargador, la Mac también entra en reposo como siempre. Si desactivas Wakely mientras el disco está conectado, espera hasta que el disco se vuelva a conectar. «Expulsar en reposo» nunca expulsa este disco.</string>
+	<key>Choose…</key>
+	<string>Elegir…</string>
+	<key>Wakely</key>
+	<string>Wakely</string>
+	<key>Wakely %@</key>
+	<string>%@ de Wakely</string>
+	<key>Wakely Beta</key>
+	<string>Wakely Beta</string>
+	<key>Wakely Beta and Wakely can't run at the same time, because both control what happens when you close the lid. Quit Wakely to use the beta.</key>
+	<string>Wakely Beta y Wakely no pueden ejecutarse a la vez, porque ambos controlan lo que pasa al cerrar la tapa. Sal de Wakely para usar la beta.</string>
+	<key>Wakely Beta could not check your invite for a week. Connect to the internet and join again.</key>
+	<string>Wakely Beta no ha podido comprobar tu invitación durante una semana. Conéctate a internet y vuelve a unirte.</string>
+	<key>Wakely Beta is quitting</key>
+	<string>Wakely Beta se cerrará</string>
+	<key>Wakely Settings</key>
+	<string>Configuración de Wakely</string>
+	<key>Wakely Status</key>
+	<string>Estado de Wakely</string>
+	<key>Wakely armed</key>
+	<string>Wakely activado</string>
+	<key>Wakely armed until %@</key>
+	<string>Wakely activado hasta %@</string>
+	<key>Wakely armed.</key>
+	<string>Wakely está activado.</string>
+	<key>Wakely armed: %@</key>
+	<string>Wakely activado: %@</string>
+	<key>Wakely arms between these times while your Mac is plugged in.</key>
+	<string>Wakely se activa entre estas horas mientras la Mac está enchufada.</string>
+	<key>Wakely arms by itself on the days and hours you choose.</key>
+	<string>Wakely se activa solo los días y a las horas que elijas.</string>
+	<key>Wakely arms while this app runs.</key>
+	<string>Wakely se activa mientras esta app se ejecuta.</string>
+	<key>Wakely arms while this drive is connected.</key>
+	<string>Wakely se activa mientras este disco está conectado.</string>
+	<key>Wakely arms while your Mac is on this Wi-Fi network and plugged in.</key>
+	<string>Wakely se activa mientras la Mac está en esta red Wi-Fi y enchufada.</string>
+	<key>Wakely copies a short prompt. Paste it into your agent and say what your component should do. The agent may ask once to read Wakely's component folder. Allow it.</key>
+	<string>Wakely copia un prompt breve. Pégalo en tu agente y di qué debe hacer tu componente. Puede que el agente pida una vez permiso para leer la carpeta de componentes de Wakely. Permítelo.</string>
+	<key>Wakely could not change the Mac's sleep setting. Try again.</key>
+	<string>Wakely no pudo cambiar la configuración de reposo de la Mac. Inténtalo de nuevo.</string>
+	<key>Wakely could not confirm that only the built-in display is active, so it did not arm. Disconnect any external displays, then try again.</key>
+	<string>Wakely no pudo confirmar que solo la pantalla integrada esté activa, por lo que no se activó. Desconecta todas las pantallas externas y vuelve a intentarlo.</string>
+	<key>Wakely could not darken the built-in display</key>
+	<string>Wakely no pudo oscurecer la pantalla integrada</string>
+	<key>Wakely could not re-arm</key>
+	<string>Wakely no pudo reactivarse</string>
+	<key>Wakely could not restore display brightness</key>
+	<string>Wakely no pudo restaurar el brillo de la pantalla</string>
+	<key>Wakely could not restore lid sleep</key>
+	<string>Wakely no pudo restaurar el reposo al cerrar la tapa</string>
+	<key>Wakely could not turn off the screen</key>
+	<string>Wakely no pudo apagar la pantalla</string>
+	<key>Wakely could not verify the display setup. Disconnect any additional displays and try again.</key>
+	<string>Wakely no pudo verificar la configuración de las pantallas. Desconecta cualquier pantalla adicional y vuelve a intentarlo.</string>
+	<key>Wakely could not verify your displays</key>
+	<string>Wakely no pudo verificar las pantallas</string>
+	<key>Wakely couldn't turn on Option + Option, so settings were not changed.</key>
+	<string>Wakely no pudo activar Opción + Opción, por lo que no se cambiaron los ajustes.</string>
+	<key>Wakely couldn’t read your shortcuts.</key>
+	<string>Wakely no pudo leer tus atajos.</string>
+	<key>Wakely did not arm</key>
+	<string>Wakely no se activó</string>
+	<key>Wakely did not arm because Always On While Plugged In is set not to arm on battery. Plug in your Mac, then try again.</key>
+	<string>Wakely no se activó porque «Siempre activa enchufada» está configurado para no activarse con batería. Enchufa la Mac y vuelve a intentarlo.</string>
+	<key>Wakely did not arm because an additional display is connected. Disconnect it and try again.</key>
+	<string>Wakely no se activó porque hay una pantalla adicional conectada. Desconéctala y vuelve a intentarlo.</string>
+	<key>Wakely did not arm because macOS reports high thermal pressure. Let the Mac cool, then try again.</key>
+	<string>Wakely no se activó porque macOS informa una presión térmica alta. Deja que la Mac se enfríe y vuelve a intentarlo.</string>
+	<key>Wakely did not arm because one of its components refused this request.</key>
+	<string>Wakely no se activó porque uno de sus componentes rechazó esta solicitud.</string>
+	<key>Wakely did not arm. Disconnect any additional displays and try again.</key>
+	<string>Wakely no se activó. Desconecta cualquier pantalla adicional y vuelve a intentarlo.</string>
+	<key>Wakely disarmed</key>
+	<string>Wakely desactivado</string>
+	<key>Wakely disarmed as a precaution</key>
+	<string>Wakely se desactivó por precaución</string>
+	<key>Wakely disarmed because your Mac was unplugged</key>
+	<string>Wakely se desactivó porque la Mac se desconectó de la corriente</string>
+	<key>Wakely disarmed to let your Mac cool</key>
+	<string>Wakely se desactivó para permitir que la Mac se enfríe</string>
+	<key>Wakely disarmed.</key>
+	<string>Wakely está desactivado.</string>
+	<key>Wakely does not recognize the setting “%@”.</key>
+	<string>Wakely no reconoce el ajuste «%@».</string>
+	<key>Wakely is %@.</key>
+	<string>Wakely está %@.</string>
+	<key>Wakely is activated on this Mac. To use it on another Mac, deactivate it here first.</key>
+	<string>Wakely está activado en esta Mac. Para usarlo en otra Mac, desactívalo aquí primero.</string>
+	<key>Wakely is already in that state.</key>
+	<string>Wakely ya está en ese estado.</string>
+	<key>Wakely is already running</key>
+	<string>Wakely ya se está ejecutando</string>
+	<key>Wakely is for closed-lid use without an external display. Disconnect the display to arm it; macOS already handles this setup.</key>
+	<string>Wakely está diseñado para usar la Mac con la tapa cerrada y sin una pantalla externa. Desconecta la pantalla para activarlo; macOS ya gestiona esta configuración.</string>
+	<key>Wakely is not activated. Start the trial or buy a license, then try again.</key>
+	<string>Wakely no tiene una licencia activa. Inicia la prueba o compra una licencia y vuelve a intentarlo.</string>
+	<key>Wakely is not armed.</key>
+	<string>Wakely no está activado.</string>
+	<key>Wakely is not ready yet. Try again in a moment.</key>
+	<string>Wakely aún no está listo. Vuelve a intentarlo en un momento.</string>
+	<key>Wakely is now activated on this Mac. You're all set.</key>
+	<string>La licencia de Wakely ya está activa en esta Mac. Todo listo.</string>
+	<key>Wakely is paused until all external displays disconnect.</key>
+	<string>Wakely está en pausa hasta que se desconecten todas las pantallas externas.</string>
+	<key>Wakely is retrying. Until the warning icon clears, open the lid before leaving your Mac; restarting the Mac always resets this setting.</key>
+	<string>Wakely está volviendo a intentarlo. Hasta que desaparezca el ícono de advertencia, abre la tapa antes de alejarte de la Mac; reiniciar la Mac siempre restablece esta configuración.</string>
+	<key>Wakely is unlocked. Thanks for your support.</key>
+	<string>Wakely está desbloqueado. Gracias por tu apoyo.</string>
+	<key>Wakely is yours.</key>
+	<string>Wakely es tuyo.</string>
+	<key>Wakely keeps your Mac awake until the agents you handed off are done, then lets it sleep. Open the lid to cancel. A notification tells you how it went.</key>
+	<string>Wakely mantiene tu Mac activa hasta que los agentes que delegaste terminan y luego lo deja entrar en reposo. Abre la tapa para cancelar. Una notificación te cuenta cómo fue.</string>
+	<key>Wakely keeps your Mac awake until those apps are done, then lets it sleep 2 minutes later. Open the lid to cancel. A notification tells you how it went.</key>
+	<string>Wakely mantiene tu Mac activa hasta que esas apps terminan y luego lo deja entrar en reposo 2 minutos después. Abre la tapa para cancelar. Una notificación te cuenta cómo fue.</string>
+	<key>Wakely keeps your Mac awake with the lid closed only while it's connected to power. On battery it won't arm, and if you unplug while it's armed, Wakely turns off so your Mac sleeps normally. Plugging back in doesn't turn it on again, though Always On at Home and the trigger components can.</key>
+	<string>Wakely mantiene la Mac activa con la tapa cerrada solo mientras está conectada a la corriente. Con batería no se activa, y si desconectas la Mac mientras Wakely está activado, se desactiva para que la Mac entre en reposo con normalidad. Volver a conectarla no lo activa de nuevo, aunque «Siempre activa en casa» y los componentes de activadores sí pueden.</string>
+	<key>Wakely keeps your Mac awake with the lid closed only while it's connected to power. On battery it won't arm, and if you unplug while it's armed, Wakely turns off so your Mac sleeps normally. Plugging back in doesn't turn it on again.</key>
+	<string>Wakely mantiene la Mac activa con la tapa cerrada solo mientras está conectada a la corriente. Con batería no se activa, y si desconectas la Mac mientras Wakely está activado, se desactiva para que la Mac entre en reposo con normalidad. Volver a conectarla no lo activa de nuevo.</string>
+	<key>Wakely let your Mac sleep after %@.</key>
+	<string>Wakely dejó que tu Mac entrara en reposo después de %@.</string>
+	<key>Wakely lives up here</key>
+	<string>Wakely está aquí arriba</string>
+	<key>Wakely needs Accessibility access to stop Caps Lock from typing capital letters. In password fields, Caps Lock turns off while you type and comes back on when you leave.</key>
+	<string>Wakely necesita acceso de accesibilidad para que Bloq Mayús no escriba en mayúsculas. En los campos de contraseña, Bloq Mayús se desactiva mientras escribes y se vuelve a activar al salir.</string>
+	<key>Wakely needs Bluetooth access to turn Bluetooth off while your closed Mac sleeps and back on when you open the lid.</key>
+	<string>Wakely necesita acceso a Bluetooth para apagarlo mientras tu Mac duerme con la tapa cerrada y volver a encenderlo al abrir la tapa.</string>
+	<key>Wakely needs an active Setapp subscription before settings can be changed.</key>
+	<string>Wakely necesita una suscripción activa a Setapp para poder cambiar los ajustes.</string>
+	<key>Wakely needs this once to change Power Nap and network wake.</key>
+	<string>Wakely lo necesita una vez para cambiar Power Nap y el despertar por red.</string>
+	<key>Wakely needs this once to change how your Mac starts up.</key>
+	<string>Wakely lo necesita una vez para cambiar cómo arranca tu Mac.</string>
+	<key>Wakely needs this once to change the MagSafe light.</key>
+	<string>Wakely lo necesita una vez para cambiar la luz de MagSafe.</string>
+	<key>Wakely needs this once to change the fan speed.</key>
+	<string>Wakely lo necesita una vez para cambiar la velocidad de los ventiladores.</string>
+	<key>Wakely needs this once to turn Touch ID off when you close the lid.</key>
+	<string>Wakely lo necesita una vez para desactivar Touch ID cuando cierras la tapa.</string>
+	<key>Wakely needs this once to turn on Low Power Mode.</key>
+	<string>Wakely lo necesita una vez para activar el modo de bajo consumo.</string>
+	<key>Wakely needs this once to wake your Mac when a usage limit resets.</key>
+	<string>Wakely lo necesita una vez para despertar tu Mac cuando se restablezca un límite de uso.</string>
+	<key>Wakely not armed</key>
+	<string>Wakely no está activado</string>
+	<key>Wakely now turns the display off with the lid closed</key>
+	<string>Wakely ahora apaga la pantalla con la tapa cerrada</string>
+	<key>Wakely only works without an external display. Disconnect the display, then try again. macOS already handles closed-lid use with an external display.</key>
+	<string>Wakely solo funciona sin una pantalla externa. Desconecta la pantalla y vuelve a intentarlo. macOS ya gestiona el uso con la tapa cerrada cuando hay una pantalla externa.</string>
+	<key>Wakely opened, and the two can't run at the same time. Quit Wakely, then open Wakely Beta again.</key>
+	<string>Se abrió Wakely y ambos no pueden ejecutarse a la vez. Sal de Wakely y vuelve a abrir Wakely Beta.</string>
+	<key>Wakely paused</key>
+	<string>Wakely en pausa</string>
+	<key>Wakely paused for external display</key>
+	<string>Wakely en pausa por una pantalla externa</string>
+	<key>Wakely paused for your display</key>
+	<string>Wakely está en pausa por la pantalla</string>
+	<key>Wakely restored the display. Lock your Mac manually before leaving it unattended.</key>
+	<string>Wakely restauró la pantalla. Bloquea tu Mac manualmente antes de dejarla desatendida.</string>
+	<key>Wakely session interrupted</key>
+	<string>Sesión interrumpida</string>
+	<key>Wakely settings were not changed.</key>
+	<string>Los ajustes de Wakely no se cambiaron.</string>
+	<key>Wakely stays armed all the time, plugged in or on battery, lid open or closed, so your Mac keeps running with the lid closed. Open at Login stays on, so Wakely is back after a restart. Low battery and heat still turn it off, and it arms again once your Mac is safe. To reach your Mac from another computer, turn on Remote Login or Screen Sharing in System Settings › General › Sharing.</key>
+	<string>Wakely sigue activado todo el tiempo, enchufada o con batería, con la tapa abierta o cerrada, para que tu Mac siga funcionando con la tapa cerrada. Abrir al iniciar sesión sigue activado, para que Wakely vuelva después de reiniciar. La batería baja y el calor lo siguen desactivando, y se vuelve a activar en cuanto la Mac esté segura. Para acceder a la Mac desde otra computadora, activa Sesión remota o Compartir pantalla en Configuración del Sistema › General › Compartir.</string>
+	<key>Wakely turned off</key>
+	<string>Wakely se desactivó</string>
+	<key>Wakely's logs (titles and names redacted), build, macOS version, Mac model, which components are on and your track.</key>
+	<string>Los registros de Wakely (con títulos y nombres ocultos), la compilación, la versión de macOS, el modelo de Mac, los componentes activados y tu grupo.</string>
+	<key>Claude Code and Codex</key>
+	<string>Claude Code y Codex</string>
+	<key>Claude Code and Codex agents show up here.</key>
+	<string>Los agentes de Claude Code y Codex aparecen aquí.</string>
+	<key>Cleaning Lock</key>
+	<string>Bloqueo para limpiar</string>
+	<key>Clear Search</key>
+	<string>Borrar búsqueda</string>
+	<key>Click a boxed word to switch it.</key>
+	<string>Haz clic en una palabra recuadrada para cambiarla.</string>
+	<key>Click to dismiss</key>
+	<string>Haz clic para descartar</string>
+	<key>Close</key>
+	<string>Cerrar</string>
+	<key>Close Window</key>
+	<string>Cerrar ventana</string>
+	<key>Close the MacBook lid</key>
+	<string>Cierra la tapa de tu MacBook</string>
+	<key>Close the lid and Battery Budget counts the battery your Mac uses on battery power. At 15 percent, Wakely disarms so your Mac can sleep.</key>
+	<string>Cierra la tapa y Presupuesto de batería cuenta la batería que usa la Mac cuando funciona con batería. Al llegar al 15 por ciento, Wakely se desactiva para que la Mac pueda entrar en reposo.</string>
+	<key>Close the lid and Keep Awake turns off, so your Mac sleeps as usual. If Wakely is armed, it keeps your Mac awake with the lid closed, like always.</key>
+	<string>Al cerrar la tapa, Mantener activa se desactiva y la Mac entra en reposo como siempre. Si Wakely está activado, la Mac sigue activa con la tapa cerrada, como de costumbre.</string>
+	<key>Close the lid and the next unlock needs your password.</key>
+	<string>Cierra la tapa y para el siguiente desbloqueo necesitarás tu contraseña.</string>
+	<key>Close the lid and your “Lid Closed” shortcut runs; open it and “Lid Opened” runs. Wakely never waits for them, and while one is running and for 5 seconds after, up to 60 seconds in all, it can’t arm Wakely.</key>
+	<string>Cierra la tapa y se ejecuta tu atajo “Lid Closed”; ábrela y se ejecuta “Lid Opened”. Wakely nunca los espera y, mientras uno está en ejecución y durante 5 segundos después, hasta 60 segundos en total, no puede activar Wakely.</string>
+	<key>Close the lid while Wakely is armed and Shell plays, so you know your Mac is staying awake. When Wakely isn't armed, closing the lid stays silent.</key>
+	<string>Cierra la tapa con Wakely activado y suena Valva, para que sepas que la Mac sigue activa. Si Wakely no está activado, cerrar la tapa no suena.</string>
+	<key>Close the lid, Touch ID turns off</key>
+	<string>Cierras la tapa y Touch ID se desactiva</string>
+	<key>Close your MacBook and it keeps working. Your AI agents keep running while you walk away.</key>
+	<string>Cierra tu MacBook y seguirá funcionando. Tus agentes de IA seguirán ejecutándose mientras te alejas.</string>
+	<key>Closed</key>
+	<string>Cerrado</string>
+	<key>Closed lid</key>
+	<string>Tapa cerrada</string>
+	<key>Closed-lid use</key>
+	<string>Uso con la tapa cerrada</string>
+	<key>Closing the lid</key>
+	<string>Al cerrar la tapa</string>
+	<key>Closing the lid ends it</key>
+	<string>Al cerrar la tapa, termina</string>
+	<key>Closing the lid mutes your Mac; opening it brings the sound back.</key>
+	<string>Al cerrar la tapa la Mac se silencia; al abrirla vuelve el sonido.</string>
+	<key>Connect a drive and it arms</key>
+	<string>Conecta un disco y se activa</string>
+	<key>Connect and it arms</key>
+	<string>Conéctate y se activa</string>
+	<key>Connections</key>
+	<string>Conexiones</string>
+	<key>Continue</key>
+	<string>Continuar</string>
+	<key>Copied</key>
+	<string>Copiado</string>
+	<key>Copies a report you can paste into an email to hello@wakely.dev. Nothing is sent.</key>
+	<string>Copia un informe que puedes pegar en un correo a hello@wakely.dev. No se envía nada.</string>
+	<key>Copy</key>
+	<string>Copiar</string>
+	<key>Copy Fix Prompt</key>
+	<string>Copiar prompt de corrección</string>
+	<key>Copy Prompt</key>
+	<string>Copiar prompt</string>
+	<key>Copy diagnostics for support</key>
+	<string>Copiar diagnóstico para soporte</string>
+	<key>Copy the prompt for a new component</key>
+	<string>Copiar el prompt para un componente nuevo</string>
+	<key>Could not activate</key>
+	<string>No se pudo activar la licencia</string>
+	<key>Could not deactivate</key>
+	<string>No se pudo desactivar la licencia</string>
+	<key>Could not reach the beta server. Check your connection and try again.</key>
+	<string>No se ha podido conectar con el servidor de la beta. Comprueba tu conexión e inténtalo de nuevo.</string>
+	<key>Could not reach the license server to free this Mac's seat, so nothing was changed. Check your connection and try again.</key>
+	<string>No se pudo contactar al servidor de licencias para liberar el cupo de esta Mac, por lo que no se cambió nada. Revisa tu conexión y vuelve a intentarlo.</string>
+	<key>Could not reach the license server. Check your connection and try again.</key>
+	<string>No se pudo contactar al servidor de licencias. Revisa tu conexión y vuelve a intentarlo.</string>
+	<key>Cover length</key>
+	<string>Duración de la cubierta</string>
+	<key>Crash recovery is not active</key>
+	<string>La recuperación tras una falla no está activa</string>
+	<key>Current Network</key>
+	<string>Red actual</string>
+	<key>Custom</key>
+	<string>Propios</string>
+	<key>Cut</key>
+	<string>Cortar</string>
+	<key>Days</key>
+	<string>Días</string>
+	<key>Deactivate</key>
+	<string>Desactivar</string>
+	<key>Deactivate Wakely</key>
+	<string>Desactivar Wakely</string>
+	<key>Deactivate on this Mac</key>
+	<string>Desactivar en esta Mac</string>
+	<key>Deactivate on this Mac?</key>
+	<string>¿Desactivar en esta Mac?</string>
+	<key>Deactivated</key>
+	<string>Licencia desactivada</string>
+	<key>Defaults restored</key>
+	<string>Valores predeterminados restaurados</string>
+	<key>Describe a component and an AI coding agent builds it.</key>
+	<string>Describe un componente y un agente de programación con IA lo crea.</string>
+	<key>Describe a component you'd want: what it would do, and when you'd use it.</key>
+	<string>Describe un componente que te gustaría: qué haría y cuándo lo usarías.</string>
+	<key>Details</key>
+	<string>Detalles</string>
+	<key>Disarm</key>
+	<string>Desactivar</string>
+	<key>Disarm ${applicationName}</key>
+	<string>Desactivar ${applicationName}</string>
+	<key>Disarm Wakely</key>
+	<string>Desactivar Wakely</string>
+	<key>Disarm on low battery</key>
+	<string>Desactivar cuando la batería esté baja</string>
+	<key>Disarm on low battery threshold</key>
+	<string>Umbral de batería baja para desactivar</string>
+	<key>Disconnect and it sleeps</key>
+	<string>Desconéctate y entra en reposo</string>
+	<key>Disconnect the external display</key>
+	<string>Desconecta la pantalla externa</string>
+	<key>Dismiss</key>
+	<string>Descartar</string>
+	<key>Dismisses this explanation</key>
+	<string>Descarta esta explicación</string>
+	<key>Display off after</key>
+	<string>Pantalla apagada tras</string>
+	<key>Displays could not be checked</key>
+	<string>No se pudieron comprobar las pantallas</string>
+	<key>Don't share</key>
+	<string>No compartir</string>
+	<key>Done</key>
+	<string>Listo</string>
+	<key>Don’t show again</key>
+	<string>No volver a mostrar</string>
+	<key>Drag %@ into the list above</key>
+	<string>Arrastra %@ a la lista de arriba</string>
+	<key>Drag me</key>
+	<string>Arrástrame</string>
+	<key>Drag or scroll a value to change it, or click to type one.</key>
+	<string>Arrastra o desplázate sobre un valor para cambiarlo, o haz clic para escribirlo.</string>
+	<key>Drive</key>
+	<string>Disco</string>
+	<key>Drives</key>
+	<string>Discos</string>
+	<key>Each close starts the clock fresh</key>
+	<string>Cada cierre reinicia el reloj</string>
+	<key>Each component teaches Wakely one extra trick, like keeping the screen on for agents. Wakely works fully without them.</key>
+	<string>Cada componente enseña a Wakely un truco más, como mantener la pantalla encendida para los agentes. Wakely funciona por completo sin ellos.</string>
+	<key>Edit</key>
+	<string>Edición</string>
+	<key>Edit prompt copied. Paste it into your agent.</key>
+	<string>Prompt de edición copiado. Pégalo en tu agente.</string>
+	<key>Edit with Your Agent</key>
+	<string>Editar con tu agente</string>
+	<key>Eject it and your Mac sleeps</key>
+	<string>Expúlsalo y la Mac entra en reposo</string>
+	<key>Eject on Sleep</key>
+	<string>Expulsar en reposo</string>
+	<key>End</key>
+	<string>Fin</string>
+	<key>End time</key>
+	<string>Hora de fin</string>
+	<key>Ended with an error</key>
+	<string>Terminó con un error</string>
+	<key>Enjoy Wakely.</key>
+	<string>Disfruta de Wakely.</string>
+	<key>Enter License Key</key>
+	<string>Introducir clave de licencia</string>
+	<key>Enter a license key</key>
+	<string>Ingresa una clave de licencia</string>
+	<key>Enter the invite code from your invite email, read the notice, then agree to start testing.</key>
+	<string>Introduce el código de tu correo de invitación, lee el aviso y acepta para empezar a probar.</string>
+	<key>Enter the invite code from your invite email.</key>
+	<string>Introduce el código de tu correo de invitación.</string>
+	<key>Enter your license key</key>
+	<string>Ingresa tu clave de licencia</string>
+	<key>Esc hold</key>
+	<string>Mantener Esc</string>
+	<key>Every Day</key>
+	<string>Todos los días</string>
+	<key>Every day</key>
+	<string>Cada día</string>
+	<key>Every day from %1$@ to %2$@, while your Mac is plugged in, Wakely arms by itself, so you can close the lid. It arms at the start time, or when you open the lid during those hours, and posts one notification each time it arms. It never wakes a sleeping Mac. At the end time, Wakely disarms so your Mac sleeps normally. Unplug it and your Mac sleeps normally too. If you turn Wakely off during those hours, it waits until they start again.</key>
+	<string>Cada día de %1$@ a %2$@, mientras la Mac está enchufada, Wakely se activa solo, así que puedes cerrar la tapa. Se activa a la hora de inicio, o cuando abres la tapa durante esas horas, y muestra una notificación cada vez que se activa. Nunca despierta una Mac en reposo. A la hora de fin, Wakely se desactiva para que la Mac entre en reposo como siempre. Si la desenchufas, la Mac también entra en reposo como siempre. Si desactivas Wakely durante esas horas, espera hasta que vuelvan a empezar.</string>
+	<key>Every component works during the trial.</key>
+	<string>Todos los componentes funcionan durante la prueba.</string>
+	<key>Every time you close the lid, Wakely runs your shortcut named “%1$@”, and every time you open it, the one named “%2$@”. Make either one in the Shortcuts app, or pick one you already have. Wakely never waits for a shortcut, so when Wakely isn’t armed, your Mac may go to sleep before the close shortcut finishes. A shortcut that is still running from an earlier lid change isn’t started again. While a shortcut it started is running and for 5 seconds after, up to 60 seconds in all, Wakely refuses arm requests that come from shortcuts and links.</key>
+	<string>Cada vez que cierras la tapa, Wakely ejecuta tu atajo llamado “%1$@”, y cada vez que la abres, el llamado “%2$@”. Crea uno o los dos en la app Atajos, o elige uno que ya tengas. Wakely nunca espera a un atajo, así que si Wakely no está activado, la Mac puede entrar en reposo antes de que termine el atajo de cierre. Un atajo que sigue en ejecución desde un cambio anterior de la tapa no se vuelve a iniciar. Mientras un atajo que inició esté en ejecución y durante 5 segundos después, hasta 60 segundos en total, Wakely rechaza las solicitudes de activación procedentes de atajos y enlaces.</string>
+	<key>Every time you close the lid, Wakely runs your shortcut named “Lid Closed”, and every time you open it, the one named “Lid Opened”. Make either one in the Shortcuts app; there is nothing to pick. Wakely never waits for a shortcut, so when Wakely isn’t armed, your Mac may go to sleep before Lid Closed finishes. A shortcut that is still running from an earlier lid change isn’t started again. While a shortcut it started is running and for 5 seconds after, up to 60 seconds in all, Wakely refuses arm requests that come from shortcuts and links.</key>
+	<string>Cada vez que cierras la tapa, Wakely ejecuta tu atajo llamado “Lid Closed”, y cada vez que la abres, el llamado “Lid Opened”. Crea uno o los dos en la app Atajos; no hay nada que elegir. Wakely nunca espera a un atajo, así que si Wakely no está activado, la Mac puede entrar en reposo antes de que termine Lid Closed. Un atajo que sigue en ejecución desde un cambio anterior de la tapa no se vuelve a iniciar. Mientras un atajo que inició esté en ejecución y durante 5 segundos después, hasta 60 segundos en total, Wakely rechaza las solicitudes de activación procedentes de atajos y enlaces.</string>
+	<key>External display</key>
+	<string>Pantalla externa</string>
+	<key>Fan Boost</key>
+	<string>Impulso de ventiladores</string>
+	<key>Fan speed</key>
+	<string>Velocidad de los ventiladores</string>
+	<key>Feedback</key>
+	<string>Comentarios</string>
+	<key>Feedback message</key>
+	<string>Mensaje de comentarios</string>
+	<key>Finish Jobs, Then Sleep</key>
+	<string>Terminar las tareas y luego reposo</string>
+	<key>Finish Work, Then Sleep</key>
+	<string>Terminar el trabajo y luego reposo</string>
+	<key>Finished</key>
+	<string>Terminado</string>
+	<key>Fix prompt copied. Paste it into your agent.</key>
+	<string>Prompt de corrección copiado. Pégalo en tu agente.</string>
+	<key>Flip the switch on Quiet Close: it really turns on. A component with a short walkthrough shows it first and turns on when you finish.</key>
+	<string>Activa el interruptor de Cierre silencioso: se activa de verdad. Un componente con una introducción corta la muestra primero y se activa al terminarla.</string>
+	<key>Found. Runs every time you close the lid.</key>
+	<string>Encontrado. Se ejecuta cada vez que cierras la tapa.</string>
+	<key>Found. Runs every time you open the lid.</key>
+	<string>Encontrado. Se ejecuta cada vez que abres la tapa.</string>
+	<key>Free trial</key>
+	<string>Prueba gratuita</string>
+	<key>Free trial available</key>
+	<string>Prueba gratuita disponible</string>
+	<key>Full fan speed while your Mac is closed.</key>
+	<string>Ventiladores a toda velocidad mientras tu Mac está cerrada.</string>
+	<key>General</key>
+	<string>General</string>
+	<key>Get it for %@ until %@, then it's %@.</key>
+	<string>Consíguelo por %@ hasta el %@; después cuesta %@.</string>
+	<key>GitHub or a forum</key>
+	<string>GitHub o un foro</string>
+	<key>Green</key>
+	<string>Verde</string>
+	<key>Green for</key>
+	<string>Verde durante</string>
+	<key>Hand off from the menu bar</key>
+	<string>Delega desde la barra de menús</string>
+	<key>Heat and battery cutoffs</key>
+	<string>Protección por calor y batería</string>
+	<key>Help improve Wakely</key>
+	<string>Ayuda a mejorar Wakely</string>
+	<key>Hold Esc for 3 seconds to end early.</key>
+	<string>Mantén presionada Esc 3 segundos para terminar antes.</string>
+	<key>Hold Option, close the lid</key>
+	<string>Mantén Opción y cierra la tapa</string>
+	<key>Hold the Option key</key>
+	<string>Mantén presionada la tecla Opción</string>
+	<key>Home Server</key>
+	<string>Servidor doméstico</string>
+	<key>Home Server, Always Armed</key>
+	<string>Servidor doméstico, siempre activado</string>
+	<key>Homebrew, Raycast, a coding agent</key>
+	<string>Homebrew, Raycast, un agente de programación</string>
+	<key>Hours</key>
+	<string>Horario</string>
+	<key>How did you find Wakely?</key>
+	<string>¿Cómo encontraste Wakely?</string>
+	<key>How it works</key>
+	<string>Cómo funciona</string>
+	<key>How long it stays armed</key>
+	<string>Cuánto tiempo sigue activado</string>
+	<key>I don't remember</key>
+	<string>No lo recuerdo</string>
+	<key>Idle time</key>
+	<string>Tiempo de inactividad</string>
+	<key>If it stays awake in your bag</key>
+	<string>Si se queda activa en tu mochila</string>
+	<key>If nothing is working for %1$@ with the lid closed, Wakely disarms so your Mac can sleep, and a notification tells you why. Working means an AI agent running, a download or copy, audio playing, or a busy processor. Any of these starts the wait again.</key>
+	<string>Si nada está trabajando durante %1$@ con la tapa cerrada, Wakely se desactiva para que la Mac pueda entrar en reposo, y una notificación te dice por qué. Trabajar significa un agente de IA en marcha, una descarga o copia, audio reproduciéndose o un procesador ocupado. Cualquiera de ellos reinicia la espera.</string>
+	<key>If your Mac stays awake with the lid closed while Wakely is off, it shows up here.</key>
+	<string>Si la Mac permanece activa con la tapa cerrada mientras Wakely está desactivado, aparecerá aquí.</string>
+	<key>Indefinitely</key>
+	<string>Sin límite</string>
+	<key>Install updates automatically</key>
+	<string>Instalar actualizaciones automáticamente</string>
+	<key>Interrupted</key>
+	<string>Interrumpido</string>
+	<key>Invite code</key>
+	<string>Código de invitación</string>
+	<key>It appears here</key>
+	<string>Aparece aquí</string>
+	<key>It arms Wakely for your next close. Right-clicking the menu bar icon does the same.</key>
+	<string>Así activas Wakely para la próxima vez que cierres la tapa. Hacer clic derecho en el ícono de la barra de menús hace lo mismo.</string>
+	<key>It arms when your hours start</key>
+	<string>Se activa cuando empiezan tus horas</string>
+	<key>It stays on until you turn it off</key>
+	<string>Sigue activado hasta que lo desactives</string>
+	<key>It wakes for every reset</key>
+	<string>Se despierta en cada restablecimiento</string>
+	<key>It wakes when the limit resets</key>
+	<string>Se despierta cuando se restablece el límite</string>
+	<key>It worked in the trial</key>
+	<string>Funcionó durante la prueba</string>
+	<key>It works like the others</key>
+	<string>Funciona como los demás</string>
+	<key>Its folder moves to the Trash and its settings are forgotten. If it is keeping your Mac awake, your Mac sleeps normally.</key>
+	<string>Su carpeta va a la Papelera y se olvidan sus ajustes. Si está manteniendo activa tu Mac, esta entra en reposo con normalidad.</string>
+	<key>Join Wakely Beta</key>
+	<string>Unirse a Wakely Beta</string>
+	<key>Join Wakely Beta…</key>
+	<string>Unirse a Wakely Beta…</string>
+	<key>Join your network and it arms</key>
+	<string>En tu red, se activa</string>
+	<key>Joining…</key>
+	<string>Uniéndote…</string>
+	<key>Keep Awake</key>
+	<string>Mantener activa</string>
+	<key>Keep this Mac awake with the lid closed and the built-in display off.</key>
+	<string>Mantén esta Mac activa con la tapa cerrada y la pantalla integrada apagada.</string>
+	<key>Keep your Mac awake with the lid closed.</key>
+	<string>Mantén tu Mac activa con la tapa cerrada.</string>
+	<key>Keep your Mac awake with the lid open from the menu bar, indefinitely, while your agents work, or for a set time. The menu offers %1$@ length: %2$@. While it's on, the screen %3$@. Closing the lid ends it and your Mac sleeps as usual, unless Wakely is armed. It also ends if your Mac gets too hot or the battery runs low.</key>
+	<string>Mantén la Mac activa con la tapa abierta desde la barra de menús, sin límite, mientras tus agentes trabajen o durante un tiempo fijo. El menú ofrece %1$@ duración: %2$@. Mientras está activo, la pantalla %3$@. Al cerrar la tapa termina y la Mac entra en reposo como siempre, salvo que Wakely esté activado. También termina si la Mac se calienta demasiado o la batería está baja.</string>
+	<key>Keep your Mac awake with the lid open from the menu bar, indefinitely, while your agents work, or for a set time. The menu offers %1$@ lengths: %2$@. While it's on, the screen %3$@. Closing the lid ends it and your Mac sleeps as usual, unless Wakely is armed. It also ends if your Mac gets too hot or the battery runs low.</key>
+	<string>Mantén la Mac activa con la tapa abierta desde la barra de menús, sin límite, mientras tus agentes trabajen o durante un tiempo fijo. El menú ofrece %1$@ duraciones: %2$@. Mientras está activo, la pantalla %3$@. Al cerrar la tapa termina y la Mac entra en reposo como siempre, salvo que Wakely esté activado. También termina si la Mac se calienta demasiado o la batería está baja.</string>
+	<key>Keep your agents running with the lid closed. %@ once, yours forever.</key>
+	<string>Mantén tus agentes funcionando con la tapa cerrada. %@ una sola vez, tuyo para siempre.</string>
+	<key>Kept awake by</key>
+	<string>Mantenida activa por</string>
+	<key>Keyboard</key>
+	<string>Teclado</string>
+	<key>Keys and clicks do nothing until the countdown ends.</key>
+	<string>Las teclas y los clics no hacen nada hasta que termine la cuenta regresiva.</string>
+	<key>Know when an agent needs you or is done.</key>
+	<string>Entérate cuando un agente te necesita o termina.</string>
+	<key>Known Networks</key>
+	<string>Redes conocidas</string>
+	<key>Last day: Wakely for %@</key>
+	<string>Último día: Wakely por %@</string>
+	<key>Last time</key>
+	<string>Última vez</string>
+	<key>Latch</key>
+	<string>Pestillo</string>
+	<key>Left Option key</key>
+	<string>Tecla Opción izquierda</string>
+	<key>Length %1$d of %2$d</key>
+	<string>Duración %1$d de %2$d</string>
+	<key>Let agents use the screen while the lid is closed</key>
+	<string>Acceso de los agentes a la pantalla</string>
+	<key>Let downloads, exports and backups finish, then let your Mac sleep.</key>
+	<string>Deja que terminen las descargas, exportaciones y copias de seguridad y luego deja que tu Mac entre en reposo.</string>
+	<key>Let this Mac sleep normally when the lid closes.</key>
+	<string>Permite que esta Mac entre en reposo normalmente al cerrar la tapa.</string>
+	<key>Let your agents finish, then let your Mac sleep.</key>
+	<string>Deja que tus agentes terminen y luego deja que tu Mac entre en reposo.</string>
+	<key>License</key>
+	<string>Licencia</string>
+	<key>License Agreement</key>
+	<string>Contrato de licencia</string>
+	<key>License activated</key>
+	<string>Licencia activada</string>
+	<key>License required</key>
+	<string>Se requiere una licencia</string>
+	<key>Licensed</key>
+	<string>Con licencia</string>
+	<key>Licensed (annual)</key>
+	<string>Con licencia (anual)</string>
+	<key>Lid Shortcuts</key>
+	<string>Atajos de la tapa</string>
+	<key>Lid close shortcut</key>
+	<string>Atajo al cerrar la tapa</string>
+	<key>Lid closed, Low Power Mode on</key>
+	<string>Tapa cerrada, modo de bajo consumo activado</string>
+	<key>Lid closed, fans at full speed</key>
+	<string>Tapa cerrada, ventiladores a toda velocidad</string>
+	<key>Lid open shortcut</key>
+	<string>Atajo al abrir la tapa</string>
+	<key>Lid or power monitoring is unavailable. Try arming again; if the problem continues, restart Wakely with the lid open.</key>
+	<string>El monitoreo de la tapa o de la alimentación no está disponible. Intenta activar de nuevo; si el problema continúa, reinicia Wakely con la tapa abierta.</string>
+	<key>Lid sleep could not be restored</key>
+	<string>No se pudo restaurar el reposo al cerrar la tapa</string>
+	<key>Lid sleep restoration pending</key>
+	<string>Restauración del reposo al cerrar la tapa pendiente</string>
+	<key>Lid-Close Sound</key>
+	<string>Sonido al cerrar la tapa</string>
+	<key>Lid-close sound</key>
+	<string>Sonido al cerrar la tapa</string>
+	<key>Location Services</key>
+	<string>Localización</string>
+	<key>Lock for Cleaning</key>
+	<string>Bloquear para limpiar</string>
+	<key>Lock the keyboard and trackpad for a minute while you wipe them.</key>
+	<string>Bloquea el teclado y el trackpad un minuto mientras los limpias.</string>
+	<key>Lock the keyboard and trackpad while you wipe them.</key>
+	<string>Bloquea el teclado y el trackpad mientras los limpias.</string>
+	<key>Login Items</key>
+	<string>Ítems de inicio</string>
+	<key>Look for the Wakely mark in your menu bar, at the top right. Hold Option and close the lid anytime to keep working.</key>
+	<string>Busca el símbolo de Wakely en la barra de menús, arriba a la derecha. Mantén presionada Opción y cierra la tapa en cualquier momento para seguir trabajando.</string>
+	<key>Low Power While Closed</key>
+	<string>Bajo consumo con la tapa cerrada</string>
+	<key>Lullaby</key>
+	<string>Canción de cuna</string>
+	<key>MagSafe light</key>
+	<string>Luz de MagSafe</string>
+	<key>Make Your Own</key>
+	<string>Crea el tuyo</string>
+	<key>Make them in Shortcuts</key>
+	<string>Créalos en Atajos</string>
+	<key>Make your own component</key>
+	<string>Crea tu propio componente</string>
+	<key>Maximum time</key>
+	<string>Tiempo máximo</string>
+	<key>Menu row</key>
+	<string>Fila del menú</string>
+	<key>Message</key>
+	<string>Mensaje</string>
+	<key>Component Idea</key>
+	<string>Idea de componente</string>
+	<key>Component idea</key>
+	<string>Idea de componente</string>
+	<key>Components</key>
+	<string>Componentes</string>
+	<key>Components add one thing each</key>
+	<string>Cada componente añade una cosa</string>
+	<key>Components you turn on gather here.</key>
+	<string>Los componentes que actives aparecen aquí.</string>
+	<key>Components you turned on are paused until Wakely is licensed. Turning them off still works.</key>
+	<string>Los componentes que activaste están en pausa hasta que Wakely tenga licencia. Desactivarlos sigue funcionando.</string>
+	<key>Needs Accessibility access</key>
+	<string>Necesita acceso de Accesibilidad</string>
+	<key>Needs Bluetooth access</key>
+	<string>Necesita acceso a Bluetooth</string>
+	<key>Needs Finish Work, Then Sleep</key>
+	<string>Requiere «Terminar el trabajo y luego reposo»</string>
+	<key>Needs Location Services access</key>
+	<string>Necesita acceso a Localización</string>
+	<key>Needs You</key>
+	<string>Te necesita</string>
+	<key>Needs a fix: %@</key>
+	<string>Necesita una corrección: %@</string>
+	<key>Needs approval</key>
+	<string>Necesita aprobación</string>
+	<key>Needs approval in Login Items</key>
+	<string>Necesita tu aprobación en Ítems de inicio</string>
+	<key>Needs your answer</key>
+	<string>Necesita tu respuesta</string>
+	<key>Network</key>
+	<string>Red</string>
+	<key>Network activity</key>
+	<string>Actividad de red</string>
+	<key>No Agents Working</key>
+	<string>Ningún agente trabajando</string>
+	<key>No Power Nap or network wakes while asleep on battery.</key>
+	<string>Sin Power Nap ni despertares por red en reposo con batería.</string>
+	<key>No Wi-Fi network found</key>
+	<string>No se encontró ninguna red Wi-Fi</string>
+	<key>No admin password</key>
+	<string>Sin contraseña de administrador</string>
+	<key>No agents working</key>
+	<string>Ningún agente trabajando</string>
+	<key>No external drives connected</key>
+	<string>No hay discos externos conectados</string>
+	<key>No components are on yet.</key>
+	<string>Todavía no hay componentes activados.</string>
+	<key>No components here yet.</key>
+	<string>Todavía no hay componentes aquí.</string>
+	<key>No components match “%@”.</key>
+	<string>Ningún componente coincide con «%@».</string>
+	<key>No other external drives connected</key>
+	<string>No hay otros discos externos conectados</string>
+	<key>Not Now</key>
+	<string>Ahora no</string>
+	<key>Not chosen</key>
+	<string>Sin elegir</string>
+	<key>Not found. Make a shortcut with exactly this name in the Shortcuts app.</key>
+	<string>No encontrado. Crea un atajo con este nombre exacto en la app Atajos.</string>
+	<key>Not reported</key>
+	<string>Sin informar</string>
+	<key>Not supported on this Mac</key>
+	<string>No compatible con esta Mac</string>
+	<key>Nothing was working for %@ with the lid closed. Wakely disarmed so your Mac can sleep.</key>
+	<string>Nada estuvo trabajando durante %@ con la tapa cerrada. Wakely se desactivó para que la Mac pueda entrar en reposo.</string>
+	<key>Nothing working, it sleeps</key>
+	<string>Sin trabajo, entra en reposo</string>
+	<key>Nothing yet</key>
+	<string>Nada todavía</string>
+	<key>Notification Settings</key>
+	<string>Ajustes de notificaciones</string>
+	<key>Notifications for Wakely are off</key>
+	<string>Las notificaciones de Wakely están desactivadas</string>
+	<key>Number of lengths</key>
+	<string>Número de duraciones</string>
+	<key>OK</key>
+	<string>Aceptar</string>
+	<key>Off</key>
+	<string>Desactivado</string>
+	<key>On</key>
+	<string>Activado</string>
+	<key>On %@</key>
+	<string>Los %@</string>
+	<key>On battery</key>
+	<string>Con batería</string>
+	<key>On battery power, your sleeping Mac no longer wakes for Power Nap or for network access, so it stays asleep. Find My and scheduled wakes keep working, and your settings for the power adapter stay as they are. Wakely changes these once, when you turn this on, and puts your own settings back when you turn it off; a setting you change yourself in the meantime stays yours. Turn it off before you delete Wakely. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Con batería, tu Mac en reposo ya no se despierta para Power Nap ni para el acceso a la red, así que sigue en reposo. Buscar y los despertares programados siguen funcionando, y tus ajustes para el adaptador de corriente no cambian. Wakely cambia estos ajustes una vez, al activar este componente, y restaura los tuyos al desactivarlo; un ajuste que cambies tú mientras tanto se queda como lo dejaste. Desactívalo antes de eliminar Wakely. macOS te pide una vez permitir Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>On battery, your sleeping Mac no longer wakes for Power Nap or network access. Find My and scheduled wakes keep working.</key>
+	<string>Con batería, tu Mac en reposo ya no se despierta para Power Nap ni para el acceso a la red. Buscar y los despertares programados siguen funcionando.</string>
+	<key>On lid close</key>
+	<string>Al cerrar la tapa</string>
+	<key>On the charger with the lid closed, when no agent is working anymore and one stopped on a usage limit, your Mac sleeps instead of waiting for the reset.</key>
+	<string>Con el cargador y la tapa cerrada, cuando ningún agente sigue trabajando y uno se detuvo en un límite de uso, tu Mac entra en reposo en lugar de esperar al restablecimiento.</string>
+	<key>On the charger with the lid closed, when no agent is working anymore and one stopped on a usage limit, your Mac sleeps. It wakes 1 minute after each limited account resets, for every Claude Code and Codex account on this Mac, and stays awake while any agent works, up to 4 hours. If none is working %@ after a wake, or one waits on you for 15 minutes, it sleeps until the next reset. On battery at a wake, it goes back to sleep. Opening the lid or turning this off cancels the wakes. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Con el cargador y la tapa cerrada, cuando ningún agente sigue trabajando y uno se detuvo en un límite de uso, tu Mac entra en reposo. Se despierta 1 minuto después de que se restablezca cada cuenta con límite, para cada cuenta de Claude Code y Codex de esta Mac, y sigue activa mientras algún agente trabaja, 4 horas como máximo. Si ninguno trabaja %@ después de despertar, o uno te espera 15 minutos, vuelve al reposo hasta el siguiente restablecimiento. Si al despertar funciona con batería, vuelve al reposo. Abrir la tapa o desactivar esto cancela los despertares. macOS te pide una vez que permitas Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>On the charger, when every agent you hand off with Finish Work, Then Sleep stops on a usage limit, your Mac sleeps and wakes %1$@ after the earliest limit resets. It stays awake while those agents work again, with Finish Work's limits (15 minutes waiting on you, 4 hours at most), and sleeps again if none is working %2$@ after the wake. On battery at the wake, it goes back to sleep. Opening the lid or turning this off cancels the wake. Needs Finish Work, Then Sleep. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Con el cargador, cuando cada agente que delegas con «Terminar el trabajo y luego reposo» se detiene en un límite de uso, tu Mac entra en reposo y se despierta %1$@ después de que se restablezca el primer límite. Sigue activa mientras esos agentes vuelven a trabajar, con los límites de «Terminar el trabajo» (15 minutos esperándote, 4 horas como máximo), y vuelve al reposo si ninguno trabaja %2$@ después de despertar. Si al despertar funciona con batería, vuelve al reposo. Abrir la tapa o desactivar esto cancela el despertar. Requiere «Terminar el trabajo y luego reposo». macOS te pide una vez que permitas Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>On the charger, when every agent you hand off with Finish Work, Then Sleep stops on a usage limit, your Mac sleeps and wakes 1 minute after the earliest limit resets. It stays awake while those agents work again, with Finish Work's limits (15 minutes waiting on you, 4 hours at most), and sleeps again if none is working 2 minutes after the wake. On battery at the wake, it goes back to sleep. Opening the lid or turning this off cancels the wake. Needs Finish Work, Then Sleep. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Con el cargador, cuando cada agente que delegas con «Terminar el trabajo y luego reposo» se detiene en un límite de uso, tu Mac entra en reposo y se despierta 1 minuto después de que se restablezca el primer límite. Sigue activa mientras esos agentes vuelven a trabajar, con los límites de «Terminar el trabajo» (15 minutos esperándote, 4 horas como máximo), y vuelve al reposo si ninguno trabaja 2 minutos después de despertar. Si al despertar funciona con batería, vuelve al reposo. Abrir la tapa o desactivar esto cancela el despertar. Requiere «Terminar el trabajo y luego reposo». macOS te pide una vez que permitas Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>On the charger, when every agent you handed off with Finish Work, Then Sleep stops on a usage limit, your Mac sleeps instead of waiting for the reset.</key>
+	<string>Con el cargador, cuando cada agente que delegaste con «Terminar el trabajo y luego reposo» se detiene en un límite de uso, tu Mac entra en reposo en lugar de esperar al restablecimiento.</string>
+	<key>On the charger, your closed Mac stays awake while a drive you choose is connected.</key>
+	<string>Con el cargador enchufado, tu Mac cerrada sigue activa mientras alguno de los discos que elijas esté conectado.</string>
+	<key>On weekdays</key>
+	<string>Entre semana</string>
+	<key>On weekends</key>
+	<string>Los fines de semana</string>
+	<key>Once nothing has worked for 15 minutes, Wakely disarms so your Mac can sleep, and a notification tells you why.</key>
+	<string>Cuando nada ha trabajado durante 15 minutos, Wakely se desactiva para que la Mac pueda entrar en reposo, y una notificación te dice por qué.</string>
+	<key>One click. It helps a one-person app know what works.</key>
+	<string>Un clic basta. Ayuda a una app hecha por una sola persona a saber qué funciona.</string>
+	<key>One more step</key>
+	<string>Un paso más</string>
+	<key>One-time payment of %@. 14-day money-back guarantee.</key>
+	<string>Pago único de %@. Garantía de reembolso de 14 días.</string>
+	<key>One-time payment of %@. Yours forever, with a 14-day money-back guarantee.</key>
+	<string>Pago único de %@. Tuyo para siempre, con garantía de reembolso de 14 días.</string>
+	<key>One-time payment. 14-day money-back guarantee.</key>
+	<string>Pago único. Garantía de reembolso de 14 días.</string>
+	<key>Only while Wakely keeps your closed Mac awake. It shows charging again for 5 seconds after you plug in and while the battery drains on the charger.</key>
+	<string>Solo mientras Wakely mantiene activa tu Mac cerrada. Vuelve a mostrar la carga durante 5 segundos después de enchufarlo y mientras la batería baja con el cargador conectado.</string>
+	<key>Only while agents need it</key>
+	<string>Solo mientras los agentes la necesiten</string>
+	<key>Open</key>
+	<string>Abrir</string>
+	<key>Open License</key>
+	<string>Abrir licencia</string>
+	<key>Open Notification Settings</key>
+	<string>Abrir ajustes de notificaciones</string>
+	<key>Open Sharing Settings</key>
+	<string>Abrir Compartir</string>
+	<key>Open Shortcuts</key>
+	<string>Abrir Atajos</string>
+	<key>Open an app and it arms</key>
+	<string>Abre una app y se activa</string>
+	<key>Open at login</key>
+	<string>Abrir al iniciar sesión</string>
+	<key>Open the Wakely menu and choose Sleep in 30 Minutes, or the length you set on this page. The row counts down the minutes left; choose it again to cancel.</key>
+	<string>Abre el menú de Wakely y elige «Reposo en 30 minutos», o la duración que elijas en esta página. La fila cuenta los minutos que quedan; elígela otra vez para cancelar.</string>
+	<key>Open the Wakely menu and choose Sleep in 30 Minutes. The row counts down the minutes left; choose it again to cancel.</key>
+	<string>Abre el menú de Wakely y elige «Reposo en 30 minutos». La fila cuenta los minutos que quedan; elígela otra vez para cancelar.</string>
+	<key>Open the Wakely menu, choose Keep Awake and pick how long: indefinitely or for 1, 2 or 4 hours. The menu bar icon turns dark green while it's on.</key>
+	<string>Abre el menú de Wakely, elige Mantener activa y decide cuánto tiempo: sin límite o durante 1, 2 o 4 horas. Mientras está activo, el ícono de la barra de menús se vuelve verde oscuro.</string>
+	<key>Open the Wakely menu, choose Keep Awake and pick how long: indefinitely, one of the lengths on this page, or while your agents work. The menu bar icon turns dark green while it's on.</key>
+	<string>Abre el menú de Wakely, elige Mantener activa y decide cuánto tiempo: sin límite, una de las duraciones de esta página o mientras tus agentes trabajen. Mientras está activo, el ícono de la barra de menús se vuelve verde oscuro.</string>
+	<key>Open the lid and Bag Check tells you how long your Mac was awake and what kept it awake. It stays quiet while a display is connected.</key>
+	<string>Abre la tapa y Bag Check te dice cuánto tiempo estuvo activa la Mac y qué la mantuvo activa. No avisa mientras haya una pantalla conectada.</string>
+	<key>Open the lid and Bluetooth turns back on. While it is off, your Apple Watch cannot unlock this Mac. Next, macOS asks you once to allow Bluetooth.</key>
+	<string>Abre la tapa y Bluetooth vuelve a encenderse. Mientras está apagado, tu Apple Watch no puede desbloquear esta Mac. A continuación, macOS te pide una vez que permitas Bluetooth.</string>
+	<key>Open the lid and it's back</key>
+	<string>Abre la tapa y todo vuelve a estar como antes</string>
+	<key>Open the lid and they settle</key>
+	<string>Abre la tapa y se calman</string>
+	<key>Open the lid or end the session, and the fans go back to automatic. Next, macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Abre la tapa o termina la sesión, y los ventiladores vuelven al modo automático. Después, macOS te pide una vez permitir Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>Open the lid, plug in or turn Wakely off, and your setting comes back. If Low Power Mode was already on, it's left alone.</key>
+	<string>Abre la tapa, conecta la Mac o desactiva Wakely, y vuelve tu ajuste. Si el modo de bajo consumo ya estaba activado, no se toca.</string>
+	<key>Opening the lid doesn't end it. Turning off Caps Lock does. Next, Wakely asks for Accessibility access if needed, so Caps Lock won't type capitals.</key>
+	<string>Abrir la tapa no lo detiene. Desactivar Bloq Mayús sí. A continuación, Wakely pide acceso de accesibilidad si hace falta, para que Bloq Mayús no escriba en mayúsculas.</string>
+	<key>Opening the lid locks your Mac, so nobody walks up to an unlocked screen. Unlock it to see what your agents did.</key>
+	<string>Al abrir la tapa, la Mac se bloquea para que nadie encuentre la pantalla desbloqueada. Desbloquéala para ver lo que hicieron tus agentes.</string>
+	<key>Opening the lid won't start it</key>
+	<string>Abrir la tapa no la enciende</string>
+	<key>Option + Option</key>
+	<string>Opción + Opción</string>
+	<key>Option + close lid</key>
+	<string>Opción + cerrar la tapa</string>
+	<key>Option + close lid arms that close. Wakely can't listen for Option + Option right now.</key>
+	<string>Opción + cerrar la tapa activa Wakely para ese cierre. Wakely no puede detectar Opción + Opción en este momento.</string>
+	<key>Option + close lid arms that close. Right-click and Option + Option arm the next close.</key>
+	<string>Opción + cerrar la tapa activa Wakely para ese cierre. El clic derecho y Opción + Opción lo activan para la próxima vez que cierres la tapa.</string>
+	<key>Option + lid close needs a Mac with a lid-angle sensor. Right-click and Option + Option still work.</key>
+	<string>Opción + cerrar la tapa requiere una Mac con sensor de ángulo de la tapa. El clic derecho y Opción + Opción siguen funcionando.</string>
+	<key>Optional extras. Wakely works fully without them.</key>
+	<string>Extras opcionales. Wakely funciona por completo sin ellos.</string>
+	<key>Optional. Pick the main reason.</key>
+	<string>Opcional. Elige el motivo principal.</string>
+	<key>Over the last minute the sound fades out and your Mac goes to sleep. When it wakes, the volume is back where it was.</key>
+	<string>Durante el último minuto el sonido se desvanece y tu Mac entra en reposo. Cuando se despierta, el volumen vuelve a estar como antes.</string>
+	<key>Page %d of %d</key>
+	<string>Página %d de %d</string>
+	<key>Password After Close</key>
+	<string>Contraseña al cerrar</string>
+	<key>Paste</key>
+	<string>Pegar</string>
+	<key>Paste the key from your purchase email.</key>
+	<string>Pega la clave del correo electrónico de compra.</string>
+	<key>Paste the prompt into your agent</key>
+	<string>Pega el prompt en tu agente</string>
+	<key>Paused</key>
+	<string>En pausa</string>
+	<key>Paused for External Display</key>
+	<string>En pausa por una pantalla externa</string>
+	<key>Paused for external display</key>
+	<string>En pausa por una pantalla externa</string>
+	<key>Pearl</key>
+	<string>Perla</string>
+	<key>Physical test pending: %@</key>
+	<string>Prueba física pendiente: %@</string>
+	<key>Play</key>
+	<string>Reproducir</string>
+	<key>Play %@</key>
+	<string>Reproducir %@</string>
+	<key>Play lid-close sound</key>
+	<string>Reproducir sonido al cerrar la tapa</string>
+	<key>Play the closing animation</key>
+	<string>Reproducir la animación al cerrar la tapa</string>
+	<key>Plays at 70% of your Mac’s volume. Wakely never changes the system volume.</key>
+	<string>Suena al 70 % del volumen de tu Mac. Wakely nunca cambia el volumen del sistema.</string>
+	<key>Plugged in, it stays on</key>
+	<string>Enchufada, sigue encendida</string>
+	<key>Plugging in still starts it</key>
+	<string>Al enchufarla sí arranca</string>
+	<key>Power</key>
+	<string>Energía</string>
+	<key>Power source</key>
+	<string>Fuente de alimentación</string>
+	<key>Press Option + Option</key>
+	<string>Presiona Opción + Opción</string>
+	<key>Press the power button. With Always On at Home on, connecting power starts it too.</key>
+	<string>Presiona el botón de encendido. Con Siempre activa en casa activado, conectarla también la enciende.</string>
+	<key>Prevents system sleep</key>
+	<string>Impide el reposo del sistema</string>
+	<key>Privacy</key>
+	<string>Privacidad</string>
+	<key>Privacy Statement</key>
+	<string>Declaración de privacidad</string>
+	<key>Prompt copied</key>
+	<string>Prompt copiado</string>
+	<key>Prompt copied. Paste it into your agent.</key>
+	<string>Prompt copiado. Pégalo en tu agente.</string>
+	<key>Push notifications</key>
+	<string>Notificaciones push</string>
+	<key>Quiet Close</key>
+	<string>Cierre silencioso</string>
+	<key>Quit</key>
+	<string>Salir</string>
+	<key>Quit Wakely</key>
+	<string>Salir de Wakely</string>
+	<key>Quit Wakely Beta</key>
+	<string>Salir de Wakely Beta</string>
+	<key>Quit Wakely and Continue</key>
+	<string>Salir de Wakely y continuar</string>
+	<key>Quit them and your Mac sleeps</key>
+	<string>Ciérralas y la Mac entra en reposo</string>
+	<key>Read from whether your Mac accepts these connections right now. Turn them on or off in System Settings › General › Sharing.</key>
+	<string>Se basa en si la Mac acepta estas conexiones ahora mismo. Actívalas o desactívalas en Configuración del Sistema › General › Compartir.</string>
+	<key>Reconnect to verify your license</key>
+	<string>Vuelve a conectarte para verificar tu licencia</string>
+	<key>Redo</key>
+	<string>Rehacer</string>
+	<key>Relative to your Mac's volume. Wakely never changes the system volume or shows up in your media controls.</key>
+	<string>Relativo al volumen de la Mac. Wakely nunca cambia el volumen del sistema ni aparece en los controles multimedia.</string>
+	<key>Remote Login (SSH)</key>
+	<string>Sesión remota (SSH)</string>
+	<key>Remote access</key>
+	<string>Acceso remoto</string>
+	<key>Remove</key>
+	<string>Quitar</string>
+	<key>Remove %@?</key>
+	<string>¿Quitar %@?</string>
+	<key>Remove…</key>
+	<string>Quitar…</string>
+	<key>Report whether Wakely is currently armed.</key>
+	<string>Indica si Wakely está activado en este momento.</string>
+	<key>Restore Defaults</key>
+	<string>Restaurar valores predeterminados</string>
+	<key>Retry</key>
+	<string>Reintentar</string>
+	<key>Retry Now</key>
+	<string>Reintentar ahora</string>
+	<key>Right Option key</key>
+	<string>Tecla Opción derecha</string>
+	<key>Right-click menu bar icon</key>
+	<string>Haz clic derecho en el ícono de la barra de menús</string>
+	<key>Run longer on battery while the lid is closed.</key>
+	<string>Dura más con batería cuando la tapa está cerrada.</string>
+	<key>Run your own shortcuts when you close and open the lid.</key>
+	<string>Ejecuta tus propios atajos al cerrar y abrir la tapa.</string>
+	<key>SSH</key>
+	<string>SSH</string>
+	<key>SSH or Screen Sharing</key>
+	<string>SSH o Compartir pantalla</string>
+	<key>Safety</key>
+	<string>Seguridad</string>
+	<key>Saved. It goes out automatically when Wakely can reach the beta server.</key>
+	<string>Guardado. Se enviará automáticamente cuando Wakely pueda conectar con el servidor de la beta.</string>
+	<key>Screen</key>
+	<string>Pantalla</string>
+	<key>Screen Sharing</key>
+	<string>Compartir pantalla</string>
+	<key>Screen can sleep</key>
+	<string>La pantalla puede apagarse</string>
+	<key>Screen lock could not be confirmed</key>
+	<string>No se pudo confirmar el bloqueo de pantalla</string>
+	<key>Screen stays on</key>
+	<string>La pantalla sigue encendida</string>
+	<key>Scroll down to %@ in the list</key>
+	<string>Desplázate hasta %@ en la lista</string>
+	<key>Search components</key>
+	<string>Buscar componentes</string>
+	<key>Security</key>
+	<string>Seguridad</string>
+	<key>See what is on</key>
+	<string>Mira qué está activado</string>
+	<key>See what your agents are doing from the menu bar.</key>
+	<string>Mira desde la barra de menús qué hacen tus agentes.</string>
+	<key>Select All</key>
+	<string>Seleccionar todo</string>
+	<key>Send</key>
+	<string>Enviar</string>
+	<key>Sending…</key>
+	<string>Enviando…</string>
+	<key>Sent with every report</key>
+	<string>Se envía con cada informe</string>
+	<key>Sent. Thank you.</key>
+	<string>Enviado. Gracias.</string>
+	<key>Sessions</key>
+	<string>Sesiones</string>
+	<key>Settings…</key>
+	<string>Configuración…</string>
+	<key>Share analytics</key>
+	<string>Compartir datos de análisis</string>
+	<key>Share usage, errors and purchase information to improve the app and trial experience. No files or work content.</key>
+	<string>Comparte datos de uso e información sobre errores y compras para mejorar la app y la experiencia durante la prueba. No se comparten archivos ni contenido de tu trabajo.</string>
+	<key>Share usage, errors and purchase information. No files or work content.</key>
+	<string>Se comparten datos de uso e información sobre errores y compras. No se comparten archivos ni contenido de tu trabajo.</string>
+	<key>Shell</key>
+	<string>Valva</string>
+	<key>Show All</key>
+	<string>Mostrar todos</string>
+	<key>Show Details</key>
+	<string>Mostrar detalles</string>
+	<key>Show Component Folder</key>
+	<string>Mostrar la carpeta de componentes</string>
+	<key>Show Walkthrough</key>
+	<string>Ver la introducción</string>
+	<key>Show in Finder</key>
+	<string>Mostrar en el Finder</string>
+	<key>Show the Make Your Own walkthrough</key>
+	<string>Mostrar la introducción de Crea el tuyo</string>
+	<key>Show the Components intro</key>
+	<string>Mostrar la introducción a los componentes</string>
+	<key>Shows what your Claude Code and Codex agents are doing on your Mac's MagSafe light while Wakely keeps your closed Mac awake: amber while they work, blinking amber when one needs you, a few amber blinks when one hit its usage limit, and green for %1$@ after they finish. The light shows charging again when you open the lid, for 5 seconds after you plug in, and while the battery drains on the charger.</key>
+	<string>Muestra lo que hacen tus agentes de Claude Code y Codex en la luz MagSafe de tu Mac mientras Wakely mantiene activa tu Mac cerrada: ámbar mientras trabajan, ámbar parpadeando cuando uno te necesita, unos parpadeos ámbar cuando uno alcanzó su límite de uso y verde durante %1$@ después de que terminan. La luz vuelve a mostrar la carga cuando abres la tapa, durante 5 segundos después de enchufarlo y mientras la batería baja con el cargador conectado.</string>
+	<key>Shows what your Claude Code and Codex agents are doing on your Mac's MagSafe light while Wakely keeps your closed Mac awake: amber while they work, blinking amber when one needs you, a few amber blinks when one hit its usage limit, and green for an hour after they finish. The light shows charging again when you open the lid, for 5 seconds after you plug in, and while the battery drains on the charger.</key>
+	<string>Muestra lo que hacen tus agentes de Claude Code y Codex en la luz MagSafe de tu Mac mientras Wakely mantiene activa tu Mac cerrada: ámbar mientras trabajan, ámbar parpadeando cuando uno te necesita, unos parpadeos ámbar cuando uno alcanzó su límite de uso y verde durante una hora después de que terminan. La luz vuelve a mostrar la carga cuando abres la tapa, durante 5 segundos después de enchufarlo y mientras la batería baja con el cargador conectado.</string>
+	<key>Skip</key>
+	<string>Omitir</string>
+	<key>Skip the trial, buy now</key>
+	<string>Omitir la prueba y comprar ahora</string>
+	<key>Sleep</key>
+	<string>Reposo</string>
+	<key>Sleep Means Sleep</key>
+	<string>Reposo de verdad</string>
+	<key>Sleep Timer</key>
+	<string>Temporizador de reposo</string>
+	<key>Sleep Until Reset</key>
+	<string>Reposo hasta el restablecimiento</string>
+	<key>Sleep Until Reset acts only on agents you hand off with Finish Work, Then Sleep. Turn it on to use this component.</key>
+	<string>«Reposo hasta el restablecimiento» solo actúa sobre los agentes que delegas con «Terminar el trabajo y luego reposo». Actívalo para usar este componente.</string>
+	<key>Sleep When Idle</key>
+	<string>Reposo en inactividad</string>
+	<key>Sleep in %@</key>
+	<string>Reposo en %@</string>
+	<key>Sleep in 30 Minutes</key>
+	<string>Reposo en 30 minutos</string>
+	<key>Sleep is turned off</key>
+	<string>El reposo está desactivado</string>
+	<key>Sleep is turned off on this Mac (pmset disablesleep).</key>
+	<string>El reposo está desactivado en esta Mac (pmset disablesleep).</string>
+	<key>Sleep through a usage limit and wake when it resets.</key>
+	<string>Pasa en reposo un límite de uso y despierta cuando se restablece.</string>
+	<key>Sleep timer ended</key>
+	<string>Terminó el temporizador de reposo</string>
+	<key>Sleep timer length</key>
+	<string>Duración del temporizador de reposo</string>
+	<key>Sleeping in %d min</key>
+	<string>Reposo en %d min</string>
+	<key>So Caps Lock arms Wakely without typing capital letters.</key>
+	<string>Para que Bloq Mayús active Wakely sin escribir en mayúsculas.</string>
+	<key>So Wakely can tell when your Mac is on the network you chose.</key>
+	<string>Para que Wakely sepa cuándo la Mac está en la red que elegiste.</string>
+	<key>So Wakely can turn Bluetooth off while your closed Mac sleeps.</key>
+	<string>Para que Wakely pueda apagar Bluetooth mientras tu Mac duerme con la tapa cerrada.</string>
+	<key>So Wakely opens at login and your Mac is ready again after a restart.</key>
+	<string>Para que Wakely se abra al iniciar sesión y la Mac vuelva a estar lista después de reiniciar.</string>
+	<key>So the cleaning cover also blocks the media, volume and brightness keys and Caps Lock.</key>
+	<string>Para que la cubierta de limpieza bloquee también las teclas multimedia, de volumen y de brillo y Bloq Mayús.</string>
+	<key>Software update</key>
+	<string>Actualización de software</string>
+	<key>Some drives were not ejected</key>
+	<string>Algunos discos no se expulsaron</string>
+	<key>Someone ran pmset disablesleep, so this Mac never sleeps. sudo pmset -a disablesleep 0 turns sleep back on.</key>
+	<string>Alguien ejecutó pmset disablesleep, así que esta Mac nunca entra en reposo. sudo pmset -a disablesleep 0 vuelve a activar el reposo.</string>
+	<key>Something else</key>
+	<string>Otra cosa</string>
+	<key>Somewhere else</key>
+	<string>En otro lugar</string>
+	<key>Sonar</key>
+	<string>Sonar</string>
+	<key>Sound</key>
+	<string>Sonido</string>
+	<key>Sound level</key>
+	<string>Volumen del sonido</string>
+	<key>Sound volume</key>
+	<string>Volumen del sonido</string>
+	<key>Start</key>
+	<string>Inicio</string>
+	<key>Start 7-day free trial</key>
+	<string>Iniciar prueba gratuita de 7 días</string>
+	<key>Start free trial</key>
+	<string>Iniciar prueba gratuita</string>
+	<key>Start it from the menu bar</key>
+	<string>Actívalo desde la barra de menús</string>
+	<key>Start the timer from the Wakely menu and your Mac goes to sleep %1$@ later. The menu shows the minutes left; choose the row again to cancel. Over the last minute the sound fades out, and the volume comes back where it was when your Mac wakes or when you cancel. At the end, Wakely turns off and puts your Mac to sleep, even if other apps would keep it awake. If something still keeps it awake 30 seconds later, a notification names it.</key>
+	<string>Inicia el temporizador desde el menú de Wakely y tu Mac entrará en reposo %1$@ después. El menú muestra los minutos que quedan; elige la fila otra vez para cancelar. Durante el último minuto el sonido se desvanece, y el volumen vuelve a donde estaba cuando tu Mac se despierta o cuando cancelas. Al final, Wakely se desactiva y pone tu Mac en reposo, aunque otras apps la mantendrían activa. Si algo la sigue manteniendo activa 30 segundos después, una notificación lo nombra.</string>
+	<key>Start time</key>
+	<string>Hora de inicio</string>
+	<key>Started %@</key>
+	<string>Empezó: %@</string>
+	<key>Startup</key>
+	<string>Inicio</string>
+	<key>Status</key>
+	<string>Estado</string>
+	<key>Stay Off When Opened</key>
+	<string>Apagada al abrir la tapa</string>
+	<key>Stays armed whenever your Mac is plugged in.</key>
+	<string>Sigue activado siempre que la Mac está enchufada.</string>
+	<key>Step %d of %d</key>
+	<string>Paso %d de %d</string>
+	<key>Stopped waiting on your agents</key>
+	<string>Se dejó de esperar a tus agentes</string>
+	<key>Stopped waiting on your agents and apps</key>
+	<string>Se dejó de esperar a tus agentes y apps</string>
+	<key>Stopped waiting on your apps</key>
+	<string>Se dejó de esperar a tus apps</string>
+	<key>Stopped: %@.</key>
+	<string>Detenido: %@.</string>
+	<key>Stops this display explanation from appearing again</key>
+	<string>Impide que esta explicación sobre la pantalla vuelva a aparecer</string>
+	<key>Subagents working</key>
+	<string>Subagentes trabajando</string>
+	<key>Support</key>
+	<string>Soporte</string>
+	<key>Tell an AI coding agent like Claude Code, Codex or Cursor what you want, and it builds a component for you: its own icon, a description you can edit, and rules that keep your Mac awake or let it sleep. Wakely's safety rules always come first.</key>
+	<string>Dile a un agente de programación con IA como Claude Code, Codex o Cursor lo que quieres y te crea un componente: con su propio ícono, una descripción que puedes editar y reglas que mantienen activa tu Mac o la dejan entrar en reposo. Las reglas de seguridad de Wakely siempre van primero.</string>
+	<key>Tell an AI coding agent like Claude Code, Codex or Cursor what you want, and it builds the component for you.</key>
+	<string>Dile a un agente de programación con IA como Claude Code, Codex o Cursor lo que quieres y crea el componente por ti.</string>
+	<key>Tell me when an agent is stuck on me.</key>
+	<string>Avísame cuando un agente se quede esperándome.</string>
+	<key>Tell us what (optional)</key>
+	<string>¿Qué fue? (opcional)</string>
+	<key>Tell us what happened and what you expected.</key>
+	<string>Cuéntanos qué ha pasado y qué esperabas.</string>
+	<key>Tell us where (optional)</key>
+	<string>¿Dónde? (opcional)</string>
+	<key>Thank you!</key>
+	<string>¡Gracias!</string>
+	<key>That arms Wakely for this one close.</key>
+	<string>Así activas Wakely solo para este cierre.</string>
+	<key>That key is not a Wakely license.</key>
+	<string>Esa clave no corresponde a una licencia de Wakely.</string>
+	<key>That license key was not recognized. Check it and try again.</key>
+	<string>No se reconoció esa clave de licencia. Revísala y vuelve a intentarlo.</string>
+	<key>The Caps Lock light shows when your Mac stays awake.</key>
+	<string>La luz de Bloq Mayús indica cuándo la Mac permanece activa.</string>
+	<key>The Wakely setting “%@” must be true or false.</key>
+	<string>El ajuste de Wakely «%@» debe ser true o false.</string>
+	<key>The Wakely setting “%@” needs a value.</key>
+	<string>El ajuste de Wakely «%@» necesita un valor.</string>
+	<key>The Wakely setting “%@” was provided more than once.</key>
+	<string>El ajuste de Wakely «%@» se proporcionó más de una vez.</string>
+	<key>The background relaunch agent could not be registered.</key>
+	<string>No se pudo registrar el agente de reapertura en segundo plano.</string>
+	<key>The background relaunch agent could not start.</key>
+	<string>No se pudo iniciar el agente de reapertura en segundo plano.</string>
+	<key>The beta notice changed. Read it and agree to keep testing.</key>
+	<string>El aviso de la beta ha cambiado. Léelo y acéptalo para seguir probando.</string>
+	<key>The beta server refused this invite. Write to hello@wakely.dev.</key>
+	<string>El servidor de la beta ha rechazado esta invitación. Escribe a hello@wakely.dev.</string>
+	<key>The closed session used %d%% of the battery, the Battery Budget limit. Wakely disarmed so your Mac can sleep.</key>
+	<string>La sesión con la tapa cerrada usó el %d %% de la batería, el límite de Presupuesto de batería. Wakely se desactivó para que la Mac pueda entrar en reposo.</string>
+	<key>The display stays dark</key>
+	<string>La pantalla permanece en negro</string>
+	<key>The external displays disconnected, but Wakely could not restore the armed session. Arm it again before closing the lid.</key>
+	<string>Las pantallas externas se desconectaron, pero Wakely no pudo restaurar la sesión activa de Wakely. Vuelve a activarlo antes de cerrar la tapa.</string>
+	<key>The license server's response could not be verified. Check that your Mac's date and time are set correctly, then try again.</key>
+	<string>No se pudo verificar la respuesta del servidor de licencias. Comprueba que la fecha y la hora de la Mac estén configuradas correctamente y vuelve a intentarlo.</string>
+	<key>The low-battery threshold “%@” must be 5, 10, 15, …, or 50.</key>
+	<string>El umbral de batería baja «%@» debe ser 5, 10, 15, … o 50.</string>
+	<key>The music fades, then your Mac sleeps</key>
+	<string>La música se desvanece y tu Mac entra en reposo</string>
+	<key>The next unlock needs your password or your Apple Watch. Right after it, Touch ID works again. With an external display connected, nothing changes.</key>
+	<string>El siguiente desbloqueo necesita tu contraseña o tu Apple Watch. Justo después, Touch ID vuelve a funcionar. Con una pantalla externa conectada, no cambia nada.</string>
+	<key>The price</key>
+	<string>El precio</string>
+	<key>The report could not be sent. Try again, or write to hello@wakely.dev.</key>
+	<string>No se ha podido enviar el informe. Inténtalo de nuevo o escribe a hello@wakely.dev.</string>
+	<key>The screen can stay on or sleep</key>
+	<string>La pantalla puede seguir encendida o apagarse</string>
+	<key>The screen goes dark</key>
+	<string>La pantalla queda en negro</string>
+	<key>The screen stays on, just dark</key>
+	<string>La pantalla sigue encendida, solo que a oscuras</string>
+	<key>The tester notice is missing from this build. Write to hello@wakely.dev.</key>
+	<string>Falta el aviso para testers en esta compilación. Escribe a hello@wakely.dev.</string>
+	<key>The tour you saw when you first opened Wakely.</key>
+	<string>El recorrido que viste al abrir Wakely por primera vez.</string>
+	<key>Then %@ once, yours forever. No credit card needed.</key>
+	<string>Después, %@ una sola vez y es tuyo para siempre. No necesitas tarjeta de crédito.</string>
+	<key>This Mac's seat is free. Activate the same key on your other Mac whenever you're ready.</key>
+	<string>El cupo de esta Mac está libre. Activa la misma clave en la otra Mac cuando quieras.</string>
+	<key>This build has no beta server. Install Wakely Beta from your invite email.</key>
+	<string>Esta compilación no tiene servidor de beta. Instala Wakely Beta desde tu correo de invitación.</string>
+	<key>This build is out of date. Install the latest Wakely Beta, then join again.</key>
+	<string>Esta compilación está desactualizada. Instala la última Wakely Beta y vuelve a unirte.</string>
+	<key>This build of Wakely Beta is more than 30 days old. Install the update to keep testing.</key>
+	<string>Esta compilación de Wakely Beta tiene más de 30 días. Instala la actualización para seguir probando.</string>
+	<key>This build of Wakely Beta is no longer supported. Install the update to keep testing.</key>
+	<string>Esta compilación de Wakely Beta ya no es compatible. Instala la actualización para seguir probando.</string>
+	<key>This frees your license for another Mac. Wakely stops working here until you activate again.</key>
+	<string>Esto libera tu licencia para otra Mac. Wakely dejará de funcionar aquí hasta que vuelvas a activar la licencia.</string>
+	<key>This invite code is not valid. Check the link in your invite email.</key>
+	<string>Este código de invitación no es válido. Revisa el enlace de tu correo de invitación.</string>
+	<key>This invite has ended. Write to hello@wakely.dev if that is a mistake.</key>
+	<string>Esta invitación ha terminado. Escribe a hello@wakely.dev si es un error.</string>
+	<key>This invite is already in use on two Macs.</key>
+	<string>Esta invitación ya se usa en dos Mac.</string>
+	<key>This key is already in use on another Mac. Open Wakely there and choose Settings &gt; License &gt; “Deactivate on this Mac” to free it, then try again.</key>
+	<string>Esta clave ya está en uso en otra Mac. Abre Wakely allí y elige Configuración &gt; Licencia &gt; “Desactivar en esta Mac” para liberarla; luego vuelve a intentarlo.</string>
+	<key>This license is no longer active.</key>
+	<string>Esta licencia ya no está activa.</string>
+	<key>This component needs a fix before it can load.</key>
+	<string>Este componente necesita una corrección antes de poder cargarse.</string>
+	<key>Tide</key>
+	<string>Marea</string>
+	<key>Time</key>
+	<string>Tiempo</string>
+	<key>Time armed after the last connection</key>
+	<string>Tiempo activado tras la última conexión</string>
+	<key>Time before sleep</key>
+	<string>Tiempo antes del reposo</string>
+	<key>Time to start working again</key>
+	<string>Tiempo para volver a trabajar</string>
+	<key>Tip</key>
+	<string>Consejo</string>
+	<key>To start your Mac</key>
+	<string>Para arrancar tu Mac</string>
+	<key>Toggle</key>
+	<string>Cambiar estado</string>
+	<key>Toggle ${applicationName}</key>
+	<string>Cambiar el estado de ${applicationName}</string>
+	<key>Toggle Wakely</key>
+	<string>Cambiar el estado de Wakely</string>
+	<key>Trial: %d day left</key>
+	<string>Prueba: queda %d día</string>
+	<key>Trial: %d days left</key>
+	<string>Prueba: quedan %d días</string>
+	<key>Trigger ended</key>
+	<string>Activador finalizado</string>
+	<key>Triggers</key>
+	<string>Activadores</string>
+	<key>Try Wakely free for a week</key>
+	<string>Prueba Wakely gratis durante una semana</string>
+	<key>Try a word like battery, sound or agents.</key>
+	<string>Prueba una palabra como batería, sonido o agentes.</string>
+	<key>Turn Off</key>
+	<string>Desactivar</string>
+	<key>Turn Off Custom Components</key>
+	<string>Desactivar los componentes propios</string>
+	<key>Turn On</key>
+	<string>Activar</string>
+	<key>Turn On Custom Components</key>
+	<string>Activar los componentes propios</string>
+	<key>Turn Stay Off When Opened off first. Wakely puts your startup setting back then, and can't once it's deleted.</key>
+	<string>Desactiva primero «Apagada al abrir la tapa». Así Wakely restaura tu ajuste de arranque; una vez eliminado, ya no puede.</string>
+	<key>Turn it off and they're back</key>
+	<string>Desactívalo y todo vuelve a estar como antes</string>
+	<key>Turn on Caps Lock and Wakely is armed. Turn it off and Wakely is off. Caps Lock no longer types capital letters.</key>
+	<string>Activa Bloq Mayús y Wakely queda activado. Desactívalo y Wakely se apaga. Bloq Mayús ya no escribe en mayúsculas.</string>
+	<key>Turn on its switch</key>
+	<string>Activa su interruptor</string>
+	<key>Turn one on from its card in All.</key>
+	<string>Activa uno desde su tarjeta en Todos.</string>
+	<key>Turn one on right here</key>
+	<string>Activa uno aquí mismo</string>
+	<key>Turn this component off first, so your Power Nap and network wake settings come back. A deleted app can't put them back.</key>
+	<string>Desactiva antes este componente para que vuelvan tus ajustes de Power Nap y de despertar por red. Una app eliminada no puede restaurarlos.</string>
+	<key>Turns off at 20% on battery or a weak charger. A closed lid locks your Mac at once.</key>
+	<string>Se desactiva al 20 % con batería o con un cargador débil. Con la tapa cerrada, la Mac se bloquea de inmediato.</string>
+	<key>Typing</key>
+	<string>Escritura</string>
+	<key>Undo</key>
+	<string>Deshacer</string>
+	<key>Unknown</key>
+	<string>Desconocido</string>
+	<key>Unlock Wakely</key>
+	<string>Desbloquear Wakely</string>
+	<key>Unplug it and it sleeps</key>
+	<string>Desenchufada, entra en reposo</string>
+	<key>Unplug your Mac and it sleeps normally. Plug it back in and Wakely arms again. If you turn Wakely off, it stays off until you next plug in.</key>
+	<string>Si desenchufas la Mac, entra en reposo como siempre. Al volver a enchufarla, Wakely se activa de nuevo. Si desactivas Wakely, sigue desactivado hasta la próxima vez que la enchufes.</string>
+	<key>Update Required</key>
+	<string>Actualización necesaria</string>
+	<key>Update Required…</key>
+	<string>Actualización necesaria…</string>
+	<key>Use %@</key>
+	<string>Usar %@</string>
+	<key>Use the keyboard brightness controls to restore the built-in display. Wakely will retry next launch.</key>
+	<string>Usa los controles de brillo del teclado para restaurar la pantalla integrada. Wakely volverá a intentarlo la próxima vez que se abra.</string>
+	<key>Using the last working version. Needs a fix: %@</key>
+	<string>Se usa la última versión que funcionaba. Necesita una corrección: %@</string>
+	<key>Version %@</key>
+	<string>Versión %@</string>
+	<key>Volume</key>
+	<string>Volumen</string>
+	<key>Wait limit</key>
+	<string>Tiempo de espera</string>
+	<key>Waiting on You</key>
+	<string>Esperándote</string>
+	<key>Waiting on you</key>
+	<string>Esperándote</string>
+	<key>Wake after the reset</key>
+	<string>Despertar tras el restablecimiento</string>
+	<key>Wake up and they're back</key>
+	<string>Al despertarse, vuelven</string>
+	<key>Warns you if your Mac didn't sleep in your bag.</key>
+	<string>Te avisa si la Mac no entró en reposo dentro de tu mochila.</string>
+	<key>Watch · %d steps</key>
+	<string>Ver · %d pasos</string>
+	<key>Watch · 1 step</key>
+	<string>Ver · 1 paso</string>
+	<key>Weekdays</key>
+	<string>Entre semana</string>
+	<key>Weekends</key>
+	<string>Fines de semana</string>
+	<key>Welcome</key>
+	<string>Te damos la bienvenida</string>
+	<key>Welcome guide</key>
+	<string>Guía de bienvenida</string>
+	<key>What Wakely does when the lid closes.</key>
+	<string>Lo que hace Wakely al cerrar la tapa.</string>
+	<key>What is muted</key>
+	<string>Qué se silencia</string>
+	<key>What made you buy?</key>
+	<string>¿Qué te llevó a comprarlo?</string>
+	<key>What stays off</key>
+	<string>Qué no la enciende</string>
+	<key>When a Claude Code or Codex agent stops to ask for approval or a question, a notification with its own sound tells you which one. Click it to bring that agent's app forward. It can also tell you when longer work finishes.</key>
+	<string>Cuando un agente de Claude Code o Codex se detiene para pedir aprobación o hacer una pregunta, una notificación con su propio sonido te dice cuál es. Haz clic en ella para traer al frente la app de ese agente. También puede avisarte cuando termina un trabajo largo.</string>
+	<key>When it locks</key>
+	<string>Cuándo se bloquea</string>
+	<key>When someone connects over SSH or Screen Sharing while your Mac is plugged in with the lid open, Wakely arms by itself. The menu bar icon shows it's armed, so you can close the lid.</key>
+	<string>Cuando alguien se conecta por SSH o Compartir pantalla mientras la Mac está enchufada y con la tapa abierta, Wakely se activa solo. El ícono de la barra de menús muestra que está activado, así que puedes cerrar la tapa.</string>
+	<key>When the last app you chose quits, Wakely disarms and your closed Mac sleeps normally. Unplugging it ends it at once.</key>
+	<string>Cuando se cierra la última de las apps que elegiste, Wakely se desactiva y la Mac cerrada entra en reposo como siempre. Si la desenchufas, termina al instante.</string>
+	<key>When the last connection ends, Wakely stays armed for 10 more minutes in case you reconnect, then your Mac sleeps. Unplugging it ends it at once.</key>
+	<string>Cuando termina la última conexión, Wakely sigue activado 10 minutos más por si vuelves a conectarte; luego la Mac entra en reposo. Si la desenchufas, termina al instante.</string>
+	<key>When the lid closes, Wakely turns the built-in display black instead of off. Agents that see and click on your screen keep working.</key>
+	<string>Al cerrar la tapa, Wakely pone la pantalla integrada en negro en lugar de apagarla. Los agentes que ven la pantalla y hacen clic en ella siguen trabajando.</string>
+	<key>When the lid is closed and Wakely is off, your Mac should sleep. If it stays awake anyway, for example because another app or a command keeps it up, Bag Check tells you when you open the lid: how long it was awake and what kept it awake. It stays quiet while a display is connected.</key>
+	<string>Con la tapa cerrada y Wakely desactivado, la Mac debería entrar en reposo. Si sigue activa de todos modos, por ejemplo porque otra app o un comando la mantiene despierta, Control de mochila te lo dice al abrir la tapa: cuánto tiempo estuvo activa y qué la mantuvo así. No avisa mientras haya una pantalla conectada.</string>
+	<key>When the lid is closed and Wakely is off, your Mac should sleep. If it stays awake anyway, for example because another app or a command keeps it up, Bag Check tells you when you open the lid: how long it was awake and what kept it awake. It stays quiet while a display is connected. Last time, it stayed awake for %1$@.</key>
+	<string>Con la tapa cerrada y Wakely desactivado, la Mac debería entrar en reposo. Si sigue activa de todos modos, por ejemplo porque otra app o un comando la mantiene activa, Control de mochila te lo dice al abrir la tapa: cuánto tiempo estuvo activa y qué la mantuvo así. No avisa mientras haya una pantalla conectada. La última vez, estuvo activa %1$@.</string>
+	<key>When you close the lid %1$@, Wakely locks your Mac %2$@ and turns off Touch ID for unlocking, for everyone who uses this Mac, even if your Mac normally waits before asking for the password. The next unlock needs your password or your Apple Watch, and Touch ID comes back on right after it. If Touch ID for unlocking is already off for this Mac, it stays as it is. If Wakely quits first, Touch ID comes back on then. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Cuando cierras la tapa %1$@, Wakely bloquea tu Mac %2$@ y desactiva Touch ID para desbloquear, para todas las personas que usan esta Mac, aunque normalmente tu Mac espere un rato antes de pedir la contraseña. El siguiente desbloqueo necesita tu contraseña o tu Apple Watch, y Touch ID vuelve a activarse justo después. Si Touch ID para desbloquear ya está desactivado en esta Mac, se queda como está. Si Wakely se cierra antes, Touch ID vuelve a activarse en ese momento. macOS te pide una vez que permitas Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>When you close the lid %1$@, Wakely locks your Mac %2$@ and turns off Touch ID for unlocking, for everyone who uses this Mac, even if your Mac normally waits before asking for the password. The next unlock needs your password or your Apple Watch, and Touch ID comes back on right after it. With an external display connected, closing the lid changes nothing. If Touch ID for unlocking is already off for this Mac, it stays as it is. If Wakely quits first, Touch ID comes back on then. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Cuando cierras la tapa %1$@, Wakely bloquea tu Mac %2$@ y desactiva Touch ID para desbloquear, para todas las personas que usan esta Mac, aunque normalmente tu Mac espere un rato antes de pedir la contraseña. El siguiente desbloqueo necesita tu contraseña o tu Apple Watch, y Touch ID vuelve a activarse justo después. Con una pantalla externa conectada, cerrar la tapa no cambia nada. Si Touch ID para desbloquear ya está desactivado en esta Mac, se queda como está. Si Wakely se cierra antes, Touch ID vuelve a activarse en ese momento. macOS te pide una vez que permitas Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>When you close the lid %1$@, your Mac locks %2$@ and Wakely turns off Touch ID for unlocking, for everyone who uses this Mac. The next unlock needs your password or your Apple Watch, and Touch ID comes back on right after it. If Touch ID for unlocking is already off for this Mac, it stays as it is. If Wakely quits first, Touch ID comes back on then. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Cuando cierras la tapa %1$@, tu Mac se bloquea %2$@ y Wakely desactiva Touch ID para desbloquear, para todas las personas que usan esta Mac. El siguiente desbloqueo necesita tu contraseña o tu Apple Watch, y Touch ID vuelve a activarse justo después. Si Touch ID para desbloquear ya está desactivado en esta Mac, se queda como está. Si Wakely se cierra antes, Touch ID vuelve a activarse en ese momento. macOS te pide una vez que permitas Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>When you close the lid %1$@, your Mac locks %2$@ and Wakely turns off Touch ID for unlocking, for everyone who uses this Mac. The next unlock needs your password or your Apple Watch, and Touch ID comes back on right after it. With an external display connected, closing the lid changes nothing. If Touch ID for unlocking is already off for this Mac, it stays as it is. If Wakely quits first, Touch ID comes back on then. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Cuando cierras la tapa %1$@, tu Mac se bloquea %2$@ y Wakely desactiva Touch ID para desbloquear, para todas las personas que usan esta Mac. El siguiente desbloqueo necesita tu contraseña o tu Apple Watch, y Touch ID vuelve a activarse justo después. Con una pantalla externa conectada, cerrar la tapa no cambia nada. Si Touch ID para desbloquear ya está desactivado en esta Mac, se queda como está. Si Wakely se cierra antes, Touch ID vuelve a activarse en ese momento. macOS te pide una vez que permitas Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>When you close the lid on an armed Mac, Battery Budget counts the battery the session uses. Once it has used %1$@, Wakely disarms so your Mac can sleep, and a notification tells you why. Only time on battery power counts. Opening the lid or disarming resets it, and the next close starts fresh.</key>
+	<string>Cuando cierras la tapa de una Mac activada, Presupuesto de batería cuenta la batería que usa la sesión. Cuando ha usado un %1$@, Wakely se desactiva para que la Mac pueda entrar en reposo, y una notificación te dice por qué. Solo cuenta el tiempo con batería. Abrir la tapa o desactivar Wakely lo reinicia, y el siguiente cierre empieza de cero.</string>
+	<key>When you close the lid on an armed Mac, Battery Budget counts the battery the session uses. Once it has used 15 percent, Wakely disarms so your Mac can sleep, and a notification tells you why. Only time on battery power counts. Opening the lid or disarming resets it, and the next close starts fresh. It never acts while Charger Only is on.</key>
+	<string>Cuando cierras la tapa de una Mac activada, Presupuesto de batería cuenta la batería que usa la sesión. Cuando ha usado un 15 por ciento, Wakely se desactiva para que la Mac pueda entrar en reposo, y una notificación te dice por qué. Solo cuenta el tiempo con batería. Abrir la tapa o desactivar Wakely lo reinicia, y el siguiente cierre empieza de cero. Nunca actúa mientras «Solo con cargador» está activado.</string>
+	<key>When you close the lid while Wakely is armed, %1$@, so nothing plays out loud from your bag. Opening the lid, or Wakely turning off, brings the sound back. If your Mac was already muted, it stays muted. The volume level is never changed.</key>
+	<string>Cuando cierras la tapa con Wakely activado, %1$@ para que nada suene desde tu mochila. Al abrir la tapa, o al desactivarse Wakely, vuelve el sonido. Si la Mac ya estaba silenciada, sigue silenciada. El nivel de volumen nunca cambia.</string>
+	<key>When you close the lid while Wakely is armed, a short sound plays so you know your Mac stays awake. None of the sounds is a click or thud, so you can tell it from the lid itself.</key>
+	<string>Al cerrar la tapa con Wakely activado, suena un sonido breve para que sepas que la Mac sigue activa. Ninguno de los sonidos es un clic ni un golpe, así que no se confunde con la tapa.</string>
+	<key>When you close the lid while Wakely is armed, the %1$@ sound plays so you know your Mac stays awake. It never sounds like a click or thud, so you can tell it from the lid itself. It plays a little below your Mac's volume, which Wakely never changes.</key>
+	<string>Al cerrar la tapa con Wakely activado, suena %1$@ para que sepas que la Mac sigue activa. Nunca suena como un clic ni un golpe, así que no se confunde con la tapa. Suena un poco por debajo del volumen de tu Mac, que Wakely nunca cambia.</string>
+	<key>When you close the lid while Wakely is armed, the %1$@ sound plays so you know your Mac stays awake. It never sounds like a click or thud, so you can tell it from the lid itself. It plays at %2$@ of your Mac's volume, which Wakely never changes.</key>
+	<string>Al cerrar la tapa con Wakely activado, suena %1$@ para que sepas que la Mac sigue activa. Nunca suena como un clic ni un golpe, así que no se confunde con la tapa. Suena al %2$@ del volumen de tu Mac, que Wakely nunca cambia.</string>
+	<key>When you close the lid while Wakely is armed, the Shell sound plays so you know your Mac stays awake. It never sounds like a click or thud, so you can tell it from the lid itself.</key>
+	<string>Al cerrar la tapa con Wakely activado, suena Valva para que sepas que la Mac sigue activa. Nunca suena como un clic ni un golpe, así que no se confunde con la tapa.</string>
+	<key>When you close the lid while Wakely is armed, your Mac's sound output is muted, so nothing plays out loud from your bag. Opening the lid, or Wakely turning off, brings the sound back. If your Mac was already muted, it stays muted. The volume level is never changed.</key>
+	<string>Cuando cierras la tapa con Wakely activado, la salida de sonido de la Mac se silencia para que nada suene desde tu mochila. Al abrir la tapa, o al desactivarse Wakely, vuelve el sonido. Si la Mac ya estaba silenciada, sigue silenciada. El nivel de volumen nunca cambia.</string>
+	<key>When you close the lid with no external display connected, Wakely locks your Mac at once and turns off Touch ID for unlocking, for everyone who uses this Mac, even if your Mac normally waits before asking for the password. The next unlock needs your password or your Apple Watch, and Touch ID comes back on right after it. With an external display connected, closing the lid changes nothing. If Touch ID for unlocking is already off for this Mac, it stays as it is. If Wakely quits first, Touch ID comes back on then. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Cuando cierras la tapa sin una pantalla externa conectada, Wakely bloquea tu Mac de inmediato y desactiva Touch ID para desbloquear, para todas las personas que usan esta Mac, aunque normalmente tu Mac espere un rato antes de pedir la contraseña. El siguiente desbloqueo necesita tu contraseña o tu Apple Watch, y Touch ID vuelve a activarse justo después. Con una pantalla externa conectada, cerrar la tapa no cambia nada. Si Touch ID para desbloquear ya está desactivado en esta Mac, se queda como está. Si Wakely se cierra antes, Touch ID vuelve a activarse en ese momento. macOS te pide una vez que permitas Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>When you close the lid, your Mac locks at once and Touch ID stops unlocking it, for everyone who uses this Mac.</key>
+	<string>Cuando cierras la tapa, tu Mac se bloquea de inmediato y Touch ID deja de desbloquearlo, para todas las personas que usan esta Mac.</string>
+	<key>When you come back and unlock your Mac, a small summary drops from the top of the screen: how long the lid was closed, the battery before and after, whether your Mac got warm, whether the network dropped, and how the session ended. Wakely keeps %1$@ on this Mac, even when the component is off.</key>
+	<string>Cuando vuelves y desbloqueas la Mac, aparece un pequeño resumen en la parte superior de la pantalla: cuánto tiempo estuvo cerrada la tapa, la batería antes y después, si la Mac se calentó, si se cortó la red y cómo terminó la sesión. Wakely guarda %1$@ en esta Mac, incluso con el componente desactivado.</string>
+	<key>When you come back and unlock your Mac, a small summary drops from the top of the screen: how long the lid was closed, the battery before and after, whether your Mac got warm, whether the network dropped, and how the session ended. This page keeps your last 20 sessions.</key>
+	<string>Cuando vuelves y desbloqueas la Mac, aparece un pequeño resumen en la parte superior de la pantalla: cuánto tiempo estuvo cerrada la tapa, la batería antes y después, si la Mac se calentó, si se cortó la red y cómo terminó la sesión. Esta página guarda tus últimas 20 sesiones.</string>
+	<key>When you eject or unplug the last drive you chose, Wakely disarms and your closed Mac sleeps normally. Unplugging the charger ends it at once.</key>
+	<string>Cuando expulsas o desconectas el último de los discos que elegiste, Wakely se desactiva y la Mac cerrada entra en reposo como siempre. Si desenchufas el cargador, termina al instante.</string>
+	<key>When your Mac goes to sleep with the lid closed, Bluetooth turns off. It turns back on when you open the lid, when the Mac wakes with an external display connected, or when Wakely starts keeping it awake. Nothing changes while Wakely keeps your Mac awake or an external display is connected, so desk keyboards, mice and headphones keep working. If Bluetooth was already off, it stays off. While Bluetooth is off, your Apple Watch cannot unlock this Mac. macOS asks you once to allow Bluetooth for Wakely.</key>
+	<string>Cuando tu Mac entra en reposo con la tapa cerrada, Bluetooth se apaga. Vuelve a encenderse al abrir la tapa, cuando la Mac se despierta con una pantalla externa conectada o cuando Wakely empieza a mantenerla activa. Mientras Wakely mantiene tu Mac activa o hay una pantalla externa conectada, no cambia nada, así que los teclados, ratones y auriculares de tu escritorio siguen funcionando. Si Bluetooth ya estaba apagado, sigue apagado. Mientras Bluetooth está apagado, tu Apple Watch no puede desbloquear esta Mac. macOS te pide una vez que permitas Bluetooth para Wakely.</string>
+	<key>When your Mac goes to sleep with the lid closed, Bluetooth turns off. Nothing changes while Wakely keeps it awake or an external display is connected.</key>
+	<string>Cuando tu Mac entra en reposo con la tapa cerrada, Bluetooth se apaga. Mientras Wakely la mantiene activa o hay una pantalla externa conectada, no cambia nada.</string>
+	<key>When your Mac goes to sleep with the lid closed, your external drives are ejected, so you can unplug them safely. When it wakes up, the drives you left connected %1$@. A drive that is in use stays connected, and Wakely tells you after the wake. Nothing is ejected while Wakely keeps your Mac awake, while an external display is connected, or while Time Machine is backing up, and the drive you chose in Arm When a Drive Connects is never ejected.</key>
+	<string>Cuando tu Mac entra en reposo con la tapa cerrada, tus discos externos se expulsan para que puedas desconectarlos con seguridad. Cuando se despierta, los discos que dejaste conectados %1$@. Un disco en uso sigue conectado, y Wakely te avisa al despertarse. No se expulsa nada mientras Wakely mantiene tu Mac activa, mientras hay una pantalla externa conectada o mientras Time Machine hace una copia de seguridad, y el disco que elegiste en «Activar al conectar un disco» nunca se expulsa.</string>
+	<key>When your Mac goes to sleep with the lid closed, your external drives are ejected, so you can unplug them safely. When it wakes up, the drives you left connected come back. A drive that is in use stays connected, and Wakely tells you after the wake. Nothing is ejected while Wakely keeps your Mac awake, while an external display is connected, or while Time Machine is backing up, and the drive you chose in Arm When a Drive Connects is never ejected.</key>
+	<string>Cuando tu Mac entra en reposo con la tapa cerrada, tus discos externos se expulsan para que puedas desconectarlos con seguridad. Cuando se despierta, vuelven los discos que dejaste conectados. Un disco en uso sigue conectado, y Wakely te avisa al despertarse. No se expulsa nada mientras Wakely mantiene tu Mac activa, mientras hay una pantalla externa conectada o mientras Time Machine hace una copia de seguridad, y el disco que elegiste en «Activar al conectar un disco» nunca se expulsa.</string>
+	<key>When your Mac goes to sleep with the lid closed, your external drives are ejected, so you can unplug them. A drive in use stays connected, and Wakely tells you after the wake.</key>
+	<string>Cuando tu Mac entra en reposo con la tapa cerrada, tus discos externos se expulsan para que puedas desconectarlos. Un disco en uso sigue conectado, y Wakely te avisa al despertarse.</string>
+	<key>When your Mac is %1$@ with the lid closed, Wakely turns on Low Power Mode and puts your setting back when you open the lid, plug in or turn Wakely off. If Low Power Mode is already on, it's left alone. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Cuando tu Mac funciona %1$@ con la tapa cerrada, Wakely activa el modo de bajo consumo y restaura tu ajuste al abrir la tapa, conectarla o desactivar Wakely. Si el modo de bajo consumo ya está activado, no se toca. macOS te pide una vez permitir Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>When your Mac is %1$@ with the lid closed, Wakely turns on Low Power Mode and puts your settings back when you open the lid or turn Wakely off. If Low Power Mode is already on, it's left alone. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Cuando tu Mac funciona %1$@ con la tapa cerrada, Wakely activa el modo de bajo consumo y restaura tus ajustes al abrir la tapa o desactivar Wakely. Si el modo de bajo consumo ya está activado, no se toca. macOS te pide una vez permitir Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>When your Mac is on battery and Wakely keeps it awake with the lid closed, Low Power Mode turns on so the battery lasts longer.</key>
+	<string>Cuando la Mac funciona con batería y Wakely la mantiene activa con la tapa cerrada, se activa el modo de bajo consumo para que la batería dure más.</string>
+	<key>When your Mac is on the network you choose, plugged in, with the lid open, Wakely arms by itself and posts one notification. The menu bar icon shows it's armed, so you can close the lid.</key>
+	<string>Cuando la Mac está en la red que elijas, enchufada y con la tapa abierta, Wakely se activa solo y muestra una notificación. El ícono de la barra de menús indica que está activado, así que puedes cerrar la tapa.</string>
+	<key>When your Mac is shut down, %1$@ no longer turns it on. Press the power button to start it. With Always On While Plugged In on, connecting power still starts it, so a home Mac whose battery ran out comes back on the charger. Turn the component off and your own startup setting comes back; turn it off before you delete Wakely. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Cuando tu Mac está apagada, %1$@ ya no la enciende. Presiona el botón de encendido para arrancarla. Con «Siempre activa enchufada» activado, conectarla sigue encendiéndola, así una Mac de casa que se quedó sin batería vuelve a arrancar con el cargador. Si desactivas el componente, vuelve tu ajuste de arranque; desactívalo antes de eliminar Wakely. macOS te pide una vez permitir Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>When your Mac is shut down, opening the lid or connecting power no longer turns it on. Press the power button to start it. With Always On at Home on, connecting power still starts it, so a home Mac whose battery ran out comes back on the charger. Turn the component off and your own startup setting comes back; turn it off before you delete Wakely. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Cuando tu Mac está apagada, abrir la tapa o conectarla ya no la enciende. Presiona el botón de encendido para arrancarla. Con Siempre activa en casa activado, conectarla sigue encendiéndola, así una Mac de casa que se quedó sin batería vuelve a arrancar con el cargador. Si desactivas el componente, vuelve tu ajuste de arranque; desactívalo antes de eliminar Wakely. macOS te pide una vez permitir Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>When your Mac is shut down, opening the lid or plugging it in leaves it off. Press the power button to start it.</key>
+	<string>Cuando tu Mac está apagada, abrir la tapa o conectarla la deja apagada. Presiona el botón de encendido para arrancarla.</string>
+	<key>When your Mac wakes up, the drives you left connected come back. Nothing is ejected while Wakely keeps your Mac awake or an external display is connected.</key>
+	<string>Cuando tu Mac se despierta, vuelven los discos que dejaste conectados. No se expulsa nada mientras Wakely mantiene tu Mac activa o hay una pantalla externa conectada.</string>
+	<key>When your hours end, Wakely disarms and your closed Mac sleeps normally. Unplugging it ends it at once.</key>
+	<string>Cuando terminan tus horas, Wakely se desactiva y la Mac cerrada entra en reposo como siempre. Si la desenchufas, termina al instante.</string>
+	<key>While %1$@ is connected and your Mac is plugged in, Wakely arms by itself, so you can close the lid and let a backup or copy keep running. It arms only with the lid open and posts one notification each time it arms. When none of these drives is connected, your Mac sleeps normally. Unplug the charger and your Mac sleeps normally too. If you turn Wakely off while one is connected, it waits until they are all ejected and one is connected again. Eject on Sleep never ejects these drives.</key>
+	<string>Mientras %1$@ está conectado y la Mac está enchufada, Wakely se activa solo, así que puedes cerrar la tapa y dejar que una copia de seguridad o una copia siga en marcha. Solo se activa con la tapa abierta y muestra una notificación cada vez que se activa. Cuando ninguno de estos discos está conectado, la Mac entra en reposo como siempre. Si desenchufas el cargador, la Mac también entra en reposo como siempre. Si desactivas Wakely mientras uno está conectado, espera hasta que se hayan expulsado todos y se vuelva a conectar uno. «Expulsar en reposo» nunca expulsa estos discos.</string>
+	<key>While %1$@ is connected and your Mac is plugged in, Wakely arms by itself, so you can close the lid and let a backup or copy keep running. It arms only with the lid open and posts one notification each time it arms. When you eject or unplug the drive, your Mac sleeps normally. Unplug the charger and your Mac sleeps normally too. If you turn Wakely off while the drive is connected, it waits until the drive is connected again. Eject on Sleep never ejects this drive.</key>
+	<string>Mientras %1$@ está conectado y la Mac está enchufada, Wakely se activa solo, así que puedes cerrar la tapa y dejar que una copia de seguridad o una copia siga en marcha. Solo se activa con la tapa abierta y muestra una notificación cada vez que se activa. Cuando expulsas o desconectas el disco, la Mac entra en reposo como siempre. Si desenchufas el cargador, la Mac también entra en reposo como siempre. Si desactivas Wakely mientras el disco está conectado, espera hasta que el disco se vuelva a conectar. «Expulsar en reposo» nunca expulsa este disco.</string>
+	<key>While %1$@ runs and your Mac is plugged in, Wakely arms by itself, so you can close the lid and let the app keep working. It arms only with the lid open and posts one notification each time it arms. When the app quits, your Mac sleeps normally. Unplug it and your Mac sleeps normally too. If you turn Wakely off while the app runs, it waits until the app quits and opens again.</key>
+	<string>Mientras %1$@ se ejecuta y la Mac está enchufada, Wakely se activa solo, así que puedes cerrar la tapa y dejar que la app siga trabajando. Solo se activa con la tapa abierta y muestra una notificación cada vez que se activa. Cuando la app se cierra, la Mac entra en reposo como siempre. Si la desenchufas, la Mac también entra en reposo como siempre. Si desactivas Wakely mientras la app se ejecuta, espera hasta que la app se cierre y se vuelva a abrir.</string>
+	<key>While %1$@ runs and your Mac is plugged in, Wakely arms by itself, so you can close the lid and let your apps keep working. It arms only with the lid open and posts one notification each time it arms. When none of these apps is running, your Mac sleeps normally. Unplug it and your Mac sleeps normally too. If you turn Wakely off while one of them runs, it waits until they have all quit and one opens again.</key>
+	<string>Mientras %1$@ se ejecuta y la Mac está enchufada, Wakely se activa solo, así que puedes cerrar la tapa y dejar que tus apps sigan trabajando. Solo se activa con la tapa abierta y muestra una notificación cada vez que se activa. Cuando ninguna de estas apps se ejecuta, la Mac entra en reposo como siempre. Si la desenchufas, la Mac también entra en reposo como siempre. Si desactivas Wakely mientras una de ellas se ejecuta, espera hasta que se hayan cerrado todas y se vuelva a abrir una.</string>
+	<key>While Agents Work</key>
+	<string>Mientras los agentes trabajen</string>
+	<key>While Wakely keeps your closed Mac awake, the fans run at full speed. macOS's own heat protection still applies.</key>
+	<string>Mientras Wakely mantiene activa tu Mac cerrada, los ventiladores giran a toda velocidad. La protección contra el calor de macOS sigue activa.</string>
+	<key>While an agent uses the screen, a browser or a preview, the built-in display stays on but black when you close the lid, so the agent keeps working. The display turns off %1$@ after agents stop needing it, to save battery. Your Mac locks when the display turns off or when you open the lid.</key>
+	<string>Mientras un agente usa la pantalla, un navegador o una vista previa, la pantalla integrada sigue encendida pero en negro al cerrar la tapa, para que el agente siga trabajando. La pantalla se apaga %1$@ después de que los agentes dejen de necesitarla, para ahorrar batería. Tu Mac se bloquea cuando la pantalla se apaga o al abrir la tapa.</string>
+	<key>While an agent uses the screen, a browser or a preview, the built-in display stays on but black when you close the lid, so the agent keeps working. Two minutes after agents stop needing it, the display turns off to save battery. Your Mac locks when the display turns off or when you open the lid.</key>
+	<string>Mientras un agente usa la pantalla, un navegador o una vista previa, la pantalla integrada sigue encendida pero en negro al cerrar la tapa, para que el agente siga trabajando. Dos minutos después de que los agentes dejen de necesitarla, la pantalla se apaga para ahorrar batería. Tu Mac se bloquea cuando la pantalla se apaga o al abrir la tapa.</string>
+	<key>While an agent uses the screen, a browser or a preview, the built-in display stays on but black when you close the lid, so the agent keeps working. Two minutes after agents stop needing it, the display turns off to save battery. Your Mac locks when you open the lid.</key>
+	<string>Mientras un agente usa la pantalla, un navegador o una vista previa, la pantalla integrada sigue encendida pero en negro al cerrar la tapa, para que el agente siga trabajando. Dos minutos después de que los agentes dejen de necesitarla, la pantalla se apaga para ahorrar batería. Tu Mac se bloquea al abrir la tapa.</string>
+	<key>While an app downloads, exports or backs up, choose Finish Work, Then Sleep in the menu bar and close the lid. Your Mac stays awake until those apps finish, then sleeps %1$@ after the last one. After %2$@ at most, it sleeps anyway. Apps that start a job later are not waited for, and external drives are kept from spinning down while the apps work. With Finish Work, Then Sleep on too, the same row waits for your agents and your apps. Opening the lid cancels it.</key>
+	<string>Mientras una app descarga, exporta o hace una copia de seguridad, elige «Terminar el trabajo y luego reposo» en la barra de menús y cierra la tapa. Tu Mac sigue activa hasta que esas apps terminan y entra en reposo %1$@ después de la última. Tras %2$@ como máximo, entra en reposo de todos modos. No se espera a las apps que empiezan una tarea después, y los discos externos se mantienen activos mientras las apps trabajan. Si «Terminar el trabajo y luego reposo» también está activado, la misma fila espera a tus agentes y a tus apps. Abrir la tapa lo cancela.</string>
+	<key>While an app downloads, exports or backs up, choose Finish Work, Then Sleep in the menu bar and close the lid. Your Mac stays awake until those apps finish, then sleeps 2 minutes after the last one. After 8 hours at most, it sleeps anyway. Apps that start a job later are not waited for, and external drives are kept from spinning down while the apps work. With Finish Work, Then Sleep on too, the same row waits for your agents and your apps. Opening the lid cancels it.</key>
+	<string>Mientras una app descarga, exporta o hace una copia de seguridad, elige «Terminar el trabajo y luego reposo» en la barra de menús y cierra la tapa. Tu Mac sigue activa hasta que esas apps terminan y entra en reposo 2 minutos después de la última. Tras 8 horas como máximo, entra en reposo de todos modos. No se espera a las apps que empiezan una tarea después, y los discos externos se mantienen activos mientras las apps trabajan. Si «Terminar el trabajo y luego reposo» también está activado, la misma fila espera a tus agentes y a tus apps. Abrir la tapa lo cancela.</string>
+	<key>While an app downloads, exports or backs up, open the Wakely menu and choose Finish Work, Then Sleep. Then close the lid.</key>
+	<string>Mientras una app descarga, exporta o hace una copia de seguridad, abre el menú de Wakely y elige «Terminar el trabajo y luego reposo». Después cierra la tapa.</string>
+	<key>While armed</key>
+	<string>Mientras esté activado</string>
+	<key>While something works, it stays awake</key>
+	<string>Mientras algo trabaja, sigue activa</string>
+	<key>While the lid is closed, the fans run at %1$@. macOS's own heat protection still applies, and the fans go back to automatic when you open the lid, the session ends or you quit Wakely. It stays off while Low Power Mode is on. macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Mientras la tapa está cerrada, los ventiladores giran %1$@. La protección contra el calor de macOS sigue activa, y los ventiladores vuelven al modo automático cuando abres la tapa, termina la sesión o sales de Wakely. No actúa mientras el modo de bajo consumo está activado. macOS te pide una vez permitir Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>While your Mac is on %1$@ and plugged in, Wakely arms by itself and posts one notification. It arms only with the lid open. It stays armed until your Mac joins another network, has had no Wi-Fi network for 1 minute, or you unplug it, then your Mac sleeps normally; plug it back in on that network and Wakely arms again. If you turn Wakely off, it waits until your Mac leaves the network and joins it again. A Wi-Fi drop of under 1 minute does not count as leaving. Reading the network's name needs Location Services.</key>
+	<string>Mientras la Mac está en %1$@ y enchufada, Wakely se activa solo y muestra una notificación. Solo se activa con la tapa abierta. Sigue activado hasta que la Mac se conecta a otra red, pasa 1 minuto sin red Wi-Fi o la desenchufas; entonces la Mac entra en reposo como siempre. Si vuelves a enchufarla en esa red, Wakely se activa de nuevo. Si desactivas Wakely, espera a que la Mac salga de la red y vuelva a conectarse. Un corte de Wi-Fi de menos de 1 minuto no cuenta como salir. Para leer el nombre de la red necesita Localización.</string>
+	<key>While your Mac is on the Wi-Fi network you choose and plugged in, Wakely arms by itself and posts one notification. It arms only with the lid open. It stays armed until your Mac joins another network, has had no Wi-Fi network for 1 minute, or you unplug it, then your Mac sleeps normally; plug it back in on that network and Wakely arms again. If you turn Wakely off, it waits until your Mac leaves the network and joins it again. A Wi-Fi drop of under 1 minute does not count as leaving. Reading the network's name needs Location Services.</key>
+	<string>Mientras la Mac está en la red Wi-Fi que elijas y enchufada, Wakely se activa solo y muestra una notificación. Solo se activa con la tapa abierta. Sigue activado hasta que la Mac se conecta a otra red, pasa 1 minuto sin red Wi-Fi o la desenchufas; entonces la Mac entra en reposo como siempre. Si vuelves a enchufarla en esa red, Wakely se activa de nuevo. Si desactivas Wakely, espera a que la Mac salga de la red y vuelva a conectarse. Un corte de Wi-Fi de menos de 1 minuto no cuenta como salir. Para leer el nombre de la red necesita Localización.</string>
+	<key>While your Mac is plugged in and someone is connected to it over %1$@, Wakely arms by itself, so you can close the lid and keep working remotely. It arms only with the lid open, and it checks for connections every %2$@. It stays armed until %3$@ after the last connection ends, then your Mac sleeps normally. Unplug it and your Mac sleeps normally too.</key>
+	<string>Mientras la Mac está enchufada y alguien está conectado a ella por %1$@, Wakely se activa solo, así que puedes cerrar la tapa y seguir trabajando a distancia. Solo se activa con la tapa abierta y busca conexiones cada %2$@. Sigue activado hasta %3$@ después de que termine la última conexión; luego la Mac entra en reposo como siempre. Si la desenchufas, la Mac también entra en reposo como siempre.</string>
+	<key>While your Mac is plugged in and someone is connected to it over SSH or Screen Sharing, Wakely arms by itself, so you can close the lid and keep working remotely. It arms only with the lid open, and it checks for connections every 15 seconds. It stays armed until 10 minutes after the last connection ends, then your Mac sleeps normally. Unplug it and your Mac sleeps normally too.</key>
+	<string>Mientras la Mac está enchufada y alguien está conectado a ella por SSH o Compartir pantalla, Wakely se activa solo, así que puedes cerrar la tapa y seguir trabajando a distancia. Solo se activa con la tapa abierta y busca conexiones cada 15 segundos. Sigue activado hasta 10 minutos después de que termine la última conexión; luego la Mac entra en reposo como siempre. Si la desenchufas, la Mac también entra en reposo como siempre.</string>
+	<key>While your Mac is plugged in with the lid open, connecting a drive you chose arms Wakely by itself, with one notification. The menu bar icon shows it's armed, so you can close the lid.</key>
+	<string>Con la Mac enchufada y la tapa abierta, al conectar uno de los discos que elegiste, Wakely se activa solo, con una notificación. El ícono de la barra de menús muestra que está activado, así que puedes cerrar la tapa.</string>
+	<key>While your Mac is plugged in with the lid open, opening an app you chose arms Wakely by itself, with one notification. The menu bar icon shows it's armed, so you can close the lid.</key>
+	<string>Con la Mac enchufada y la tapa abierta, al abrir una de las apps que elegiste, Wakely se activa solo, con una notificación. El ícono de la barra de menús muestra que está activado, así que puedes cerrar la tapa.</string>
+	<key>While your Mac is plugged in, Wakely arms by itself and stays armed, even when you open the lid. On battery it %1$@ when you turn it on, and unplugging leaves it armed. If you turn Wakely off, it stays off until you next plug in. To reach your Mac from another computer, turn on Remote Login or Screen Sharing in System Settings › General › Sharing.</key>
+	<string>Mientras la Mac está enchufada, Wakely se activa solo y sigue activado, incluso al abrir la tapa. Con batería %1$@ cuando lo actives, y desenchufarla lo deja activado. Si desactivas Wakely, sigue desactivado hasta la próxima vez que la enchufes. Para acceder a la Mac desde otra computadora, activa Sesión remota o Compartir pantalla en Configuración del Sistema › General › Compartir.</string>
+	<key>While your Mac is plugged in, Wakely arms by itself and stays armed, even when you open the lid. On battery it %1$@, and if you unplug while it's armed, Wakely turns off so your Mac sleeps normally. If you turn Wakely off, it stays off until you next plug in. To reach your Mac from another computer, turn on Remote Login or Screen Sharing in System Settings › General › Sharing.</key>
+	<string>Mientras la Mac está enchufada, Wakely se activa solo y sigue activado, incluso al abrir la tapa. Con batería %1$@, y si desenchufas la Mac mientras está activado, Wakely se desactiva para que la Mac entre en reposo como siempre. Si desactivas Wakely, sigue desactivado hasta la próxima vez que la enchufes. Para acceder a la Mac desde otra computadora, activa Sesión remota o Compartir pantalla en Configuración del Sistema › General › Compartir.</string>
+	<key>While your Mac is plugged in, Wakely arms by itself and stays armed, even when you open the lid. Unplug it and your Mac sleeps normally; plug it back in and Wakely arms again. If you turn Wakely off, it stays off until you next plug in.</key>
+	<string>Mientras la Mac está enchufada, Wakely se activa solo y sigue activado, incluso al abrir la tapa. Si la desenchufas, la Mac entra en reposo como siempre; al volver a enchufarla, Wakely se activa de nuevo. Si desactivas Wakely, sigue desactivado hasta la próxima vez que la enchufes.</string>
+	<key>While your Mac is plugged in, Wakely arms by itself and stays armed, lid open or closed. Wakely also opens at login, so it's ready after a restart.</key>
+	<string>Mientras la Mac está enchufada, Wakely se activa solo y sigue activado, con la tapa abierta o cerrada. Wakely también se abre al iniciar sesión, así que está listo después de reiniciar.</string>
+	<key>While your agents work, choose Finish Work, Then Sleep in the menu bar and close the lid. Your Mac stays awake until they finish, then sleeps. If they wait on you for %1$@, or after %2$@ at most, it sleeps anyway. Opening the lid cancels it.</key>
+	<string>Mientras tus agentes trabajan, elige «Terminar el trabajo y luego reposo» en la barra de menús y cierra la tapa. Tu Mac sigue activa hasta que terminan y luego entra en reposo. Si te esperan durante %1$@, o tras %2$@ como máximo, entra en reposo de todos modos. Abrir la tapa lo cancela.</string>
+	<key>While your agents work, choose Finish Work, Then Sleep in the menu bar and close the lid. Your Mac stays awake until they finish, then sleeps. If they wait on you for 15 minutes, or after 4 hours at most, it sleeps anyway. Opening the lid cancels it.</key>
+	<string>Mientras tus agentes trabajan, elige «Terminar el trabajo y luego reposo» en la barra de menús y cierra la tapa. Tu Mac sigue activa hasta que terminan y luego entra en reposo. Si te esperan durante 15 minutos, o tras 4 horas como máximo, entra en reposo de todos modos. Abrir la tapa lo cancela.</string>
+	<key>While your agents work, open the Wakely menu and choose Finish Work, Then Sleep. Then close the lid.</key>
+	<string>Mientras tus agentes trabajan, abre el menú de Wakely y elige «Terminar el trabajo y luego reposo». Después cierra la tapa.</string>
+	<key>Wipe without typing</key>
+	<string>Limpia sin escribir</string>
+	<key>With Always On While Plugged In on, connecting power still starts your Mac, so a home Mac whose battery ran out comes back on the charger.</key>
+	<string>Con «Siempre activa enchufada» activado, conectarla sigue encendiendo tu Mac, así una Mac de casa que se quedó sin batería vuelve a arrancar con el cargador.</string>
+	<key>With Wakely off and the lid closed, your Mac should sleep. Sometimes another app or a command keeps it awake anyway, and it gets warm in your bag.</key>
+	<string>Con Wakely desactivado y la tapa cerrada, la Mac debería entrar en reposo. A veces otra app o un comando la mantiene activa igualmente y se calienta en la mochila.</string>
+	<key>With the lid closed, Wakely watches for work: an AI agent, a download or copy, audio, or a busy processor. Any work starts the wait again.</key>
+	<string>Con la tapa cerrada, Wakely busca trabajo: un agente de IA, una descarga o copia, audio o un procesador ocupado. Cualquier trabajo reinicia la espera.</string>
+	<key>Working</key>
+	<string>Trabajando</string>
+	<key>Working in the background</key>
+	<string>Trabajando en segundo plano</string>
+	<key>You hear it once, as the lid closes</key>
+	<string>Lo oyes una vez, al cerrar la tapa</string>
+	<key>You'll know when you open the lid</key>
+	<string>Lo sabrás al abrir la tapa</string>
+	<key>Your Wakely trial ends in 3 days</key>
+	<string>Tu prueba de Wakely termina en 3 días</string>
+	<key>Your Wakely trial ends tomorrow</key>
+	<string>Tu prueba de Wakely termina mañana</string>
+	<key>Your Wakely trial has ended</key>
+	<string>Tu prueba de Wakely ha terminado</string>
+	<key>Your Mac could not sleep. macOS didn't report what kept it awake.</key>
+	<string>La Mac no pudo entrar en reposo. macOS no informó qué la mantuvo activa.</string>
+	<key>Your Mac could not sleep: %@ are keeping it awake.</key>
+	<string>La Mac no pudo entrar en reposo: %@ la mantienen activa.</string>
+	<key>Your Mac could not sleep: %@ is keeping it awake.</key>
+	<string>La Mac no pudo entrar en reposo: %@ la mantiene activa.</string>
+	<key>Your Mac could not sleep: sleep is turned off on this Mac.</key>
+	<string>La Mac no pudo entrar en reposo: el reposo está desactivado en esta Mac.</string>
+	<key>Your Mac goes to sleep after a set time, fading the music out.</key>
+	<string>Tu Mac entra en reposo tras el tiempo que elijas y baja la música poco a poco.</string>
+	<key>Your Mac goes to sleep in 30 minutes, fading the music out.</key>
+	<string>Tu Mac entra en reposo en 30 minutos y baja la música poco a poco.</string>
+	<key>Your Mac keeps running with the lid shut, on battery or power, so your agents keep working. Open the lid and you are right back where you left off.</key>
+	<string>La Mac sigue funcionando con la tapa cerrada, tanto con batería como conectada a la corriente, para que tus agentes sigan trabajando. Abre la tapa y volverás justo donde estabas.</string>
+	<key>Your Mac locks itself</key>
+	<string>La Mac se bloquea sola</string>
+	<key>Your Mac locks when the display turns off or when you open the lid, so nobody walks up to an unlocked screen. Unlock it to see what your agents did.</key>
+	<string>La Mac se bloquea cuando la pantalla se apaga o al abrir la tapa, para que nadie encuentre la pantalla desbloqueada. Desbloquéala para ver lo que hicieron tus agentes.</string>
+	<key>Your Mac locks when you open it</key>
+	<string>La Mac se bloquea al abrirla</string>
+	<key>Your Mac logged out during the last closed-lid session. To let agents use the screen again, turn it back on in Settings.</key>
+	<string>Se cerró la sesión de la Mac durante la última sesión con la tapa cerrada. Para que los agentes vuelvan a usar la pantalla, vuelve a activar la opción en Configuración.</string>
+	<key>Your Mac sleeps when they end</key>
+	<string>La Mac entra en reposo cuando terminan</string>
+	<key>Your Mac sleeps when they finish</key>
+	<string>Tu Mac entra en reposo cuando terminan</string>
+	<key>Your Mac stayed awake for %@ with the lid closed</key>
+	<string>La Mac estuvo activa %@ con la tapa cerrada</string>
+	<key>Your Mac stays awake either way. On this component's page, choose whether the screen stays on or turns off on its usual schedule.</key>
+	<string>La Mac sigue activa en ambos casos. En la página de este componente eliges si la pantalla sigue encendida o se apaga según su horario habitual.</string>
+	<key>Your Mac stays awake with the lid open.</key>
+	<string>La Mac sigue activa con la tapa abierta.</string>
+	<key>Your Mac stays awake, but its built-in display could not be dimmed.</key>
+	<string>La Mac permanece activa, pero no se pudo atenuar la pantalla integrada.</string>
+	<key>Your Mac stays awake, but its displays may remain on. Opening and closing the lid again usually fixes it.</key>
+	<string>La Mac permanece activa, pero es posible que las pantallas sigan encendidas. Abrir y volver a cerrar la tapa suele solucionarlo.</string>
+	<key>Your agent finished</key>
+	<string>Tu agente terminó</string>
+	<key>Your agent's work ended</key>
+	<string>El trabajo de tu agente terminó</string>
+	<key>Your agents and apps finished</key>
+	<string>Tus agentes y apps terminaron</string>
+	<key>Your agents are working.</key>
+	<string>Tus agentes están trabajando.</string>
+	<key>Your agents finished</key>
+	<string>Tus agentes terminaron</string>
+	<key>Your agents finished.</key>
+	<string>Tus agentes terminaron.</string>
+	<key>Your agents hit a limit, your Mac sleeps</key>
+	<string>Tus agentes llegan a un límite y tu Mac entra en reposo</string>
+	<key>Your agents show up here.</key>
+	<string>Tus agentes aparecen aquí.</string>
+	<key>Your agents' and apps' work ended</key>
+	<string>El trabajo de tus agentes y apps terminó</string>
+	<key>Your agents' state on a light you can see across the room.</key>
+	<string>El estado de tus agentes en una luz que ves desde el otro lado de la habitación.</string>
+	<key>Your agents' work ended</key>
+	<string>El trabajo de tus agentes terminó</string>
+	<key>Your app finished its job</key>
+	<string>Tu app terminó su tarea</string>
+	<key>Your apps finished their jobs</key>
+	<string>Tus apps terminaron sus tareas</string>
+	<key>Your charger is not keeping up. Wakely turned off at %d%% so your Mac can sleep.</key>
+	<string>Tu cargador no da abasto. Wakely se desactivó al %d%% para que la Mac pueda entrar en reposo.</string>
+	<key>Your closed Mac stays awake while any app you choose runs.</key>
+	<string>Tu Mac cerrada sigue activa mientras se ejecute alguna de las apps que elijas.</string>
+	<key>Your closed Mac stays awake while you're connected to it.</key>
+	<string>Tu Mac cerrada sigue activa mientras estés conectado a ella.</string>
+	<key>Your external drives eject when your closed Mac sleeps.</key>
+	<string>Tus discos externos se expulsan cuando tu Mac entra en reposo con la tapa cerrada.</string>
+	<key>Your invite is no longer active. Write to hello@wakely.dev if that is a mistake.</key>
+	<string>Tu invitación ya no está activa. Escribe a hello@wakely.dev si es un error.</string>
+	<key>Your last 20 sessions, kept only on this Mac. Turning the component off keeps them.</key>
+	<string>Tus últimas 20 sesiones, guardadas solo en esta Mac. Si desactivas el componente, se conservan.</string>
+	<key>Your component gets its own icon, a description you can edit and a place in the Custom group. You turn it on like any component, and Wakely's safety rules still come first.</key>
+	<string>Tu componente tiene su propio ícono, una descripción que puedes editar y un lugar en el grupo Propios. Lo activas como cualquier componente, y las reglas de seguridad de Wakely siguen yendo primero.</string>
+	<key>Your own Power Nap and network wake settings come back when you turn it off. Next, macOS asks you once to allow Wakely in Login Items. You confirm it with Touch ID or your password.</key>
+	<string>Tus propios ajustes de Power Nap y de despertar por red vuelven cuando desactivas el componente. A continuación, macOS te pide una vez permitir Wakely en Ítems de inicio. Lo confirmas con Touch ID o tu contraseña.</string>
+	<key>Your own startup setting comes back once you allow Wakely in %1$@. macOS asks for this once. When your Mac is shut down, Stay Off When Opened keeps opening the lid or connecting power from turning it on; press the power button to start it.</key>
+	<string>Tu ajuste de arranque vuelve en cuanto permitas Wakely en %1$@. macOS lo pide una sola vez. Con la Mac apagada, «Apagada al abrir la tapa» evita que abrir la tapa o conectar la corriente la encienda; presiona el botón de encendido para arrancarla.</string>
+	<key>Your password brings it back</key>
+	<string>Tu contraseña reactiva Touch ID</string>
+	<key>Your shortcuts could not be read</key>
+	<string>No se pudieron leer tus atajos</string>
+	<key>Your shortcuts follow the lid</key>
+	<string>Tus atajos siguen a la tapa</string>
+	<key>Your subscription is managed in the Setapp app.</key>
+	<string>Tu suscripción se administra en la app Setapp.</string>
+	<key>Your trial ends tomorrow. This price lasts until %@, then it's %@.</key>
+	<string>Tu prueba termina mañana. Este precio dura hasta el %@; después cuesta %@.</string>
+	<key>a Wi-Fi network you choose</key>
+	<string>una red Wi-Fi que elijas</string>
+	<key>a start time</key>
+	<string>una hora de inicio</string>
+	<key>after your usual delay</key>
+	<string>tras tu espera habitual</string>
+	<key>an end time</key>
+	<string>una hora de fin</string>
+	<key>armed</key>
+	<string>activado</string>
+	<key>at once</key>
+	<string>de inmediato</string>
+	<key>can sleep</key>
+	<string>puede apagarse</string>
+	<key>come back</key>
+	<string>vuelven</string>
+	<key>critical</key>
+	<string>crítica</string>
+	<key>disarmed</key>
+	<string>desactivado</string>
+	<key>even with an external display connected</key>
+	<string>incluso con una pantalla externa conectada</string>
+	<key>fair</key>
+	<string>moderada</string>
+	<key>for the next close</key>
+	<string>solo durante el próximo cierre</string>
+	<key>full speed</key>
+	<string>a toda velocidad</string>
+	<key>keeping your Mac awake</key>
+	<string>manteniendo la Mac activa</string>
+	<key>macOS didn't report what kept it awake.</key>
+	<string>macOS no informó qué la mantuvo activa.</string>
+	<key>macOS didn't say which app or setting kept it awake.</key>
+	<string>macOS no indicó qué app o ajuste la mantuvo activa.</string>
+	<key>macOS is handling closed-lid use. Wakely will re-arm when your external displays disconnect.</key>
+	<string>macOS está gestionando el uso con la tapa cerrada. Wakely se reactivará cuando desconectes las pantallas externas.</string>
+	<key>macOS is reporting %@ thermal pressure. Let the Mac cool before arming Wakely again.</key>
+	<string>macOS informa una presión térmica %@. Deja que la Mac se enfríe antes de volver a activar Wakely.</string>
+	<key>macOS needs your OK once before Wakely can change Low Power Mode. Allow opens Login Items and shows you which switch to turn on.</key>
+	<string>macOS necesita tu permiso una vez para que Wakely pueda cambiar el modo de bajo consumo. Permitir abre Ítems de inicio y te muestra qué interruptor activar.</string>
+	<key>macOS needs your OK once before Wakely can change Power Nap and network wake. Allow opens Login Items and shows you which switch to turn on.</key>
+	<string>macOS necesita tu permiso una vez para que Wakely pueda cambiar Power Nap y el despertar por red. Permitir abre Ítems de inicio y te muestra qué interruptor activar.</string>
+	<key>macOS needs your OK once before Wakely can change how your Mac starts up. Allow opens Login Items and shows you which switch to turn on.</key>
+	<string>macOS necesita tu permiso una vez para que Wakely pueda cambiar cómo arranca tu Mac. Permitir abre Ítems de inicio y te muestra qué interruptor activar.</string>
+	<key>macOS needs your OK once before Wakely can change the MagSafe light. Allow opens Login Items and shows you which switch to turn on.</key>
+	<string>macOS necesita tu permiso una vez antes de que Wakely pueda cambiar la luz de MagSafe. Permitir abre Ítems de inicio y te muestra qué interruptor activar.</string>
+	<key>macOS needs your OK once before Wakely can change the fan speed. Allow opens Login Items and shows you which switch to turn on.</key>
+	<string>macOS necesita tu permiso una vez para que Wakely pueda cambiar la velocidad de los ventiladores. Permitir abre Ítems de inicio y te muestra qué interruptor activar.</string>
+	<key>macOS needs your OK once before Wakely can put your startup setting back. Allow opens Login Items and shows you which switch to turn on.</key>
+	<string>macOS necesita tu permiso una vez para que Wakely pueda restaurar tu ajuste de arranque. Permitir abre Ítems de inicio y te muestra qué interruptor activar.</string>
+	<key>macOS needs your OK once before Wakely can wake your Mac when a usage limit resets. Allow opens Login Items and shows you which switch to turn on.</key>
+	<string>macOS necesita tu permiso una vez para que Wakely pueda despertar tu Mac cuando se restablezca un límite de uso. Permitir abre Ítems de inicio y te muestra qué interruptor activar.</string>
+	<key>macOS now handles closed-lid use. When all external displays disconnect, Wakely will re-arm automatically.</key>
+	<string>macOS ahora gestiona el uso con la tapa cerrada. Cuando se desconecten todas las pantallas externas, Wakely se reactivará automáticamente.</string>
+	<key>macOS reported %@ thermal pressure. Normal lid-close sleep has been restored.</key>
+	<string>macOS informó una presión térmica %@. Se restauró el reposo normal al cerrar la tapa.</string>
+	<key>macOS reported an unknown crash-recovery status.</key>
+	<string>macOS informó un estado desconocido de recuperación tras una falla.</string>
+	<key>macOS stopped reporting battery charge while the low-battery safety was enabled. Wakely disarmed so the Mac can sleep.</key>
+	<string>macOS dejó de informar el nivel de batería mientras la protección de batería baja estaba habilitada. Wakely se desactivó para que la Mac pueda entrar en reposo.</string>
+	<key>no limit</key>
+	<string>sin límite</string>
+	<key>nominal</key>
+	<string>nominal</string>
+	<key>on battery</key>
+	<string>con batería</string>
+	<key>on battery or plugged in</key>
+	<string>con batería o conectada a la corriente</string>
+	<key>only your Mac's built-in speakers are muted</key>
+	<string>solo se silencian los altavoces integrados de la Mac</string>
+	<key>opening the lid</key>
+	<string>abrir la tapa</string>
+	<key>opening the lid or connecting power</key>
+	<string>abrir la tapa o conectarla</string>
+	<key>paused while external displays are connected</key>
+	<string>en pausa mientras haya alguna pantalla externa conectada</string>
+	<key>restore pending</key>
+	<string>pendiente de restauración</string>
+	<key>serious</key>
+	<string>grave</string>
+	<key>stay ejected</key>
+	<string>siguen expulsados</string>
+	<key>stays on</key>
+	<string>sigue encendida</string>
+	<key>unknown</key>
+	<string>desconocida</string>
+	<key>until %@</key>
+	<string>hasta las %@</string>
+	<key>until you turn it off</key>
+	<string>hasta que lo desactives</string>
+	<key>up to the menu bar</key>
+	<string>hacia la barra de menús</string>
+	<key>will arm</key>
+	<string>se activa</string>
+	<key>with a sound</key>
+	<string>con sonido</string>
+	<key>with no external display connected</key>
+	<string>sin una pantalla externa conectada</string>
+	<key>without a sound</key>
+	<string>sin sonido</string>
+	<key>won't arm</key>
+	<string>no se activa</string>
+	<key>your %@ agents</key>
+	<string>tus agentes de %@</string>
+	<key>your Mac's sound output is muted</key>
+	<string>la salida de sonido de la Mac se silencia</string>
+	<key>your agents</key>
+	<string>tus agentes</string>
+	<key>your last 20 sessions</key>
+	<string>tus últimas 20 sesiones</string>
+	<key>“%@” could not be ejected when your Mac went to sleep, so it stayed connected. Eject it in Finder before you unplug it.</key>
+	<string>«%@» no se pudo expulsar cuando tu Mac entró en reposo, así que siguió conectado. Expúlsalo en el Finder antes de desconectarlo.</string>
+	<key>“%@” is no longer a Wakely setting. Update the app or extension that sent it.</key>
+	<string>«%@» ya no es un ajuste de Wakely. Actualiza la app o la extensión que lo envió.</string>
+</dict>
+</plist>

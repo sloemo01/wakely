@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "id": "session-budget",
+  "name": "Session Budget",
+  "tagline": "Caps closed-lid work and says when the budget is spent.",
+  "keywords": ["budget", "timer", "focus", "session"],
+  "description": {
+    "text": "With {apps} running, Wakely keeps your Mac awake with the lid closed. After {budget}, it ends the session so the Mac can sleep, and {notice} you when the budget is spent.",
+    "values": {
+      "apps": { "kind": "apps", "default": [] },
+      "budget": { "kind": "duration", "default": 120, "min": 15, "max": 480 },
+      "notice": { "kind": "choice", "options": ["warns", "doesn't warn"], "default": "warns" }
+    }
+  },
+  "rules": [
+    { "keepAwakeWhile": { "appRunning": "apps" } },
+    { "on": "closedFor", "after": "budget",
+      "when": { "all": [ { "appRunning": "apps" }, { "choiceIs": { "notice": "warns" } } ] },
+      "do": [ { "notify": { "title": "Session budget", "body": "The budget is spent. The Mac can sleep now." } } ] },
+    { "on": "closedFor", "after": "budget", "when": { "appRunning": "apps" },
+      "do": [ { "endSession": "Session budget spent" } ] }
+  ]
+}
