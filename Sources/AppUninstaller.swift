@@ -9,12 +9,20 @@ enum AppUninstaller {
 
     static func deleteEverything() async {
         Diagnostics.log("delete wakely: started")
-        PowerEngine.shared.disarm()
+        // The same drain as a normal quit, while the helper is still here to
+        // put back every system setting Wakely changed.
+        AgentMonitor.shared.stop()
+        ComponentRuntime.shared.stop()
+        ComponentEngine.shared.stop()
+        PowerEngine.shared.shutDown()
+        _ = await ComponentEngine.shared.awaitShutdownRestoration(timeout: 8)
+        _ = await PowerEngine.shared.awaitShutdownCleanup(timeout: 3)
+        AppLiveness.clear()
 
-        // The privileged helper restores any protected setting it owns before
-        // it goes; the administrator path also removes a fallback-installed daemon.
+        // The administrator path also removes a fallback-installed daemon and
+        // the helper's root-owned data.
         await HelperClient.shared.uninstall()
-        _ = await HelperClient.shared.uninstallWithAdministratorPrompt()
+        _ = await HelperClient.shared.uninstallWithAdministratorPrompt(removeData: true)
 
         try? await SMAppService.agent(plistName: HelperService.agentPlistName).unregister()
         try? await SMAppService.mainApp.unregister()
@@ -26,11 +34,13 @@ enum AppUninstaller {
 
         try? FileManager.default.removeItem(at: ManualAgentInstaller.supportDirectory())
         let library = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library")
-        for path in ["Caches/\(bundleID)", "HTTPStorages/\(bundleID)", "Saved Application State/\(bundleID).savedState"] {
+        for path in ["Caches/\(bundleID)", "Caches/Wakely", "HTTPStorages/\(bundleID)", "Saved Application State/\(bundleID).savedState"] {
             try? FileManager.default.removeItem(at: library.appendingPathComponent(path))
         }
         UserDefaults.standard.removePersistentDomain(forName: bundleID)
         UserDefaults.standard.synchronize()
+        run("/usr/bin/defaults", ["delete", bundleID])
+        try? FileManager.default.removeItem(at: library.appendingPathComponent("Preferences/\(bundleID).plist"))
 
         let app = Bundle.main.bundleURL
         do {
@@ -38,7 +48,11 @@ enum AppUninstaller {
         } catch {
             NSWorkspace.shared.recycle([app]) { _, _ in }
         }
-        NSApp.terminate(nil)
+        // Cleanup already ran; a normal quit would redo it and write settings
+        // back, so leave right away.
+        Diagnostics.log("delete wakely: finished")
+        try? FileManager.default.removeItem(at: ManualAgentInstaller.supportDirectory())
+        exit(0)
     }
 
     @discardableResult

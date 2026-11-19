@@ -248,10 +248,11 @@ final class HelperClient {
 
     /// Remove an administrator-installed launch daemon, its root helper and
     /// the ad-hoc peer pin. Cancellation is failure, never success.
-    func uninstallWithAdministratorPrompt() async -> Result<Void, Error> {
+    func uninstallWithAdministratorPrompt(removeData: Bool = false) async -> Result<Void, Error> {
         guard let plan = HelperInstallCommandBuilder.uninstallPlan(
             daemonPlistName: HelperService.daemonPlistName,
-            daemonLabel: HelperService.daemonLabel
+            daemonLabel: HelperService.daemonLabel,
+            removeData: removeData
         ) else {
             let message = "The privileged helper names failed validation; nothing was removed."
             installState = .failed(message)
@@ -1249,13 +1250,17 @@ enum HelperInstallCommandBuilder {
             && !path.unicodeScalars.contains { $0.value < 32 || $0.value == 127 || $0 == "'" || $0 == "\\" }
     }
 
-    static func uninstallPlan(daemonPlistName: String, daemonLabel: String) -> HelperInstallPlan? {
+    /// `removeData` also deletes the helper's root-owned backups and journals;
+    /// only a full Delete Wakely wants that, after every setting was restored.
+    static func uninstallPlan(daemonPlistName: String, daemonLabel: String,
+                              removeData: Bool = false) -> HelperInstallPlan? {
         guard isSafePlistName(daemonPlistName), isSafeLabel(daemonLabel) else { return nil }
         let installed = launchDaemonsDirectory + "/" + daemonPlistName
         let domain = "system/" + daemonLabel
         let shell = "set -eu; "
             + "/bin/launchctl bootout \(quote(domain)) 2>/dev/null || /usr/bin/true; "
             + "/bin/rm -f \(quote(installed)) '/Library/PrivilegedHelperTools/dev.wakely.helper' '/Library/PrivilegedHelperTools/dev.wakely.helper.peer'; "
+            + (removeData ? "/bin/rm -rf '/Library/Application Support/dev.wakely.helper'; " : "")
             + "[ ! -e \(quote(installed)) ]"
         return HelperInstallPlan(
             sourcePlistPath: "",
