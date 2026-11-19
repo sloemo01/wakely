@@ -1710,7 +1710,6 @@ private struct AboutPane: View {
                 Label("Holds the power assertions that stop lid-close sleep", systemImage: "checkmark.seal")
                 Label("Darkens the built-in display while a session is held", systemImage: "checkmark.seal")
                 Label("Opt-in components for power, security, connections and agents", systemImage: "checkmark.seal")
-                Label("Every feature included — no account, trial, or purchase check", systemImage: "checkmark.seal")
                 Label("Runs entirely on your Mac; no telemetry leaves the app", systemImage: "checkmark.seal")
             }
             .font(ClamType.body(12))
