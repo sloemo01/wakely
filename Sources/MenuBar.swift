@@ -153,9 +153,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
                 menu.addItem(idle)
             } else {
                 menu.addItem(.separator())
-                let label = agents.workingCount > 0
-                    ? "\(agents.workingCount) working\(agents.waitingCount > 0 ? ", \(agents.waitingCount) waiting on you" : "")"
-                    : "\(agents.waitingCount) waiting on you"
+                let label = Self.agentSummaryTitle(working: agents.workingCount,
+                                                   waiting: agents.waitingCount,
+                                                   total: agents.threads.count)
                 let row = NSMenuItem(title: label, action: nil, keyEquivalent: "")
                 row.isEnabled = false
                 menu.addItem(row)
@@ -234,6 +234,14 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     /// Pure label seam: callers/tests can verify the fallback without a live
     /// agent. An empty or missing display name falls back to the provider.
+    static func agentSummaryTitle(working: Int, waiting: Int, total: Int) -> String {
+        if working > 0 {
+            return "\(working) working\(waiting > 0 ? ", \(waiting) waiting on you" : "")"
+        }
+        if waiting > 0 { return "\(waiting) waiting on you" }
+        return total == 1 ? "1 agent running" : "\(total) agents running"
+    }
+
     static func agentRowTitle(for thread: AgentThread) -> String {
         let trimmed = thread.displayName?.trimmingCharacters(in: .whitespacesAndNewlines)
         let name = (trimmed?.isEmpty == false ? trimmed! : thread.provider)

@@ -128,6 +128,16 @@ struct AgentTaskStateTests {
         let dayElapsed: TimeInterval = 93_784
         expect(parsed[1].startedAt == now.addingTimeInterval(-dayElapsed), "day elapsed parsed")
 
+        // macOS `comm` is cut to 16 characters; a full-path launch must still match,
+        // and Codex's app-server daemon must not count as an agent.
+        let truncated = """
+        200 1 00:45 /opt/homebrew/li /opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/bin/codex fix the tests
+        201 200 00:44 /Users/dev/.cod /Users/dev/.codex/packages/app-server-daemon/releases/0.170.0/bin/codex app-server --listen unix://
+        202 1 00:10 /usr/local/bin/n /usr/local/bin/nothing-codex codex
+        """
+        let full = AgentBackgroundScanner.parseProcesses(truncated, now: now)
+        expect(full.count == 1 && full[0].pid == 200 && full[0].provider == "Codex", "truncated comm recovered from argv0; app-server skipped")
+
         // Claude registry adapter: absent, malformed, unknown keys, duplicates.
         try fixture("registry-absent") { root in
             let snapshot = loadRegistry(root)
