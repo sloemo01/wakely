@@ -496,7 +496,9 @@ struct ScreenPromptSheet: View {
     var onClose: () -> Void
     @ObservedObject private var store = CustomScreenStore.shared
     private let screen: CustomScreen?
-    private let promptID: UUID
+    // State, not a let: SwiftUI re-creates this view, and a fresh UUID each
+    // time would make the prompt and the created folder disagree.
+    @State private var promptID: UUID
     @State private var copied = false
     @State private var request = ""
     @State private var copyReset: DispatchWorkItem?
@@ -504,7 +506,7 @@ struct ScreenPromptSheet: View {
 
     init(screen: CustomScreen?, bodyCap: CGFloat, onClose: @escaping () -> Void) {
         self.screen = screen
-        promptID = screen?.id ?? UUID()
+        _promptID = State(initialValue: screen?.id ?? UUID())
         self.bodyCap = bodyCap
         self.onClose = onClose
     }
@@ -615,7 +617,18 @@ struct ScreenPromptSheet: View {
         .pixelPanel(fill: Theme.window, border: Theme.strokeHover, cut: 4)
         .modifier(AppAppearanceModifier())
         .onExitCommand { onClose() }
-        .onAppear { requestFocused = !GuideCoordinator.shared.isPresented }
+        .onAppear {
+            requestFocused = !GuideCoordinator.shared.isPresented
+            // The prompt names this folder as the place to write the screen,
+            // so it has to exist before the agent (or the user) looks for it.
+            try? FileManager.default.createDirectory(at: store.folderURL(for: promptID),
+                                                     withIntermediateDirectories: true)
+        }
+        .onDisappear {
+            // rmdir(2) removes the folder only if it is still empty, atomically,
+            // so files an agent has just written are never deleted.
+            _ = rmdir(store.folderURL(for: promptID).path)
+        }
         .onDisappear {
             copyReset?.cancel()
             copyReset = nil

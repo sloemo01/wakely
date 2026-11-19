@@ -844,13 +844,30 @@ enum Operations {
         guard result.succeeded else {
             throw OperationError("pmset could not read battery power settings: \(result.summary)")
         }
+        // `-b` still prints every power source; a Mac without a battery only
+        // has "AC Power:", whose values must not count as battery support.
+        let battery = batterySection(of: result.stdout)
         var values: [String: Int] = [:]
         for key in WakeSourceSuppression.settingNames {
-            if let value = settingInteger(in: result.stdout, key: key), (0...2).contains(value) {
+            if let value = settingInteger(in: battery, key: key), (0...2).contains(value) {
                 values[key] = value
             }
         }
         return values
+    }
+
+    /// The indented lines under "Battery Power:" in `pmset -g custom`, or "".
+    static func batterySection(of listing: String) -> String {
+        var inBattery = false
+        var lines: [Substring] = []
+        for line in listing.split(separator: "\n", omittingEmptySubsequences: false) {
+            if let first = line.first, first != " ", first != "\t" {
+                inBattery = line.hasPrefix("Battery Power")
+                continue
+            }
+            if inBattery { lines.append(line) }
+        }
+        return lines.joined(separator: "\n")
     }
 
     private static func applyBatteryWakeSource(_ key: String, value: Int) throws {

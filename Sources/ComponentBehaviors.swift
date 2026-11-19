@@ -228,6 +228,9 @@ final class ComponentEngine {
         if on, id == "cleaningLock" {
             let seconds = UserDefaults.standard.object(forKey: "cleaningLock.seconds") as? Int ?? 60
             beginCleaningLock(seconds: min(300, max(15, seconds)))
+            // An armed Mac refuses the lock and turns the component back off
+            // (already logged); don't follow that with a false "on".
+            guard isEnabled(id) else { return }
         }
         if on { tick() }
         // The login item and Home Server's launch/restore policy are the only

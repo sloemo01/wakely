@@ -482,6 +482,12 @@ struct ComponentSetupContent: View {
             && !coordinator.helperNeedsApproval
     }
 
+    /// Login Items approval only concerns the helper step; other permissions
+    /// (notifications, location, accessibility) must not show its copy.
+    private var helperAwaitingApproval: Bool {
+        coordinator.currentPermission == .helper && coordinator.helperNeedsApproval
+    }
+
     private var requirements: [ComponentPermissionRequirement] {
         guard let id = coordinator.componentID else { return [] }
         return ComponentPermissionPolicy.requirements(for: id)
@@ -491,7 +497,7 @@ struct ComponentSetupContent: View {
         if helperNeedsRepair {
             return "The helper is installed but is not answering. Choose Repair Helper to reinstall it once. Every helper component shares this installation, so later components will not ask again."
         }
-        if coordinator.helperNeedsApproval {
+        if helperAwaitingApproval {
             return "Approve Wakely in Login Items & Extensions, then choose Check Again. No administrator password is needed for this build."
         }
         return coordinator.currentPermission.instructions
@@ -516,7 +522,7 @@ struct ComponentSetupContent: View {
     private var status: (text: String, symbol: String, color: Color) {
         if coordinator.checking { return ("Checking this Mac…", "arrow.triangle.2.circlepath", Theme.goldSoft) }
         if isDone { return ("Ready", "checkmark.circle.fill", .green) }
-        if coordinator.helperNeedsApproval { return ("Waiting for approval", "clock.fill", .orange) }
+        if helperAwaitingApproval { return ("Waiting for approval", "clock.fill", .orange) }
         if helperNeedsRepair { return ("Helper needs repair", "exclamationmark.triangle.fill", .orange) }
         return ("Action needed", "info.circle.fill", Theme.goldSoft)
     }
