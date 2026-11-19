@@ -128,12 +128,20 @@ struct AgentProcessDescriptor: Equatable, Sendable {
     var parentPID: Int32? = nil
     var isLauncher = false
 
+    /// Agents Wakely sees only as processes: they leave no transcript Wakely
+    /// reads, so their task state stays unknown.
+    static let processOnlyProviders: [String: String] = [
+        "opencode": "OpenCode", "pi": "Pi", "cursor-agent": "Cursor Agent", "amp": "Amp",
+        "cline": "Cline", "kilo": "Kilo", "kilocode": "Kilo", "aider": "Aider",
+        "qwen": "Qwen Code", "dsh": "DeepSeek Harness",
+    ]
+
     static func provider(executable: String, arguments: [String]) -> String? {
         let name = URL(fileURLWithPath: executable).lastPathComponent.lowercased()
         // npm's Claude Code package runs a native `claude.exe`; `claude` is its symlink.
         if name == "claude" || name == "claude.exe" { return "Claude Code" }
         if name == "codex" { return "Codex" }
-        if name == "opencode" { return "OpenCode" }
+        if let other = processOnlyProviders[name] { return other }
         // Only recognize known CLI entrypoints, never prompt text or arbitrary
         // commands containing a provider's name.
         if name == "node" || name == "nodejs" || name == "bun" {

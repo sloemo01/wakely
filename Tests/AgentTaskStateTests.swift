@@ -136,6 +136,9 @@ struct AgentTaskStateTests {
         202 1 00:10 /usr/local/bin/n /usr/local/bin/nothing-codex codex
         203 1 00:05 /opt/homebrew/li /opt/homebrew/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe
         """
+        let others = "300 00:05 pi pi\n301 00:05 /usr/local/bin/c /usr/local/bin/cursor-agent -p fix\n302 00:05 aider aider --model x\n303 00:05 dsh dsh\n304 00:05 qwen qwen\n305 00:05 kilo kilo\n306 00:05 amp amp\n307 00:05 cline cline\n308 00:05 pip pip install\n"
+        let otherProviders = AgentBackgroundScanner.parseProcesses(others, now: now).map(\.provider)
+        expect(otherProviders == ["Pi", "Cursor Agent", "Aider", "DeepSeek Harness", "Qwen Code", "Kilo", "Amp", "Cline"], "process-only agents recognized by name")
         let full = AgentBackgroundScanner.parseProcesses(truncated, now: now)
         expect(full.count == 2 && full[0].pid == 200 && full[0].provider == "Codex" && full[1].pid == 203 && full[1].provider == "Claude Code", "truncated comm recovered from argv0; claude.exe matched; app-server skipped")
 

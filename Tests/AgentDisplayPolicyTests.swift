@@ -49,6 +49,9 @@ struct AgentDisplayPolicyTests {
         expect(AgentDisplayTools.kind(of: "chrome computer") == .screen, "screen precedence")
 
         // Active calls.
+        let pi = AgentThread(id: "pi", provider: "Pi", pid: 9, state: .unknown)
+        expect(AgentDisplayPolicy.threadNeedsDisplay(pi, now: now), "process-only agent holds the display while running")
+        expect(!AgentDisplayPolicy.threadNeedsDisplay(AgentThread(id: "c", provider: "Claude Code", pid: 8, state: .unknown), now: now), "unknown Claude thread still does not hold the display")
         expect(AgentDisplayPolicy.threadNeedsDisplay(thread(state: .working, tool: "computer_click"),
                                                      now: now), "active screen call holds")
         expect(AgentDisplayPolicy.threadNeedsDisplay(thread(state: .working, tool: "browser_navigate"),
