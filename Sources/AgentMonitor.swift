@@ -331,6 +331,16 @@ enum AgentBackgroundScanner {
             if let argv0 = arguments.first, argv0.count > executable.count, argv0.hasPrefix(executable) {
                 executable = argv0
             }
+            // A path with spaces splits into pieces: ".../Frameworks/Codex Framework.framework/..."
+            // must not read as a `Codex` CLI. Its continuation runs into a bundle path.
+            let pathContinues: Bool = {
+                guard let argv0 = arguments.first, commandLine.hasPrefix(argv0 + " ") else { return false }
+                for piece in commandLine.dropFirst(argv0.count).split(separator: " ") {
+                    if piece.hasPrefix("-") { return false }
+                    if piece.contains(".app/") || piece.contains(".framework/") { return true }
+                }
+                return false
+            }()
             let provider: String
             // A truncated `comm` is exactly 16 characters and may itself contain
             // spaces (`/Users/a/My - Ap`), so also split comm from args at 16.
@@ -348,6 +358,7 @@ enum AgentBackgroundScanner {
                 executable = bundled
                 provider = app
             } else {
+                guard !pathContinues else { continue }
                 guard let cli = AgentProcessDescriptor.provider(executable: executable, arguments: arguments) else { continue }
                 provider = cli
             }

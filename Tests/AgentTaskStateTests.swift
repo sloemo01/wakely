@@ -187,6 +187,11 @@ struct AgentTaskStateTests {
         expect(AgentBackgroundScanner.codexSubcommand(["codex", "fix", "the", "app-server", "bug"]) == "fix", "a Codex prompt mentioning app-server is a task")
         let launcherDaemon = AgentBackgroundScanner.parseProcesses("42001 1 00:30 /opt/homebrew/bi /opt/homebrew/bin/node /opt/homebrew/lib/node_modules/@openai/codex/bin/codex.js app-server --listen", now: now)
         expect(launcherDaemon.isEmpty, "a node-launched Codex app-server is not an agent")
+        let appHelpers = AgentBackgroundScanner.parseProcesses("""
+        76021 1 02:34 /Applications/Ch /Applications/ChatGPT.app/Contents/Frameworks/Codex Framework.framework/Versions/157/Helpers/browser_crashpad_handler --monitor-self
+        76109 76018 02:29 /Users/devin/.co /Users/devin/.codex/computer-use/Codex Computer Use.app/Contents/MacOS/SkyComputerUseService
+        """, now: now)
+        expect(appHelpers.isEmpty, "Codex app helpers under spaced paths are not Codex CLIs")
         var heldWaiting: [String: Date] = [:]
         let waitingOC = AgentThread(id: "OpenCode-9", provider: "OpenCode", pid: 9, state: .waiting)
         expect(AgentThread.holdingRecentlyBusy([waitingOC], lastBusy: &heldWaiting, now: now) == [waitingOC], "session-read waiting state is listed as is")
