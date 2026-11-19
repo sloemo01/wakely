@@ -130,7 +130,8 @@ struct AgentProcessDescriptor: Equatable, Sendable {
 
     static func provider(executable: String, arguments: [String]) -> String? {
         let name = URL(fileURLWithPath: executable).lastPathComponent.lowercased()
-        if name == "claude" { return "Claude Code" }
+        // npm's Claude Code package runs a native `claude.exe`; `claude` is its symlink.
+        if name == "claude" || name == "claude.exe" { return "Claude Code" }
         if name == "codex" { return "Codex" }
         if name == "opencode" { return "OpenCode" }
         // Only recognize known CLI entrypoints, never prompt text or arbitrary

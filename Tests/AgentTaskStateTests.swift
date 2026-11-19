@@ -134,9 +134,10 @@ struct AgentTaskStateTests {
         200 1 00:45 /opt/homebrew/li /opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/bin/codex fix the tests
         201 200 00:44 /Users/dev/.cod /Users/dev/.codex/packages/app-server-daemon/releases/0.170.0/bin/codex app-server --listen unix://
         202 1 00:10 /usr/local/bin/n /usr/local/bin/nothing-codex codex
+        203 1 00:05 /opt/homebrew/li /opt/homebrew/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe
         """
         let full = AgentBackgroundScanner.parseProcesses(truncated, now: now)
-        expect(full.count == 1 && full[0].pid == 200 && full[0].provider == "Codex", "truncated comm recovered from argv0; app-server skipped")
+        expect(full.count == 2 && full[0].pid == 200 && full[0].provider == "Codex" && full[1].pid == 203 && full[1].provider == "Claude Code", "truncated comm recovered from argv0; claude.exe matched; app-server skipped")
 
         // Claude registry adapter: absent, malformed, unknown keys, duplicates.
         try fixture("registry-absent") { root in
