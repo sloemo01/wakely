@@ -36,12 +36,21 @@ def allow_codesign_access(keychain, fingerprint):
     for block in re.split(r'(?m)^SHA-1 hash: *', certificates)[1:]:
         certificate_hash, _, attributes = block.partition('\n')
         if certificate_hash.strip().upper() == fingerprint.upper():
-            matches.append(re.findall(r'(?m)^\s*"hpky"<blob>=0x([0-9A-Fa-f]{40})(?=\s|$)', attributes))
+            matches.append(re.findall(r'(?m)^\s*"hpky"[^=\n]+=0x([0-9A-Fa-f]{40})(?=\s|$)', attributes))
     if len(matches) != 1 or len(matches[0]) != 1:
         raise SystemExit('No unique certificate/public-key hash matches the configured fingerprint; refusing to change key access.')
+    items = subprocess.check_output(['/usr/bin/security', 'dump-keychain', str(keychain)], text=True)
+    keys = []
+    for block in re.split(r'(?m)(?=^keychain: ")', items):
+        if (re.search(r'(?m)^class: 0x00000010\s*$', block)
+                and re.search(r'(?m)^\s*0x00000001\s+[^=\n]+="Imported Private Key"\s*$', block)):
+            keys.append(re.findall(r'(?m)^\s*0x00000006\s+[^=\n]+=0x([0-9A-Fa-f]{40})(?=\s|$)', block))
+    if len(keys) != 1 or len(keys[0]) != 1 or keys[0][0].upper() != matches[0][0].upper():
+        raise SystemExit('No unique Imported Private Key matches the certificate public-key hash; '
+                         'refusing to change key access. Recover via Keychain Access.')
     print('Allow Apple signing tools to use the Wakely key. Enter the keychain password when security prompts.')
     run('/usr/bin/security', 'set-key-partition-list', '-S', 'apple-tool:,apple:',
-        '-s', '-a', matches[0][0], str(keychain))
+        '-s', '-l', 'Imported Private Key', str(keychain))
 
 
 def main():

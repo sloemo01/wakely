@@ -33,8 +33,12 @@ python3 Tools/Signing/setup-local-signing.py --allow-codesign-access
 
 This updates only the signing key's partition list in the keychain recorded in
 `identity.json`, with the same one-time password prompt. Setup matches the
-configured certificate fingerprint and uses its public-key hash to select the
-key, not its display name. A missing or ambiguous match is an error.
+configured certificate fingerprint and reads its public-key hash. Before
+selecting the key by its imported label, `Imported Private Key`, setup requires
+exactly one private key with that label in the configured keychain and verifies
+that its application label equals the certificate's public-key hash. A missing,
+duplicate, or mismatched key is an error; recover via Keychain Access instead.
+The inspection uses `security dump-keychain` without decrypting item data.
 It does not generate/import a key, change certificate trust, or rewrite the
 configuration. Without existing configuration it refuses to proceed. Running
 setup without the flag when already configured still exits without prompting

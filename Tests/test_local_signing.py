@@ -39,15 +39,25 @@ attributes:
     "hpky"<blob>=0x{public_key_hash}  "public key hash"
 '''
 other_certificate = certificate.replace(fingerprint.lower(), 'D' * 40).replace(public_key_hash, 'E' * 40)
-with patch.object(subprocess, 'check_output', return_value=other_certificate + certificate) as lookup, patch.object(subprocess, 'run') as command:
+private_key = f'''keychain: "/configured/login.keychain-db"
+version: 512
+class: 0x00000010
+attributes:
+    0x00000001 ‹blob›="Imported Private Key"
+    0x00000006 ‹blob›=0x{public_key_hash.lower()}  "public key hash"
+'''
+public_key = private_key.replace('class: 0x00000010', 'class: 0x0000000F')
+with patch.object(subprocess, 'check_output', side_effect=[other_certificate + certificate, public_key + private_key]) as lookup, patch.object(subprocess, 'run') as command:
     namespace['allow_codesign_access']('/configured/login.keychain-db', fingerprint)
-    lookup.assert_called_once_with(
+    assert lookup.call_args_list[0].args == (
         ['/usr/bin/security', 'find-certificate', '-a', '-c', 'Wakely Local Development',
-         '-Z', '/configured/login.keychain-db'], text=True)
+         '-Z', '/configured/login.keychain-db'],)
+    lookup.assert_called_with(['/usr/bin/security', 'dump-keychain', '/configured/login.keychain-db'], text=True)
     command.assert_called_once_with(
         ('/usr/bin/security', 'set-key-partition-list', '-S', 'apple-tool:,apple:',
-         '-s', '-a', public_key_hash, '/configured/login.keychain-db'), check=True)
+         '-s', '-l', 'Imported Private Key', '/configured/login.keychain-db'), check=True)
     assert '-k' not in command.call_args.args[0], 'Never pass the keychain password'
+    assert '-a' not in command.call_args.args[0], 'Use the verified unique label, not the hash selector'
     assert not any(stream in command.call_args.kwargs for stream in ('stdin', 'stdout', 'stderr', 'capture_output'))
 
 for output in ('', other_certificate, certificate + certificate,
@@ -61,6 +71,20 @@ for output in ('', other_certificate, certificate + certificate,
             assert 'No unique certificate/public-key hash' in str(error)
         command.assert_not_called()
 
+for output in ('', public_key, private_key + private_key,
+               private_key.replace(public_key_hash.lower(), 'F' * 40),
+               private_key.replace('0x00000006', '0x00000007')):
+    with patch.object(subprocess, 'check_output', side_effect=[certificate, output]), patch.object(subprocess, 'run') as command:
+        try:
+            namespace['allow_codesign_access']('/configured/login.keychain-db', fingerprint)
+            raise AssertionError('Missing, duplicate, or mismatched private key must be refused')
+        except SystemExit as error:
+            assert 'Recover via Keychain Access' in str(error)
+        command.assert_not_called()
+with patch.object(subprocess, 'check_output', side_effect=[certificate, private_key.replace('‹', '<').replace('›', '>')]), patch.object(subprocess, 'run') as command:
+    namespace['allow_codesign_access']('/configured/login.keychain-db', fingerprint)
+    command.assert_called_once()
+
 config = Mock()
 config.exists.return_value = True
 config.read_text.return_value = json.dumps({
@@ -71,11 +95,11 @@ with patch.object(sys, 'argv', ['setup-local-signing.py']), patch.object(subproc
     with contextlib.redirect_stdout(io.StringIO()):
         namespace['main']()
     command.assert_not_called()
-with patch.object(sys, 'argv', ['setup-local-signing.py', '--allow-codesign-access']), patch.object(Path, 'is_file', return_value=True), patch.object(subprocess, 'check_output', return_value=certificate), patch.object(subprocess, 'run') as command:
+with patch.object(sys, 'argv', ['setup-local-signing.py', '--allow-codesign-access']), patch.object(Path, 'is_file', return_value=True), patch.object(subprocess, 'check_output', side_effect=[certificate, private_key, certificate, private_key]), patch.object(subprocess, 'run') as command:
     namespace['main']()
     command.assert_called_once_with(
         ('/usr/bin/security', 'set-key-partition-list', '-S', 'apple-tool:,apple:',
-         '-s', '-a', public_key_hash, '/configured/login.keychain-db'), check=True)
+         '-s', '-l', 'Imported Private Key', '/configured/login.keychain-db'), check=True)
     command.side_effect = subprocess.CalledProcessError(1, 'security')
     try:
         namespace['main']()
@@ -96,3 +120,4 @@ assert setup.index("'-t', 'cert')") < setup.index('allow_codesign_access(KEYCHAI
 print('PASS: dedicated local identity, code-signing-only user trust, scoped key access, stable DR, no automatic identity rotation/fallback')
 print('PASS: scoped Apple key partitions, inherited terminal, no password argument, opt-in migration without rotation')
 print('PASS: fingerprint-matched public-key hash, missing/ambiguous matches refused, certificate imported before lookup')
+print('PASS: unique private-key label verified against certificate hash, duplicate labels and mismatches refused, no partition -a/-k')
