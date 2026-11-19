@@ -1439,6 +1439,8 @@ private struct ComponentDetailContent: View {
 // MARK: - General
 
 private struct GeneralPane: View {
+    @State private var confirmDelete = false
+    @State private var deleting = false
     @ObservedObject private var guides = GuideCoordinator.shared
     @ObservedObject private var appearance = AppAppearance.shared
     @ObservedObject private var state = AppState.shared
@@ -1617,6 +1619,31 @@ private struct GeneralPane: View {
             ClamSwitch(isOn: isOn.wrappedValue) { if !disabled { isOn.wrappedValue.toggle() } }
                 .disabled(disabled)
                 .opacity(disabled ? 0.4 : 1)
+            section("Delete Wakely") {
+                HStack(alignment: .center, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Delete Wakely from this Mac")
+                            .font(ClamType.body(12.5))
+                        Text("Removes the helper, watchdog, login items, macOS permissions, settings and data, then moves Wakely to the Trash.")
+                            .font(ClamType.body(11))
+                            .foregroundStyle(Theme.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 8)
+                    Button(deleting ? "Deleting…" : "Delete Wakely…", role: .destructive) { confirmDelete = true }
+                        .disabled(deleting)
+                }
+                .padding(12)
+            }
+            .alert("Delete Wakely completely?", isPresented: $confirmDelete) {
+                Button("Delete", role: .destructive) {
+                    deleting = true
+                    Task { await AppUninstaller.deleteEverything() }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Wakely restores the system settings it changed, removes its helper and permissions, and quits. macOS may ask for your administrator password.")
+            }
         }
         .padding(14)
     }
