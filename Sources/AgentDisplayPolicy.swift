@@ -68,7 +68,7 @@ enum AgentDisplayPolicy {
         // Process-only agents expose no tool calls; while their process tree
         // is busy (see `AgentBackgroundScanner.busyAgents`) keep the screen usable.
         if thread.state == .working,
-           Set(AgentProcessDescriptor.processOnlyProviders.values).contains(thread.provider) { return true }
+           AgentProcessDescriptor.processOnlyProviderNames.contains(thread.provider) { return true }
         // `waiting` and `unknown` are deliberately not display-using work.
         guard thread.state == .working,
               let activity = thread.activity,

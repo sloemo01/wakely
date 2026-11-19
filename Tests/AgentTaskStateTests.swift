@@ -146,8 +146,21 @@ struct AgentTaskStateTests {
         let quietPi = AgentThread(id: "Pi-5", provider: "Pi", pid: 5, state: .unknown)
         _ = AgentThread.holdingRecentlyBusy([busyPi], lastBusy: &lastBusy, now: now)
         expect(AgentThread.holdingRecentlyBusy([quietPi], lastBusy: &lastBusy, now: now.addingTimeInterval(30))[0].state == .working, "short CPU pause keeps a process-only agent working")
-        expect(AgentThread.holdingRecentlyBusy([quietPi], lastBusy: &lastBusy, now: now.addingTimeInterval(61))[0].state == .unknown, "long quiet stops holding, never claims idle")
+        expect(AgentThread.holdingRecentlyBusy([quietPi], lastBusy: &lastBusy, now: now.addingTimeInterval(61)).isEmpty, "long quiet hides the agent, never claims idle")
+        var neverBusy: [String: Date] = [:]
+        expect(AgentThread.holdingRecentlyBusy([quietPi], lastBusy: &neverBusy, now: now).isEmpty, "an open but idle process-only agent is not listed")
         expect(AgentThread.finishedTransitions(from: [busyPi], to: [quietPi]).isEmpty, "quiet process-only agent is not a finished task")
+        let desktopApp = """
+        94237 1 01:10 /Applications/De /Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness
+        94238 94237 01:10 /Applications/De /Applications/DeepSeek Harness.app/Contents/Frameworks/DeepSeek Harness Helper.app/Contents/MacOS/DeepSeek Harness Helper --type=gpu-process
+        94248 94237 01:09 /Applications/De /Applications/DeepSeek Harness.app/Contents/Frameworks/DeepSeek Harness Helper (Renderer).app/Contents/MacOS/DeepSeek Harness Helper (Renderer) --type=renderer
+        29670 1 03:00 /opt/homebrew/bi /opt/homebrew/bin/node /Users/apple/dsh workspace/dsh-lan/server.js
+        41000 1 00:30 /Applications/Co /Applications/Codex.app/Contents/MacOS/Codex
+        41001 1 00:30 /Applications/Cl /Applications/Claude.app/Contents/MacOS/Claude
+        41002 1 00:30 /Applications/Sa /Applications/Safari.app/Contents/MacOS/Safari
+        """
+        let app = AgentBackgroundScanner.parseProcesses(desktopApp, now: now)
+        expect(app.map(\.pid) == [41000, 41001, 94237] && app.map(\.provider) == ["Codex App", "Claude", "DeepSeek Harness"], "DeepSeek Harness desktop app matched by its spaced bundle path; helpers and dsh-named folders ignored")
         let full = AgentBackgroundScanner.parseProcesses(truncated, now: now)
         expect(full.count == 2 && full[0].pid == 200 && full[0].provider == "Codex" && full[1].pid == 203 && full[1].provider == "Claude Code", "truncated comm recovered from argv0; claude.exe matched; app-server skipped")
 

@@ -48,12 +48,14 @@ struct AgentThread: Identifiable, Equatable, Sendable {
     /// `hold`, so short pauses don't end Agent Screen or Finish Work.
     static func holdingRecentlyBusy(_ threads: [AgentThread], lastBusy: inout [String: Date],
                                     now: Date, hold: TimeInterval = 60) -> [AgentThread] {
-        let processOnly = Set(AgentProcessDescriptor.processOnlyProviders.values)
+        let processOnly = AgentProcessDescriptor.processOnlyProviderNames
         lastBusy = lastBusy.filter { entry in threads.contains { $0.id == entry.key } }
-        return threads.map { thread in
+        // An open app or idle CLI is not a running agent, so a process-only
+        // agent is listed only while it works (or within `hold` of working).
+        return threads.compactMap { thread in
             guard processOnly.contains(thread.provider) else { return thread }
             if thread.state == .working { lastBusy[thread.id] = now; return thread }
-            guard let last = lastBusy[thread.id], now.timeIntervalSince(last) < hold else { return thread }
+            guard let last = lastBusy[thread.id], now.timeIntervalSince(last) < hold else { return nil }
             return AgentThread(id: thread.id, provider: thread.provider, pid: thread.pid, state: .working,
                                displayName: thread.displayName, host: thread.host, sessionID: thread.sessionID,
                                activity: thread.activity, updatedAt: thread.updatedAt)
@@ -179,7 +181,7 @@ enum AgentBackgroundScanner {
         let registry = processes.contains { $0.provider == "Claude Code" }
             ? ClaudeSessionRegistry.load(home: home)
             : ClaudeRegistrySnapshot()
-        let processOnly = Set(AgentProcessDescriptor.processOnlyProviders.values)
+        let processOnly = AgentProcessDescriptor.processOnlyProviderNames
         let busy: Set<Int32> = processes.contains { processOnly.contains($0.provider) }
             ? busyAgents(pids: processes.filter { processOnly.contains($0.provider) }.map(\.pid),
                          cpuListing: command("/bin/ps", ["-axo", "pid=,ppid=,%cpu="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "")
@@ -274,7 +276,8 @@ enum AgentBackgroundScanner {
             }
             guard fields.count >= index + 3,
                   let seconds = elapsed(String(fields[index])) else { continue }
-            let arguments = tokenize(fields[(index + 2)...].joined(separator: " "))
+            let commandLine = fields[(index + 2)...].joined(separator: " ")
+            let arguments = tokenize(commandLine)
             // macOS truncates `comm` to 16 characters, so a CLI started by its
             // full path (e.g. npm's native Codex binary) shows up as a prefix
             // like "/opt/homebrew/li". Recover the path from argv[0].
@@ -282,7 +285,15 @@ enum AgentBackgroundScanner {
             if let argv0 = arguments.first, argv0.count > executable.count, argv0.hasPrefix(executable) {
                 executable = argv0
             }
-            guard let provider = AgentProcessDescriptor.provider(executable: executable, arguments: arguments) else { continue }
+            let provider: String
+            if let bundled = bundledExecutable(commandLine: commandLine, truncated: String(fields[index + 1])) {
+                guard let app = AgentProcessDescriptor.desktopAppProviders[URL(fileURLWithPath: bundled).lastPathComponent] else { continue }
+                executable = bundled
+                provider = app
+            } else {
+                guard let cli = AgentProcessDescriptor.provider(executable: executable, arguments: arguments) else { continue }
+                provider = cli
+            }
             // Codex's background app-server daemon is not a task.
             if provider == "Codex", arguments.dropFirst().first == "app-server" { continue }
             var descriptor = AgentProcessDescriptor(pid: pid, provider: provider,
@@ -293,6 +304,20 @@ enum AgentBackgroundScanner {
             result.append(descriptor)
         }
         return result.sorted { $0.pid < $1.pid }
+    }
+
+    /// A Mac app's path can contain spaces (`/Applications/DeepSeek
+    /// Harness.app/Contents/MacOS/DeepSeek Harness`), which argv tokenizing
+    /// splits apart. Recover `<Name>.app/Contents/MacOS/<Name>` whole.
+    static func bundledExecutable(commandLine: String, truncated: String) -> String? {
+        guard commandLine.hasPrefix(truncated),
+              let marker = commandLine.range(of: ".app/Contents/MacOS/") else { return nil }
+        let bundlePath = commandLine[..<marker.lowerBound]
+        let bundleName = bundlePath.split(separator: "/").last.map(String.init) ?? ""
+        guard !bundleName.isEmpty, commandLine[marker.upperBound...].hasPrefix(bundleName) else { return nil }
+        let end = commandLine.index(marker.upperBound, offsetBy: bundleName.count)
+        guard end == commandLine.endIndex || commandLine[end] == " " else { return nil }
+        return String(commandLine[..<end])
     }
 
     private static func currentDirectory(pid: Int32) -> String? {

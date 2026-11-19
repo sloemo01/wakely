@@ -136,6 +136,19 @@ struct AgentProcessDescriptor: Equatable, Sendable {
         "qwen": "Qwen Code", "dsh": "DeepSeek Harness", "hermes": "Hermes Agent",
     ]
 
+    /// Desktop apps that run agents, by their bundle executable. Matched only
+    /// on a `<Name>.app/Contents/MacOS/<Name>` path, never on a bare name, so
+    /// the Codex app is not mistaken for the Codex CLI.
+    static let desktopAppProviders: [String: String] = [
+        "DeepSeek Harness": "DeepSeek Harness", "Claude": "Claude", "Codex": "Codex App",
+        "Cursor": "Cursor", "OpenCode": "OpenCode", "Windsurf": "Windsurf", "Devin": "Devin",
+        "Kiro": "Kiro",
+    ]
+
+    static var processOnlyProviderNames: Set<String> {
+        Set(processOnlyProviders.values).union(desktopAppProviders.values)
+    }
+
     static func provider(executable: String, arguments: [String]) -> String? {
         let name = URL(fileURLWithPath: executable).lastPathComponent.lowercased()
         // npm's Claude Code package runs a native `claude.exe`; `claude` is its symlink.
