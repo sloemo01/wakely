@@ -141,6 +141,13 @@ struct AgentTaskStateTests {
         expect(otherProviders == ["Pi", "Cursor Agent", "Aider", "DeepSeek Harness", "Qwen Code", "Kilo", "Amp", "Cline", "Hermes Agent"], "process-only agents recognized by name")
         let cpu = "10 1 0.4\n11 10 0.0\n20 1 0.3\n21 20 0.2\n22 21 38.5\n30 1 7.0\nbad line\n"
         expect(AgentBackgroundScanner.busyAgents(pids: [10, 20, 30, 40], cpuListing: cpu) == [20, 30], "busy from own or descendant CPU; idle CLI and missing PID are not busy")
+        var lastBusy: [String: Date] = [:]
+        let busyPi = AgentThread(id: "Pi-5", provider: "Pi", pid: 5, state: .working)
+        let quietPi = AgentThread(id: "Pi-5", provider: "Pi", pid: 5, state: .unknown)
+        _ = AgentThread.holdingRecentlyBusy([busyPi], lastBusy: &lastBusy, now: now)
+        expect(AgentThread.holdingRecentlyBusy([quietPi], lastBusy: &lastBusy, now: now.addingTimeInterval(30))[0].state == .working, "short CPU pause keeps a process-only agent working")
+        expect(AgentThread.holdingRecentlyBusy([quietPi], lastBusy: &lastBusy, now: now.addingTimeInterval(61))[0].state == .unknown, "long quiet stops holding, never claims idle")
+        expect(AgentThread.finishedTransitions(from: [busyPi], to: [quietPi]).isEmpty, "quiet process-only agent is not a finished task")
         let full = AgentBackgroundScanner.parseProcesses(truncated, now: now)
         expect(full.count == 2 && full[0].pid == 200 && full[0].provider == "Codex" && full[1].pid == 203 && full[1].provider == "Claude Code", "truncated comm recovered from argv0; claude.exe matched; app-server skipped")
 

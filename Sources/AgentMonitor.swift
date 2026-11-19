@@ -43,6 +43,23 @@ struct AgentThread: Identifiable, Equatable, Sendable {
         self.updatedAt = updatedAt
     }
 
+    /// Process-only agents read as working from CPU use, which dips while
+    /// they wait on a model. Keep one working until it has been quiet for
+    /// `hold`, so short pauses don't end Agent Screen or Finish Work.
+    static func holdingRecentlyBusy(_ threads: [AgentThread], lastBusy: inout [String: Date],
+                                    now: Date, hold: TimeInterval = 60) -> [AgentThread] {
+        let processOnly = Set(AgentProcessDescriptor.processOnlyProviders.values)
+        lastBusy = lastBusy.filter { entry in threads.contains { $0.id == entry.key } }
+        return threads.map { thread in
+            guard processOnly.contains(thread.provider) else { return thread }
+            if thread.state == .working { lastBusy[thread.id] = now; return thread }
+            guard let last = lastBusy[thread.id], now.timeIntervalSince(last) < hold else { return thread }
+            return AgentThread(id: thread.id, provider: thread.provider, pid: thread.pid, state: .working,
+                               displayName: thread.displayName, host: thread.host, sessionID: thread.sessionID,
+                               activity: thread.activity, updatedAt: thread.updatedAt)
+        }
+    }
+
     static func finishedTransitions(from previous: [AgentThread], to current: [AgentThread]) -> [AgentThread] {
         let old = Dictionary(previous.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         return current.filter { $0.state == .idle && (old[$0.id]?.state.busy ?? false) }
@@ -108,17 +125,20 @@ final class AgentMonitor {
         if changed { onChange?() }
     }
 
+    private var lastBusy: [String: Date] = [:]
+
     private func scan() {
         guard scanTask == nil else { return }
         let currentGeneration = generation
         scanTask = Task { [weak self] in
             // ps, lsof, directory traversal, and transcript tails all run on a
             // detached worker, never on the main actor / menu-bar thread.
-            let found = await Task.detached(priority: .utility) {
+            let scanned = await Task.detached(priority: .utility) {
                 AgentBackgroundScanner.scan(home: FileManager.default.homeDirectoryForCurrentUser)
             }.value
             guard let self, !Task.isCancelled, self.generation == currentGeneration else { return }
             self.scanTask = nil
+            let found = AgentThread.holdingRecentlyBusy(scanned, lastBusy: &self.lastBusy, now: Date())
             self.finishedThreads = AgentThread.finishedTransitions(from: self.threads, to: found)
             if self.threads != found {
                 self.threads = found
@@ -194,7 +214,9 @@ enum AgentBackgroundScanner {
                let claimed = ClaudeSessionRegistry.claimedState(for: record, process: process) {
                 state = claimed
             }
-            if processOnly.contains(process.provider) { state = busy.contains(process.pid) ? .working : .idle }
+            // A quiet CPU is not proof the task finished (the agent may be
+            // waiting on its model), so a non-busy process-only agent is unknown.
+            if processOnly.contains(process.provider) { state = busy.contains(process.pid) ? .working : .unknown }
 
             return AgentThread(id: "\(process.provider)-\(process.pid)", provider: process.provider, pid: process.pid,
                                state: state, displayName: snapshot.name, host: snapshot.host,
