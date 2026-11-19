@@ -583,13 +583,17 @@ enum HelperInstallCommandBuilder {
             && !path.unicodeScalars.contains { $0.value < 32 || $0.value == 127 || $0 == "'" || $0 == "\\" }
     }
 
-    static func uninstallPlan(daemonPlistName: String, daemonLabel: String) -> HelperInstallPlan? {
+    /// `removeData` also deletes the helper's root-owned backups and journals;
+    /// only a full Delete Wakely wants that, after every setting was restored.
+    static func uninstallPlan(daemonPlistName: String, daemonLabel: String,
+                              removeData: Bool = false) -> HelperInstallPlan? {
         guard isSafePlistName(daemonPlistName), isSafeLabel(daemonLabel) else { return nil }
         let installed = launchDaemonsDirectory + "/" + daemonPlistName
         let domain = "system/" + daemonLabel
         let shell = "set -eu; "
             + "/bin/launchctl bootout \(quote(domain)) 2>/dev/null || /usr/bin/true; "
             + "/bin/rm -f \(quote(installed)) '/Library/PrivilegedHelperTools/dev.wakely.helper' '/Library/PrivilegedHelperTools/dev.wakely.helper.peer'; "
+            + (removeData ? "/bin/rm -rf '/Library/Application Support/dev.wakely.helper'; " : "")
             + "[ ! -e \(quote(installed)) ]"
         return HelperInstallPlan(
             sourcePlistPath: "",
@@ -661,7 +665,6 @@ enum HelperInstallCommandBuilder {
         }
     }
 }
-
 // END GENERATED HELPER POLICY
 
         var helperPolicyChecks = 0
@@ -997,6 +1000,11 @@ enum HelperInstallCommandBuilder {
         check(uninstall.installedPlistPath == "/Library/LaunchDaemons/dev.wakely.helper.plist", "uninstall targets the fixed path")
         check(uninstall.appleScriptArgument == "do shell script \"\(expectedUninstallShell)\" with administrator privileges", "uninstall AppleScript wraps the script once")
         check(HelperInstallCommandBuilder.uninstallPlan(daemonPlistName: plistName, daemonLabel: "bad/label") == nil, "uninstall validates the label")
+        let dataDir = "/Library/Application Support/dev.wakely.helper"
+        check(!uninstall.shellScript.contains(dataDir), "a plain helper uninstall keeps the helper's backups")
+        if let full = HelperInstallCommandBuilder.uninstallPlan(daemonPlistName: plistName, daemonLabel: label, removeData: true) {
+            check(full.shellScript.contains("/bin/rm -rf '\(dataDir)'"), "Delete Wakely removes the helper's root-owned data")
+        } else { check(false, "full uninstall plan builds") }
 
         check(
             HelperInstallCommandBuilder.appleScript(shellScript: "echo \"hi\" \\ done")
