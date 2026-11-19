@@ -200,6 +200,8 @@ struct AgentTaskStateTests {
         602 601 40.0 /bin/zsh
         """
         expect(AgentBackgroundScanner.busyAgents(pids: [500, 600], cpuListing: electron, apps: [500, 600]) == [600], "an app counts as working only from work outside its bundle")
+        let promptBundle = AgentBackgroundScanner.parseProcesses("42002 1 00:30 /usr/local/bin/co /usr/local/bin/codex exec fix Foo.app/Contents/Info.plist", now: now, isExecutable: { $0 == "/usr/local/bin/codex" })
+        expect(promptBundle.map(\.provider) == ["Codex"], "a prompt mentioning a bundle path is still a Codex task")
         var heldWaiting: [String: Date] = [:]
         let waitingOC = AgentThread(id: "OpenCode-9", provider: "OpenCode", pid: 9, state: .waiting)
         expect(AgentThread.holdingRecentlyBusy([waitingOC], lastBusy: &heldWaiting, now: now) == [waitingOC], "session-read waiting state is listed as is")

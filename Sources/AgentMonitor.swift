@@ -341,7 +341,9 @@ enum AgentBackgroundScanner {
             // A path with spaces splits into pieces: ".../Frameworks/Codex Framework.framework/..."
             // must not read as a `Codex` CLI. Its continuation runs into a bundle path.
             let pathContinues: Bool = {
-                guard let argv0 = arguments.first, commandLine.hasPrefix(argv0 + " ") else { return false }
+                // A real CLI's argv0 is an executable; a cut-off path fragment isn't.
+                guard let argv0 = arguments.first, argv0.hasPrefix("/"), !isExecutable(argv0),
+                      commandLine.hasPrefix(argv0 + " ") else { return false }
                 for piece in commandLine.dropFirst(argv0.count).split(separator: " ") {
                     if piece.hasPrefix("-") { return false }
                     if piece.contains(".app/") || piece.contains(".framework/") { return true }
