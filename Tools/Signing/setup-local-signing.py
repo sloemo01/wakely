@@ -31,10 +31,10 @@ def main():
         ['security', 'find-certificate', '-c', NAME, '-a'],
         capture_output=True, text=True,
     )
-    if existing.returncode == 0:
+    if existing.returncode == 0 and existing.stdout.strip():
         raise RuntimeError('A Wakely Local Development certificate already exists. '
                            'Recover the existing identity via Keychain Access; do not create another.')
-    if existing.returncode != 44:
+    if existing.returncode not in (0, 44):
         raise RuntimeError('Cannot check for an existing certificate; no identity was created.')
 
     keychain = None
