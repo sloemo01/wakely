@@ -625,10 +625,9 @@ struct ScreenPromptSheet: View {
                                                      withIntermediateDirectories: true)
         }
         .onDisappear {
-            let folder = store.folderURL(for: promptID)
-            if (try? FileManager.default.contentsOfDirectory(atPath: folder.path))?.isEmpty == true {
-                try? FileManager.default.removeItem(at: folder)
-            }
+            // rmdir(2) removes the folder only if it is still empty, atomically,
+            // so files an agent has just written are never deleted.
+            _ = rmdir(store.folderURL(for: promptID).path)
         }
         .onDisappear {
             copyReset?.cancel()
