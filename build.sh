@@ -120,6 +120,7 @@ if [ "$IDENT" != - ] && [ "$LOCAL_SIGNING" = 0 ]; then
   IDENTITY_NAME=$(security find-identity -v -p codesigning ${SIGN_KEYCHAIN:+"$SIGN_KEYCHAIN"} 2>/dev/null |
     awk -v id="$IDENT" 'toupper($2) == toupper(id) { sub(/^ *[^"]*"/, ""); sub(/"$/, ""); print; exit }')
   case "$IDENTITY_NAME" in 'Apple Development: '*) APPLE_DEVELOPMENT=1 ;; esac
+  case "$IDENT" in 'Apple Development: '*) APPLE_DEVELOPMENT=1 ;; esac
 fi
 # Distribution builds opt in to hardened runtime and secure timestamps.
 if [ "${WAKELY_DISTRIBUTION:-0}" = 1 ]; then
@@ -140,6 +141,11 @@ sign_target() {
   local args=("${SIGN_ARGS[@]}")
   if [ "$LOCAL_SIGNING" = 1 ]; then
     args+=(--requirements "=designated => identifier \"$signing_id\" and certificate leaf = H\"$IDENT\"")
+  fi
+  # Hardened runtime enables library validation, which would reject the
+  # agent-built, ad-hoc Screen.dylib that Custom Screens dlopen into the app.
+  if [ "$signing_id" = dev.wakely.app ] && [[ " ${args[*]} " == *" runtime "* ]]; then
+    args+=(--entitlements "$PWD/Wakely.entitlements")
   fi
   local output
   if output=$(codesign --force --identifier "$signing_id" "${args[@]}" "$target" 2>&1); then
