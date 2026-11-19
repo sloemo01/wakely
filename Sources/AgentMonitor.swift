@@ -353,7 +353,7 @@ enum AgentBackgroundScanner {
             }
             // Codex's background app-server daemon is not a task.
             // The Codex app also starts `codex -c … app-server` and `exec-server`.
-            if provider == "Codex", arguments.dropFirst().contains(where: { $0 == "app-server" || $0 == "exec-server" }) { continue }
+            if provider == "Codex", ["app-server", "exec-server"].contains(codexSubcommand(arguments)) { continue }
             var descriptor = AgentProcessDescriptor(pid: pid, provider: provider,
                                                     sessionID: AgentProcessDescriptor.explicitSessionID(arguments: arguments),
                                                     cwd: nil, startedAt: now.addingTimeInterval(-seconds))
@@ -368,6 +368,21 @@ enum AgentBackgroundScanner {
     /// A Mac app's path can contain spaces (`/Applications/DeepSeek
     /// Harness.app/Contents/MacOS/DeepSeek Harness`), which argv tokenizing
     /// splits apart. Recover `<Name>.app/Contents/MacOS/<Name>` whole.
+    /// First positional argument, skipping options and the values of options
+    /// that take one, so a prompt that mentions `app-server` is not mistaken for it.
+    static func codexSubcommand(_ arguments: [String]) -> String? {
+        let valued: Set<String> = ["-c", "--config", "-m", "--model", "-C", "--cd", "-p", "--profile",
+                                   "-s", "--sandbox", "-a", "--ask-for-approval", "-i", "--image"]
+        var index = 1
+        while index < arguments.count {
+            let argument = arguments[index]
+            if valued.contains(argument) { index += 2; continue }
+            if argument.hasPrefix("-") { index += 1; continue }
+            return argument
+        }
+        return nil
+    }
+
     static func bundledExecutable(commandLine: String, truncated: String,
                                   isExecutable: (String) -> Bool) -> String? {
         guard commandLine.hasPrefix(truncated),
