@@ -155,7 +155,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
                 menu.addItem(.separator())
                 let label = Self.agentSummaryTitle(working: agents.workingCount,
                                                    waiting: agents.waitingCount,
-                                                   total: agents.threads.count)
+                                                   total: agents.threads.count,
+                                                   idle: agents.threads.filter { $0.state == .idle }.count)
                 let row = NSMenuItem(title: label, action: nil, keyEquivalent: "")
                 row.isEnabled = false
                 menu.addItem(row)
@@ -234,12 +235,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     /// Pure label seam: callers/tests can verify the fallback without a live
     /// agent. An empty or missing display name falls back to the provider.
-    static func agentSummaryTitle(working: Int, waiting: Int, total: Int) -> String {
+    static func agentSummaryTitle(working: Int, waiting: Int, total: Int, idle: Int = 0) -> String {
         if working > 0 {
             return "\(working) working\(waiting > 0 ? ", \(waiting) waiting on you" : "")"
         }
         if waiting > 0 { return "\(waiting) waiting on you" }
-        return total == 1 ? "1 agent running" : "\(total) agents running"
+        let running = total - idle
+        // A finished (idle) session is open but not running anything.
+        if running <= 0 { return idle == 1 ? "1 agent idle" : "\(idle) agents idle" }
+        return running == 1 ? "1 agent running" : "\(running) agents running"
     }
 
     static func agentRowTitle(for thread: AgentThread) -> String {
