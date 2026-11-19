@@ -133,7 +133,7 @@ struct AgentProcessDescriptor: Equatable, Sendable {
     static let processOnlyProviders: [String: String] = [
         "opencode": "OpenCode", "pi": "Pi", "cursor-agent": "Cursor Agent", "amp": "Amp",
         "cline": "Cline", "kilo": "Kilo", "kilocode": "Kilo", "aider": "Aider",
-        "qwen": "Qwen Code", "dsh": "DeepSeek Harness",
+        "qwen": "Qwen Code", "dsh": "DeepSeek Harness", "hermes": "Hermes Agent",
     ]
 
     static func provider(executable: String, arguments: [String]) -> String? {
