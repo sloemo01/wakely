@@ -1,111 +1,105 @@
 #!/usr/bin/env python3
-"""One-time, explicitly invoked setup of a stable local code-signing identity."""
+"""Explicit one-time creation of a Wakely-only local signing identity.
 
+Never called by build.sh. The private key is imported into the user's login
+Keychain, with codesign as the only explicitly allowed application. Only the
+public certificate and non-secret fingerprint configuration are retained here.
+No keychain is created/unlocked and no password is recorded.
+"""
 import hashlib
 import json
 import os
 from pathlib import Path
-import secrets
-import shlex
+import shutil
 import subprocess
-import sys
 import tempfile
 
-
 NAME = 'Wakely Local Development'
-SIGNING = Path.home() / 'Library/Application Support/Wakely/Signing'
-CONFIG = SIGNING / 'identity.json'
+DIRECTORY = Path.home() / 'Library/Application Support/Wakely/Signing'
+KEYCHAIN = Path.home() / 'Library/Keychains/login.keychain-db'
+CONFIG = DIRECTORY / 'identity.json'
 
 
-def run(args, **kwargs):
-    return subprocess.run(args, check=True, capture_output=True, text=True, **kwargs).stdout
+def run(*args, **kwargs):
+    return subprocess.run(args, check=True, **kwargs)
 
 
 def main():
-    if sys.platform != 'darwin':
-        raise RuntimeError('Local signing setup runs only on macOS.')
-    if CONFIG.exists() or CONFIG.is_symlink():
-        raise RuntimeError('Signing configuration already exists; refusing to rotate the identity.')
-
-    existing = subprocess.run(
-        ['security', 'find-certificate', '-c', NAME, '-a'],
-        capture_output=True, text=True,
-    )
-    if existing.returncode == 0 and existing.stdout.strip():
-        raise RuntimeError('A Wakely Local Development certificate already exists. '
-                           'Recover the existing identity via Keychain Access; do not create another.')
-    if existing.returncode not in (0, 44):
-        raise RuntimeError('Cannot check for an existing certificate; no identity was created.')
-
-    keychain = None
-    for command in ('login-keychain', 'default-keychain'):
-        result = subprocess.run(['security', command], capture_output=True, text=True)
-        if result.returncode == 0:
-            paths = shlex.split(result.stdout)
-            if len(paths) == 1 and Path(paths[0]).is_file():
-                keychain = paths[0]
-                break
-    if keychain is None or '\n' in keychain or '\t' in keychain:
-        raise RuntimeError('An existing login keychain file is required. Open Keychain Access to recover it.')
-
-    with tempfile.TemporaryDirectory(prefix='wakely-signing-') as directory:
-        temp = Path(directory)
-        temp.chmod(0o700)
-        config = temp / 'openssl.cnf'
-        key = temp / 'private.pem'
-        cert = temp / 'certificate.pem'
-        der = temp / 'certificate.cer'
-        bundle = temp / 'identity.p12'
-        config.write_text('''[req]
+    if CONFIG.exists():
+        config = json.loads(CONFIG.read_text())
+        print('Local signing is already configured:', config['identity'])
+        print('Reusing it is essential; do not generate a new certificate per build.')
+        return
+    if DIRECTORY.is_symlink() or KEYCHAIN.is_symlink():
+        raise SystemExit('Refusing unexpected symlink for signing directory/keychain.')
+    if not KEYCHAIN.is_file():
+        raise SystemExit('The login Keychain is missing; no keychain will be created automatically.')
+    found = subprocess.run(['/usr/bin/security', 'find-certificate', '-c', NAME, str(KEYCHAIN)],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if found.returncode == 0:
+        raise SystemExit('A Wakely Local Development certificate already exists. Recover its configuration; do not rotate it silently.')
+    openssl = shutil.which('openssl')
+    if not openssl:
+        raise SystemExit('OpenSSL is required.')
+    DIRECTORY.mkdir(parents=True, exist_ok=True, mode=0o700)
+    os.chmod(DIRECTORY, 0o700)
+    # The only on-disk private key is in this freshly created, mode-0700
+    # directory. No key/password is printed, committed, or copied to the app.
+    with tempfile.TemporaryDirectory(prefix='wakely-signing-') as temporary:
+        work = Path(temporary).resolve()
+        assert work.is_dir() and work.name.startswith('wakely-signing-')
+        os.chmod(work, 0o700)
+        key = work / 'wakely-private.pem'
+        cert = work / 'wakely-public.pem'
+        der = work / 'wakely-public.cer'
+        settings = work / 'openssl.cnf'
+        settings.write_text('''[req]
 prompt = no
 distinguished_name = subject
-x509_extensions = extensions
+x509_extensions = codesign
 [subject]
 CN = Wakely Local Development
-[extensions]
+O = Wakely Local Builds
+[codesign]
 basicConstraints = critical,CA:false
 keyUsage = critical,digitalSignature
 extendedKeyUsage = critical,codeSigning
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always
 ''')
-        run(['openssl', 'req', '-new', '-x509', '-newkey', 'rsa:3072', '-nodes',
-             '-sha256', '-days', '7300', '-config', str(config),
-             '-keyout', str(key), '-out', str(cert)])
-        run(['openssl', 'x509', '-in', str(cert), '-outform', 'DER', '-out', str(der)])
-        fingerprint = hashlib.sha1(der.read_bytes()).hexdigest().upper()
-        environment = dict(os.environ, WAKELY_P12_PASSWORD=secrets.token_urlsafe(32))
-        legacy = ['-legacy'] if run(['openssl', 'version']).startswith('OpenSSL 3.') else []
-        run(['openssl', 'pkcs12', '-export', *legacy, '-inkey', str(key),
-             '-in', str(cert), '-name', NAME, '-out', str(bundle),
-             '-passout', 'env:WAKELY_P12_PASSWORD'], env=environment)
-        run(['security', 'import', str(bundle), '-k', keychain,
-             '-P', environment['WAKELY_P12_PASSWORD'], '-T', '/usr/bin/codesign'])
-        run(['security', 'add-trusted-cert', '-r', 'trustRoot', '-p', 'codeSign',
-             '-k', keychain, str(der)])
-        identities = run(['security', 'find-identity', '-v', '-p', 'codesigning', keychain])
-        if fingerprint not in identities.upper():
-            print('Warning: imported identity is not currently valid for code signing. '
-                  'Inspect it in Keychain Access before building.', file=sys.stderr)
-
-        SIGNING.mkdir(parents=True, exist_ok=True, mode=0o700)
-        SIGNING.chmod(0o700)
-        with open(CONFIG, 'x', opener=lambda path, flags: os.open(path, flags, 0o600)) as output:
-            CONFIG.chmod(0o600)
-            (SIGNING / 'Wakely-Local-Development.cer').write_bytes(der.read_bytes())
-            json.dump({'mode': 'local-certificate', 'name': NAME,
-                       'identity': fingerprint, 'keychain': keychain}, output, indent=2)
-            output.write('\n')
-    print(f'Configured {NAME}: {fingerprint}')
-    print('Keep an encrypted private-key backup using Keychain Access. This is not Developer ID or notarization.')
+        previous = os.umask(0o077)
+        try:
+            run(openssl, 'genrsa', '-traditional', '-out', str(key), '3072',
+                stdout=subprocess.DEVNULL)
+            run(openssl, 'req', '-new', '-x509', '-sha256', '-days', '3650',
+                '-key', str(key), '-out', str(cert), '-config', str(settings))
+            run(openssl, 'x509', '-in', str(cert), '-outform', 'DER', '-out', str(der))
+            fingerprint = hashlib.sha1(der.read_bytes()).hexdigest().upper()
+            run('/usr/bin/security', 'import', str(key), '-k', str(KEYCHAIN),
+                '-t', 'priv', '-f', 'openssl', '-T', '/usr/bin/codesign')
+            run('/usr/bin/security', 'import', str(cert), '-k', str(KEYCHAIN), '-t', 'cert')
+            # USER trust, constrained to code signing. No -d (system/admin)
+            # and no SSL/SMIME/basic trust or unrestricted private-key ACL.
+            run('/usr/bin/security', 'add-trusted-cert', '-r', 'trustRoot',
+                '-p', 'codeSign', '-k', str(KEYCHAIN), str(cert))
+            identities = subprocess.check_output(
+                ['/usr/bin/security', 'find-identity', '-v', '-p', 'codesigning', str(KEYCHAIN)],
+                text=True)
+            if fingerprint not in identities:
+                raise SystemExit('The certificate was imported, but is not a valid signing identity. Do not rerun setup to replace it; inspect Keychain.')
+            (DIRECTORY / 'Wakely-Local-Development.cer').write_bytes(der.read_bytes())
+            CONFIG.write_text(json.dumps({'name': NAME, 'identity': fingerprint,
+                                          'keychain': str(KEYCHAIN), 'mode': 'local-certificate'}, indent=2) + '\n')
+            print('Created dedicated code-signing identity:', fingerprint)
+            print('Private key: login Keychain only; allowed signer: /usr/bin/codesign')
+            print('Trust scope: current user, Code Signing only')
+            print('Public certificate/config:', DIRECTORY)
+        finally:
+            os.umask(previous)
+        # TemporaryDirectory removes only the exact freshly created work
+        # directory verified above, including the transient private PEM.
+    print('Temporary private-key files removed. Back up the identity securely via Keychain Access if needed.')
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as error:
-        if isinstance(error, subprocess.CalledProcessError):
-            message = f'{error.cmd[0]} failed (exit {error.returncode}).'
-        else:
-            message = str(error)
-        print(f'Error: {message} If import already occurred, recover via Keychain Access; '
-              'do not generate a replacement identity.', file=sys.stderr)
-        sys.exit(1)
+    main()
