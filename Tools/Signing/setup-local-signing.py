@@ -6,6 +6,7 @@ Keychain, with codesign as the only explicitly allowed application. Only the
 public certificate and non-secret fingerprint configuration are retained here.
 No keychain is created/unlocked and no password is recorded.
 """
+import argparse
 import hashlib
 import json
 import os
@@ -24,12 +25,30 @@ def run(*args, **kwargs):
     return subprocess.run(args, check=True, **kwargs)
 
 
+def allow_codesign_access(keychain):
+    print('Allow Apple signing tools to use the Wakely key. Enter the keychain password when security prompts.')
+    run('/usr/bin/security', 'set-key-partition-list', '-S', 'apple-tool:,apple:',
+        '-s', '-l', 'wakely-private', str(keychain))
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--allow-codesign-access', action='store_true',
+                        help='Allow Apple signing tools to use the existing Wakely key without rotating it.')
+    args = parser.parse_args()
     if CONFIG.exists():
         config = json.loads(CONFIG.read_text())
+        if args.allow_codesign_access:
+            keychain = Path(config['keychain'])
+            if config['name'] != NAME or config['mode'] != 'local-certificate' or not keychain.is_file():
+                raise SystemExit('A configured Wakely local identity and existing keychain are required.')
+            allow_codesign_access(keychain)
+            return
         print('Local signing is already configured:', config['identity'])
         print('Reusing it is essential; do not generate a new certificate per build.')
         return
+    if args.allow_codesign_access:
+        raise SystemExit('No local signing configuration exists; access migration will not create an identity.')
     if DIRECTORY.is_symlink() or KEYCHAIN.is_symlink():
         raise SystemExit('Refusing unexpected symlink for signing directory/keychain.')
     if not KEYCHAIN.is_file():
@@ -77,6 +96,7 @@ authorityKeyIdentifier = keyid:always
             fingerprint = hashlib.sha1(der.read_bytes()).hexdigest().upper()
             run('/usr/bin/security', 'import', str(key), '-k', str(KEYCHAIN),
                 '-t', 'priv', '-f', 'openssl', '-T', '/usr/bin/codesign')
+            allow_codesign_access(KEYCHAIN)
             run('/usr/bin/security', 'import', str(cert), '-k', str(KEYCHAIN), '-t', 'cert')
             # USER trust, constrained to code signing. No -d (system/admin)
             # and no SSL/SMIME/basic trust or unrestricted private-key ACL.

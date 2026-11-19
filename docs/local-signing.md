@@ -18,6 +18,27 @@ password, or uploads the private key. Transient private PEM files live in a fres
 private temporary directory and are deleted after import. Do not run setup during
 normal builds or regenerate the certificate for each release.
 
+After importing the `wakely-private` key, setup allows the `apple-tool:` and
+`apple:` partitions for that key only, so modern macOS does not ask for key
+access on every `codesign` call. Run setup in an interactive terminal:
+`security` prompts once for the login keychain password. Enter it directly at
+that prompt; the script never captures, stores, logs, or passes the password
+as a command-line argument.
+
+For an identity created before this access fix, run explicitly:
+
+```sh
+python3 Tools/Signing/setup-local-signing.py --allow-codesign-access
+```
+
+This updates only the `wakely-private` signing key's partition list in the
+keychain recorded in `identity.json`, with the same one-time password prompt.
+It does not generate/import a key, change certificate trust, or rewrite the
+configuration. Without existing configuration it refuses to proceed. Running
+setup without the flag when already configured still exits without prompting
+or changing anything. Subsequent builds need no per-signature authorization
+while the login keychain is unlocked; this does not unlock a locked keychain.
+
 Only the public certificate and non-secret configuration are kept under:
 
 ```
