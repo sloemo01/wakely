@@ -496,7 +496,9 @@ struct ScreenPromptSheet: View {
     var onClose: () -> Void
     @ObservedObject private var store = CustomScreenStore.shared
     private let screen: CustomScreen?
-    private let promptID: UUID
+    // State, not a let: SwiftUI re-creates this view, and a fresh UUID each
+    // time would make the prompt and the created folder disagree.
+    @State private var promptID: UUID
     @State private var copied = false
     @State private var request = ""
     @State private var copyReset: DispatchWorkItem?
@@ -504,7 +506,7 @@ struct ScreenPromptSheet: View {
 
     init(screen: CustomScreen?, bodyCap: CGFloat, onClose: @escaping () -> Void) {
         self.screen = screen
-        promptID = screen?.id ?? UUID()
+        _promptID = State(initialValue: screen?.id ?? UUID())
         self.bodyCap = bodyCap
         self.onClose = onClose
     }
