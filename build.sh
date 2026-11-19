@@ -111,6 +111,16 @@ fi
 IDENT="${IDENT:--}"
 SIGN_ARGS=(--sign "$IDENT")
 if [ -n "$SIGN_KEYCHAIN" ]; then SIGN_ARGS+=(--keychain "$SIGN_KEYCHAIN"); fi
+# An Apple Development certificate (free Personal Team) is Apple-issued but not
+# notarized: Gatekeeper offers "Apple could not verify" + Open Anyway instead of
+# reporting the build as damaged. That path requires the hardened runtime, so opt
+# in for this identity only. Local-certificate and ad-hoc paths stay unchanged.
+APPLE_DEVELOPMENT=0
+if [ "$IDENT" != - ] && [ "$LOCAL_SIGNING" = 0 ]; then
+  IDENTITY_NAME=$(security find-identity -v -p codesigning ${SIGN_KEYCHAIN:+"$SIGN_KEYCHAIN"} 2>/dev/null |
+    awk -v id="$IDENT" 'toupper($2) == toupper(id) { sub(/^ *[^"]*"/, ""); sub(/"$/, ""); print; exit }')
+  case "$IDENTITY_NAME" in 'Apple Development: '*) APPLE_DEVELOPMENT=1 ;; esac
+fi
 # Distribution builds opt in to hardened runtime and secure timestamps.
 if [ "${WAKELY_DISTRIBUTION:-0}" = 1 ]; then
   if [ "$IDENT" = - ]; then echo "Distribution requires WAKELY_SIGN_IDENTITY" >&2; exit 1; fi
@@ -118,6 +128,8 @@ if [ "${WAKELY_DISTRIBUTION:-0}" = 1 ]; then
     echo 'Developer ID distribution mode cannot use the local certificate; package local builds with package-dmg.sh instead' >&2
     exit 1
   fi
+  SIGN_ARGS+=(--options runtime --timestamp)
+elif [ "$APPLE_DEVELOPMENT" = 1 ]; then
   SIGN_ARGS+=(--options runtime --timestamp)
 fi
 if [ "$LOCAL_SIGNING" = 1 ]; then SIGN_ARGS+=(--timestamp=none); fi
@@ -129,7 +141,26 @@ sign_target() {
   if [ "$LOCAL_SIGNING" = 1 ]; then
     args+=(--requirements "=designated => identifier \"$signing_id\" and certificate leaf = H\"$IDENT\"")
   fi
-  codesign --force --identifier "$signing_id" "${args[@]}" "$target"
+  local output
+  if output=$(codesign --force --identifier "$signing_id" "${args[@]}" "$target" 2>&1); then
+    [ -z "$output" ] || printf '%s\n' "$output" >&2
+    return 0
+  fi
+  [ -z "$output" ] || printf '%s\n' "$output" >&2
+  # Apple's timestamp service is unreachable offline. A timestamp is optional for
+  # a non-notarized build, so retry once without one instead of failing the build.
+  # Only that failure is retried: an identity or signature error still fails.
+  case "$output" in
+    *[Tt]imestamp*) [ "$APPLE_DEVELOPMENT" = 1 ] || return 1 ;;
+    *) return 1 ;;
+  esac
+  local retry=()
+  for arg in "${args[@]}"; do
+    [ "$arg" = --timestamp ] || retry+=("$arg")
+  done
+  retry+=(--timestamp=none)
+  echo "   timestamp unavailable; signing ${target##*/} without one" >&2
+  codesign --force --identifier "$signing_id" "${retry[@]}" "$target"
 }
 # Nested code is signed BEFORE the app. A later `--deep` app signature would
 # rewrite these explicit identifiers (verified: it renamed the watchdog), and
