@@ -142,7 +142,7 @@ struct AgentProcessDescriptor: Equatable, Sendable {
     static let desktopAppProviders: [String: String] = [
         "DeepSeek Harness": "DeepSeek Harness", "Claude": "Claude", "Codex": "Codex App",
         "Cursor": "Cursor", "OpenCode": "OpenCode", "Windsurf": "Windsurf", "Devin": "Devin",
-        "Kiro": "Kiro",
+        "Kiro": "Kiro", "Hermes": "Hermes Agent", "Hermes Agent": "Hermes Agent",
     ]
 
     static var processOnlyProviderNames: Set<String> {
