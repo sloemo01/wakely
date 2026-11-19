@@ -65,9 +65,10 @@ enum AgentDisplayPolicy {
                                    selectedKinds: Set<DisplayToolKind> = defaultSelectedKinds,
                                    now: Date,
                                    grace: TimeInterval = defaultGrace) -> Bool {
-        // Process-only agents expose no task state, so their running process
-        // is the only signal: keep the screen usable while one is running.
-        if Set(AgentProcessDescriptor.processOnlyProviders.values).contains(thread.provider) { return true }
+        // Process-only agents expose no tool calls; while their process tree
+        // is busy (see `AgentBackgroundScanner.busyAgents`) keep the screen usable.
+        if thread.state == .working,
+           Set(AgentProcessDescriptor.processOnlyProviders.values).contains(thread.provider) { return true }
         // `waiting` and `unknown` are deliberately not display-using work.
         guard thread.state == .working,
               let activity = thread.activity,

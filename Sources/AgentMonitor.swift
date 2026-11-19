@@ -159,6 +159,11 @@ enum AgentBackgroundScanner {
         let registry = processes.contains { $0.provider == "Claude Code" }
             ? ClaudeSessionRegistry.load(home: home)
             : ClaudeRegistrySnapshot()
+        let processOnly = Set(AgentProcessDescriptor.processOnlyProviders.values)
+        let busy: Set<Int32> = processes.contains { processOnly.contains($0.provider) }
+            ? busyAgents(pids: processes.filter { processOnly.contains($0.provider) }.map(\.pid),
+                         cpuListing: command("/bin/ps", ["-axo", "pid=,ppid=,%cpu="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "")
+            : []
         return processes.map { process in
             let correlation = AgentTaskCorrelation.correlation(for: process, sessions: sessions, processes: processes)
             var snapshot = correlation.session ?? AgentSessionSnapshot(provider: process.provider)
@@ -189,12 +194,41 @@ enum AgentBackgroundScanner {
                let claimed = ClaudeSessionRegistry.claimedState(for: record, process: process) {
                 state = claimed
             }
+            if processOnly.contains(process.provider) { state = busy.contains(process.pid) ? .working : .idle }
 
             return AgentThread(id: "\(process.provider)-\(process.pid)", provider: process.provider, pid: process.pid,
                                state: state, displayName: snapshot.name, host: snapshot.host,
                                sessionID: snapshot.sessionID, activity: snapshot.activity,
                                updatedAt: snapshot.updatedAt)
         }.sorted { $0.id < $1.id }
+    }
+
+    /// Agents with no readable transcript count as working while they or the
+    /// processes they started (shells, builds, browsers) use CPU. An open but
+    /// idle CLI stays under the threshold. `cpuListing` is `ps -o pid,ppid,%cpu`.
+    static func busyAgents(pids: [Int32], cpuListing: String, threshold: Double = 5) -> Set<Int32> {
+        var cpu: [Int32: Double] = [:]
+        var children: [Int32: [Int32]] = [:]
+        for line in cpuListing.split(separator: "\n") {
+            let fields = line.split(whereSeparator: { $0 == " " || $0 == "\t" })
+            guard fields.count == 3, let pid = Int32(fields[0]), let parent = Int32(fields[1]),
+                  let usage = Double(fields[2]) else { continue }
+            cpu[pid] = usage
+            children[parent, default: []].append(pid)
+        }
+        var result: Set<Int32> = []
+        for pid in pids {
+            var total = 0.0
+            var queue = [pid]
+            var seen: Set<Int32> = []
+            while let next = queue.popLast(), seen.count < 512 {
+                guard seen.insert(next).inserted else { continue }
+                total += cpu[next] ?? 0
+                queue += children[next] ?? []
+            }
+            if total >= threshold { result.insert(pid) }
+        }
+        return result
     }
 
     /// ps fields: PID [parentPID] elapsed executable arguments. Both the
