@@ -178,6 +178,10 @@ struct AgentTaskStateTests {
         var heldWaiting: [String: Date] = [:]
         let waitingOC = AgentThread(id: "OpenCode-9", provider: "OpenCode", pid: 9, state: .waiting)
         expect(AgentThread.holdingRecentlyBusy([waitingOC], lastBusy: &heldWaiting, now: now) == [waitingOC], "session-read waiting state is listed as is")
+        var codexNew = AgentSessionSnapshot(provider: "Codex"); codexNew.state = .waiting; codexNew.updatedAt = now.addingTimeInterval(-5)
+        var codexOld = AgentSessionSnapshot(provider: "Codex"); codexOld.state = .working; codexOld.updatedAt = now.addingTimeInterval(-3600)
+        expect(AgentSessionState.newest([codexOld, codexNew], provider: "Codex", since: now.addingTimeInterval(-60), now: now)?.state == .waiting, "Codex app takes the newest fresh transcript since it started")
+        expect(AgentSessionState.newest([codexOld], provider: "Codex", since: nil, now: now) == nil, "a stale transcript is not the app's")
         let full = AgentBackgroundScanner.parseProcesses(truncated, now: now)
         expect(full.count == 2 && full[0].pid == 200 && full[0].provider == "Codex" && full[1].pid == 203 && full[1].provider == "Claude Code", "truncated comm recovered from argv0; claude.exe matched; app-server skipped")
 

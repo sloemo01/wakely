@@ -481,10 +481,10 @@ enum AgentSessionFiles {
 
     static func snapshots(home: URL, processes: [AgentProcessDescriptor]) -> [AgentSessionSnapshot] {
         var result: [AgentSessionSnapshot] = []
-        if processes.contains(where: { $0.provider == "Claude Code" }) {
+        if processes.contains(where: { $0.provider == "Claude Code" || $0.provider == "Claude" }) {
             result += read(root: home.appendingPathComponent(".claude/projects"), provider: "Claude Code", maxDepth: 1)
         }
-        if processes.contains(where: { $0.provider == "Codex" }) {
+        if processes.contains(where: { $0.provider == "Codex" || $0.provider == "Codex App" }) {
             result += read(root: home.appendingPathComponent(".codex/sessions"), provider: "Codex", maxDepth: 3)
         }
         return result

@@ -232,6 +232,13 @@ enum AgentBackgroundScanner {
                let read = OpenCodeSessionState.state(row: row, hasChild: children[process.pid]?.isEmpty == false, now: Date()) {
                 state = read
             }
+            // The Codex and Claude desktop apps write the same transcripts as
+            // their CLIs; the app owns the newest one written since it started.
+            if let transcriptProvider = ["Codex App": "Codex", "Claude": "Claude Code"][process.provider],
+               let newest = AgentSessionState.newest(sessions, provider: transcriptProvider, since: process.startedAt, now: Date()),
+               newest.state != .unknown {
+                state = newest.state
+            }
 
             return AgentThread(id: "\(process.provider)-\(process.pid)", provider: process.provider, pid: process.pid,
                                state: state, displayName: snapshot.name, host: snapshot.host,
@@ -503,5 +510,16 @@ enum OpenCodeSessionState {
             return .waiting
         }
         return .working
+    }
+}
+
+
+enum AgentSessionState {
+    static func newest(_ sessions: [AgentSessionSnapshot], provider: String, since: Date?, now: Date,
+                       freshness: TimeInterval = 600) -> AgentSessionSnapshot? {
+        sessions.filter { session in
+            guard session.provider == provider, let updated = session.updatedAt else { return false }
+            return updated >= (since ?? .distantPast) && now.timeIntervalSince(updated) < freshness
+        }.max { ($0.updatedAt ?? .distantPast) < ($1.updatedAt ?? .distantPast) }
     }
 }
