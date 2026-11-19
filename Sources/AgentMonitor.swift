@@ -313,6 +313,9 @@ enum AgentBackgroundScanner {
         guard commandLine.hasPrefix(truncated),
               let marker = commandLine.range(of: ".app/Contents/MacOS/") else { return nil }
         let bundlePath = commandLine[..<marker.lowerBound]
+        // A bundle path inside a later argument (`node /Applications/X.app/…`)
+        // is not the executable: argv0 must run straight into the bundle.
+        guard !bundlePath.contains(" /"), !bundlePath.contains(" -") else { return nil }
         let bundleName = bundlePath.split(separator: "/").last.map(String.init) ?? ""
         guard !bundleName.isEmpty, commandLine[marker.upperBound...].hasPrefix(bundleName) else { return nil }
         let end = commandLine.index(marker.upperBound, offsetBy: bundleName.count)

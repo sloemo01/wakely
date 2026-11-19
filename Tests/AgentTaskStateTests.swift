@@ -158,9 +158,10 @@ struct AgentTaskStateTests {
         41000 1 00:30 /Applications/Co /Applications/Codex.app/Contents/MacOS/Codex
         41001 1 00:30 /Applications/Cl /Applications/Claude.app/Contents/MacOS/Claude
         41002 1 00:30 /Applications/Sa /Applications/Safari.app/Contents/MacOS/Safari
+        41003 1 00:30 /opt/homebrew/bi /opt/homebrew/bin/codex --cd /Applications/Claude.app/Contents/MacOS/Claude
         """
         let app = AgentBackgroundScanner.parseProcesses(desktopApp, now: now)
-        expect(app.map(\.pid) == [41000, 41001, 94237] && app.map(\.provider) == ["Codex App", "Claude", "DeepSeek Harness"], "DeepSeek Harness desktop app matched by its spaced bundle path; helpers and dsh-named folders ignored")
+        expect(app.map(\.pid) == [41000, 41001, 41003, 94237] && app.map(\.provider) == ["Codex App", "Claude", "Codex", "DeepSeek Harness"], "DeepSeek Harness desktop app matched by its spaced bundle path; helpers and dsh-named folders ignored")
         let full = AgentBackgroundScanner.parseProcesses(truncated, now: now)
         expect(full.count == 2 && full[0].pid == 200 && full[0].provider == "Codex" && full[1].pid == 203 && full[1].provider == "Claude Code", "truncated comm recovered from argv0; claude.exe matched; app-server skipped")
 
