@@ -2187,6 +2187,18 @@ final class ProtectedComponents {
     /// Call before the helper is removed: persistent settings go back too.
     func helperWillUninstall() { restoreAll(reason: "the privileged helper is being removed") }
 
+    /// Delete Wakely: put back every applied setting, persistent ones included,
+    /// and report whether all of them really went back before the deadline.
+    func restoreEverythingBeforeDelete(timeout: TimeInterval) async -> Bool {
+        restoreAll(reason: "Wakely is being deleted")
+        let deadline = ProcessInfo.processInfo.systemUptime + max(0, timeout)
+        while !restoring.isEmpty || !applying.isEmpty {
+            guard ProcessInfo.processInfo.systemUptime < deadline else { return false }
+            do { try await Task.sleep(nanoseconds: 50_000_000) } catch { return false }
+        }
+        return applied.isEmpty
+    }
+
     // MARK: Failure recording
 
     func recordRefusal(_ id: String, _ reason: String) { refuse(id, reason) }

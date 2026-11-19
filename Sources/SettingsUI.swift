@@ -1439,6 +1439,9 @@ private struct ComponentDetailContent: View {
 // MARK: - General
 
 private struct GeneralPane: View {
+    @State private var confirmDelete = false
+    @State private var deleting = false
+    @State private var deleteError: String?
     @ObservedObject private var guides = GuideCoordinator.shared
     @ObservedObject private var appearance = AppAppearance.shared
     @ObservedObject private var state = AppState.shared
@@ -1581,6 +1584,44 @@ private struct GeneralPane: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(14)
+                }
+
+                section("DELETE WAKELY") {
+                    HStack(alignment: .top, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Delete Wakely from this Mac")
+                                .font(ClamType.body(13, .semibold))
+                            Text("Removes the helper, watchdog, login items, macOS permissions, settings and data, then moves Wakely to the Trash.")
+                                .font(ClamType.body(11.5))
+                                .foregroundStyle(Theme.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            if let deleteError {
+                                Text(deleteError)
+                                    .font(ClamType.body(11.5))
+                                    .foregroundStyle(.orange)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        Spacer(minLength: 8)
+                        Button(deleting ? "Deleting…" : "Delete Wakely…", role: .destructive) { confirmDelete = true }
+                            .buttonStyle(PixelButtonStyle())
+                            .disabled(deleting)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(14)
+                }
+                .alert("Delete Wakely completely?", isPresented: $confirmDelete) {
+                    Button("Delete", role: .destructive) {
+                        deleting = true
+                        deleteError = nil
+                        Task {
+                            deleteError = await AppUninstaller.deleteEverything()
+                            deleting = false
+                        }
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("Wakely restores the system settings it changed, removes its helper and permissions, and quits. macOS may ask for your administrator password.")
                 }
 
                 Spacer(minLength: 0)
