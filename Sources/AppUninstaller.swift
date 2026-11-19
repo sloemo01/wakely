@@ -7,22 +7,34 @@ import ServiceManagement
 enum AppUninstaller {
     static let bundleID = Bundle.main.bundleIdentifier ?? "dev.wakely.app"
 
-    static func deleteEverything() async {
+    /// Returns why nothing (or not everything) was deleted, or never returns:
+    /// on success Wakely quits. It stops before removing the helper and its
+    /// backups unless every system setting is back, and before removing the app
+    /// unless the helper is gone, so a failure never strands either.
+    static func deleteEverything() async -> String {
         Diagnostics.log("delete wakely: started")
-        // The same drain as a normal quit, while the helper is still here to
-        // put back every system setting Wakely changed.
         AgentMonitor.shared.stop()
         ComponentRuntime.shared.stop()
         ComponentEngine.shared.stop()
         PowerEngine.shared.shutDown()
-        _ = await ComponentEngine.shared.awaitShutdownRestoration(timeout: 8)
+        let sessionRestored = await ComponentEngine.shared.awaitShutdownRestoration(timeout: 8)
         _ = await PowerEngine.shared.awaitShutdownCleanup(timeout: 3)
+        // Persistent settings (Home Server's autorestart, Stay Off When
+        // Opened's boot preference, ...) survive a quit but not a delete.
+        let allRestored = await ProtectedComponents.shared.restoreEverythingBeforeDelete(timeout: 15)
+        guard sessionRestored, allRestored else {
+            Diagnostics.log("delete wakely: stopped, some system settings could not be restored")
+            return "Wakely couldn't put back every system setting it changed, so nothing was deleted and its backups are kept. Quit and reopen Wakely, then try again."
+        }
         AppLiveness.clear()
 
         // The administrator path also removes a fallback-installed daemon and
         // the helper's root-owned data.
         await HelperClient.shared.uninstall()
-        _ = await HelperClient.shared.uninstallWithAdministratorPrompt(removeData: true)
+        if case .failure(let error) = await HelperClient.shared.uninstallWithAdministratorPrompt(removeData: true) {
+            Diagnostics.log("delete wakely: stopped, helper removal failed: \(error.localizedDescription)")
+            return "The privileged helper wasn't removed (\(error.localizedDescription)), so Wakely was not deleted. Quit and reopen Wakely, then try again."
+        }
 
         try? await SMAppService.agent(plistName: HelperService.agentPlistName).unregister()
         try? await SMAppService.mainApp.unregister()

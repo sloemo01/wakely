@@ -1441,6 +1441,7 @@ private struct ComponentDetailContent: View {
 private struct GeneralPane: View {
     @State private var confirmDelete = false
     @State private var deleting = false
+    @State private var deleteError: String?
     @ObservedObject private var guides = GuideCoordinator.shared
     @ObservedObject private var appearance = AppAppearance.shared
     @ObservedObject private var state = AppState.shared
@@ -1594,6 +1595,12 @@ private struct GeneralPane: View {
                                 .font(ClamType.body(11.5))
                                 .foregroundStyle(Theme.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
+                            if let deleteError {
+                                Text(deleteError)
+                                    .font(ClamType.body(11.5))
+                                    .foregroundStyle(.orange)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                         }
                         Spacer(minLength: 8)
                         Button(deleting ? "Deleting…" : "Delete Wakely…", role: .destructive) { confirmDelete = true }
@@ -1606,7 +1613,11 @@ private struct GeneralPane: View {
                 .alert("Delete Wakely completely?", isPresented: $confirmDelete) {
                     Button("Delete", role: .destructive) {
                         deleting = true
-                        Task { await AppUninstaller.deleteEverything() }
+                        deleteError = nil
+                        Task {
+                            deleteError = await AppUninstaller.deleteEverything()
+                            deleting = false
+                        }
                     }
                     Button("Cancel", role: .cancel) {}
                 } message: {
