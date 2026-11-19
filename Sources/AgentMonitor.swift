@@ -218,9 +218,17 @@ enum AgentBackgroundScanner {
             }
             guard fields.count >= index + 3,
                   let seconds = elapsed(String(fields[index])) else { continue }
-            let executable = String(fields[index + 1])
             let arguments = tokenize(fields[(index + 2)...].joined(separator: " "))
+            // macOS truncates `comm` to 16 characters, so a CLI started by its
+            // full path (e.g. npm's native Codex binary) shows up as a prefix
+            // like "/opt/homebrew/li". Recover the path from argv[0].
+            var executable = String(fields[index + 1])
+            if let argv0 = arguments.first, argv0.count > executable.count, argv0.hasPrefix(executable) {
+                executable = argv0
+            }
             guard let provider = AgentProcessDescriptor.provider(executable: executable, arguments: arguments) else { continue }
+            // Codex's background app-server daemon is not a task.
+            if provider == "Codex", arguments.dropFirst().first == "app-server" { continue }
             var descriptor = AgentProcessDescriptor(pid: pid, provider: provider,
                                                     sessionID: AgentProcessDescriptor.explicitSessionID(arguments: arguments),
                                                     cwd: nil, startedAt: now.addingTimeInterval(-seconds))
