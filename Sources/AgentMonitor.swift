@@ -353,7 +353,11 @@ enum AgentBackgroundScanner {
             }
             // Codex's background app-server daemon is not a task.
             // The Codex app also starts `codex -c … app-server` and `exec-server`.
-            if provider == "Codex", ["app-server", "exec-server"].contains(codexSubcommand(arguments)) { continue }
+            if provider == "Codex" {
+                // Under node/bun, Codex's own argv starts at its codex.js script.
+                let own = arguments.firstIndex { $0.hasSuffix("/codex.js") }.map { Array(arguments[$0...]) } ?? arguments
+                if ["app-server", "exec-server"].contains(codexSubcommand(own)) { continue }
+            }
             var descriptor = AgentProcessDescriptor(pid: pid, provider: provider,
                                                     sessionID: AgentProcessDescriptor.explicitSessionID(arguments: arguments),
                                                     cwd: nil, startedAt: now.addingTimeInterval(-seconds))

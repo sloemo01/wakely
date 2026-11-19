@@ -185,6 +185,8 @@ struct AgentTaskStateTests {
         expect(OpenCodeSessionState.state(row: OpenCodeSessionState.rowV2(v2Done)!, hasChild: false, now: now) == .idle, "OpenCode 2.x session idle after busy is idle")
         expect(AgentBackgroundScanner.codexSubcommand(["codex", "-c", "x=1", "app-server", "--listen"]) == "app-server", "Codex app-server behind -c options is skipped")
         expect(AgentBackgroundScanner.codexSubcommand(["codex", "fix", "the", "app-server", "bug"]) == "fix", "a Codex prompt mentioning app-server is a task")
+        let launcherDaemon = AgentBackgroundScanner.parseProcesses("42001 1 00:30 /opt/homebrew/bi /opt/homebrew/bin/node /opt/homebrew/lib/node_modules/@openai/codex/bin/codex.js app-server --listen", now: now)
+        expect(launcherDaemon.isEmpty, "a node-launched Codex app-server is not an agent")
         var heldWaiting: [String: Date] = [:]
         let waitingOC = AgentThread(id: "OpenCode-9", provider: "OpenCode", pid: 9, state: .waiting)
         expect(AgentThread.holdingRecentlyBusy([waitingOC], lastBusy: &heldWaiting, now: now) == [waitingOC], "session-read waiting state is listed as is")
