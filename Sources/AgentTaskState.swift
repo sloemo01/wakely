@@ -143,6 +143,8 @@ struct AgentProcessDescriptor: Equatable, Sendable {
         "DeepSeek Harness": "DeepSeek Harness", "Claude": "Claude", "Codex": "Codex App",
         "Cursor": "Cursor", "OpenCode": "OpenCode", "Windsurf": "Windsurf", "Devin": "Devin",
         "Kiro": "Kiro", "Hermes": "Hermes Agent", "Hermes Agent": "Hermes Agent",
+        // The Codex app ships as ChatGPT.app (com.openai.codex).
+        "ChatGPT": "Codex App",
     ]
 
     static var processOnlyProviderNames: Set<String> {

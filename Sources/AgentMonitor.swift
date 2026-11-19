@@ -188,11 +188,26 @@ enum AgentBackgroundScanner {
                          cpuListing: command("/bin/ps", ["-axo", "pid=,ppid=,%cpu="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "")
             : []
         var children: [Int32: [Int32]] = [:]
+        var names: [Int32: String] = [:]
         if processes.contains(where: { OpenCodeSessionState.database(provider: $0.provider, home: home) != nil }) {
-            for line in (command("/bin/ps", ["-axo", "pid=,ppid="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "").split(separator: "\n") {
-                let fields = line.split(whereSeparator: { $0 == " " || $0 == "\t" })
-                if fields.count == 2, let pid = Int32(fields[0]), let parent = Int32(fields[1]) { children[parent, default: []].append(pid) }
+            for line in (command("/bin/ps", ["-axo", "pid=,ppid=,comm="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "").split(separator: "\n") {
+                let fields = line.split(maxSplits: 2, whereSeparator: { $0 == " " || $0 == "\t" })
+                if fields.count == 3, let pid = Int32(fields[0]), let parent = Int32(fields[1]) {
+                    children[parent, default: []].append(pid)
+                    names[pid] = String(fields[2]).lowercased()
+                }
             }
+        }
+        // The OpenCode desktop app runs its agent in an `opencode-cli serve`
+        // child; a tool's shell is a descendant that isn't OpenCode itself.
+        func runsTool(_ pid: Int32) -> Bool {
+            var queue = children[pid] ?? []
+            var seen = Set<Int32>()
+            while let next = queue.popLast(), seen.insert(next).inserted {
+                if !(names[next] ?? "").contains("opencode") && !(names[next] ?? "").contains("kilo") { return true }
+                queue += children[next] ?? []
+            }
+            return false
         }
         return processes.map { process in
             let correlation = AgentTaskCorrelation.correlation(for: process, sessions: sessions, processes: processes)
@@ -231,7 +246,7 @@ enum AgentBackgroundScanner {
                let row = OpenCodeSessionState.latest(database: database, cwd: process.cwd, since: process.startedAt,
                                                      excluding: processes.filter { $0.pid != process.pid && $0.provider == process.provider }
                                                         .compactMap(\.cwd).filter { $0 != "/" }),
-               let read = OpenCodeSessionState.state(row: row, hasChild: children[process.pid]?.isEmpty == false, now: Date()) {
+               let read = OpenCodeSessionState.state(row: row, hasChild: runsTool(process.pid), now: Date()) {
                 state = read
             }
             // The Codex and Claude desktop apps write the same transcripts as
