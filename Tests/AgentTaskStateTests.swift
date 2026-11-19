@@ -176,6 +176,8 @@ struct AgentTaskStateTests {
         expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: open, tool: nil)!, hasChild: false, now: now) == .working, "OpenCode open assistant turn is working")
         expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: #"{"role":"assistant","time":{"created":1,"completed":2},"finish":"stop"}"#, tool: pending)!, hasChild: false, now: now) == .idle, "OpenCode completed turn is idle")
         expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: #"{"role":"assistant","time":{"created":1,"completed":2},"finish":"tool-calls"}"#, tool: nil)!, hasChild: false, now: now) == .working, "OpenCode tool-call handoff is still working")
+        let fetching = #"{"type":"tool","tool":"webfetch","state":{"status":"running","time":{"start":\#(start - 10000)}}}"#
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: open, tool: fetching)!, hasChild: false, now: now) == .working, "a long in-process OpenCode tool is working, not waiting")
         var heldWaiting: [String: Date] = [:]
         let waitingOC = AgentThread(id: "OpenCode-9", provider: "OpenCode", pid: 9, state: .waiting)
         expect(AgentThread.holdingRecentlyBusy([waitingOC], lastBusy: &heldWaiting, now: now) == [waitingOC], "session-read waiting state is listed as is")

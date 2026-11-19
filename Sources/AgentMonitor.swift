@@ -498,6 +498,8 @@ enum OpenCodeSessionState {
         return Row(message: parsed, tool: part)
     }
 
+    static let permissionTools: Set<String> = ["bash", "edit", "write", "patch", "multiedit"]
+
     static func state(row: Row, hasChild: Bool, now: Date, permissionDelay: TimeInterval = 3) -> AgentTaskState? {
         let role = row.message["role"] as? String
         if role == "user" { return .working }
@@ -505,7 +507,10 @@ enum OpenCodeSessionState {
         let time = row.message["time"] as? [String: Any]
         // A message that ends to call a tool is a handoff inside the same turn.
         if time?["completed"] != nil { return row.message["finish"] as? String == "tool-calls" ? .working : .idle }
-        if let state = row.tool?["state"] as? [String: Any], state["status"] as? String == "running", !hasChild,
+        // Only tools that ask before acting (shell, edits) can sit at a
+        // permission prompt; reads and fetches may run in-process for a while.
+        if let tool = row.tool?["tool"] as? String, permissionTools.contains(tool),
+           let state = row.tool?["state"] as? [String: Any], state["status"] as? String == "running", !hasChild,
            let started = (state["time"] as? [String: Any])?["start"] as? Double,
            now.timeIntervalSince1970 * 1000 - started >= permissionDelay * 1000 {
             return .waiting
