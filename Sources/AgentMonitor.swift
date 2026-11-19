@@ -176,6 +176,7 @@ enum AgentBackgroundScanner {
             var descriptor = AgentProcessDescriptor(pid: process.pid, provider: process.provider,
                                                     sessionID: process.sessionID, cwd: cwd, startedAt: process.startedAt)
             descriptor.isApp = process.isApp
+            descriptor.appName = process.appName
             return descriptor
         }
         guard !processes.isEmpty else { return [] }
@@ -190,7 +191,7 @@ enum AgentBackgroundScanner {
         let busy: Set<Int32> = processes.contains { processOnly.contains($0.provider) }
             ? busyAgents(pids: processes.filter { processOnly.contains($0.provider) }.map(\.pid),
                          cpuListing: command("/bin/ps", ["-axo", "pid=,ppid=,%cpu=,comm="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "",
-                         apps: Set(processes.filter(\.isApp).map(\.pid)))
+                         apps: Dictionary(processes.filter(\.isApp).map { ($0.pid, $0.appName ?? "") }, uniquingKeysWith: { a, _ in a }))
             : []
         var children: [Int32: [Int32]] = [:]
         var names: [Int32: String] = [:]
@@ -247,6 +248,8 @@ enum AgentBackgroundScanner {
             // A quiet CPU is not proof the task finished (the agent may be
             // waiting on its model), so a non-busy process-only agent is unknown.
             if processOnly.contains(process.provider) { state = busy.contains(process.pid) ? .working : .unknown }
+            // An app's own startup (sign-in, indexing, updates) is not agent work.
+            if process.isApp, let started = process.startedAt, Date().timeIntervalSince(started) < 45 { state = .unknown }
             // Electron apps idle above the CPU threshold; trust their transcripts only.
             if process.provider == "Codex App" || process.provider == "Claude" { state = .unknown }
             if let database = OpenCodeSessionState.database(provider: process.provider, home: home),
@@ -279,7 +282,13 @@ enum AgentBackgroundScanner {
     /// For a desktop app, only work it started outside its own bundle counts
     /// (shells, builds, servers): Electron windows and helpers idle above the
     /// threshold. Helpers share the app's 16-character `comm` prefix.
-    static func busyAgents(pids: [Int32], cpuListing: String, apps: Set<Int32> = [], threshold: Double = 5) -> Set<Int32> {
+    /// "/Applications/Cursor.app/" for a full `comm`; the whole cut-off `comm` otherwise.
+    static func bundlePrefix(_ comm: Substring) -> Substring {
+        guard let range = comm.range(of: ".app/") else { return comm }
+        return comm[..<range.upperBound]
+    }
+
+    static func busyAgents(pids: [Int32], cpuListing: String, apps: [Int32: String] = [:], threshold: Double = 5) -> Set<Int32> {
         var cpu: [Int32: Double] = [:]
         var children: [Int32: [Int32]] = [:]
         var names: [Int32: Substring] = [:]
@@ -298,7 +307,11 @@ enum AgentBackgroundScanner {
             var seen: Set<Int32> = []
             while let next = queue.popLast(), seen.count < 512 {
                 guard seen.insert(next).inserted else { continue }
-                let ownBundle = apps.contains(pid) && (next == pid || (names[next] != nil && names[next] == names[pid]))
+                // Electron helpers retitle themselves ("Cursor Helper (Plugin): extension-host").
+                let ownBundle = apps[pid].map { app in
+                    next == pid || (names[next].map { name in names[pid].map { name.hasPrefix(bundlePrefix($0)) } ?? false } ?? false)
+                        || (!app.isEmpty && (names[next]?.hasPrefix(app + " Helper") == true || names[next]?.hasPrefix(app + ":") == true))
+                } ?? false
                 if !ownBundle { total += cpu[next] ?? 0 }
                 queue += children[next] ?? []
             }
@@ -385,6 +398,7 @@ enum AgentBackgroundScanner {
                                                     cwd: nil, startedAt: now.addingTimeInterval(-seconds))
             descriptor.parentPID = parentPID
             descriptor.isApp = executable.contains(".app/Contents/MacOS/")
+            if descriptor.isApp { descriptor.appName = URL(fileURLWithPath: executable).lastPathComponent }
             descriptor.isLauncher = ["node", "nodejs", "bun"].contains(URL(fileURLWithPath: executable).lastPathComponent)
             result.append(descriptor)
         }

@@ -128,6 +128,8 @@ struct AgentProcessDescriptor: Equatable, Sendable {
     var parentPID: Int32? = nil
     var isLauncher = false
     var isApp = false
+    /// The app's executable name, e.g. "Cursor"; its helpers are named after it.
+    var appName: String?
 
     /// Agents Wakely sees only as processes: they leave no transcript Wakely
     /// reads, so their task state stays unknown.

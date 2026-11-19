@@ -199,7 +199,11 @@ struct AgentTaskStateTests {
         601 600 0.5 /Applications/Wi
         602 601 40.0 /bin/zsh
         """
-        expect(AgentBackgroundScanner.busyAgents(pids: [500, 600], cpuListing: electron, apps: [500, 600]) == [600], "an app counts as working only from work outside its bundle")
+        expect(AgentBackgroundScanner.busyAgents(pids: [500, 600], cpuListing: electron, apps: [500: "Cursor", 600: "Windsurf"]) == [600], "an app counts as working only from work outside its bundle")
+        let retitled = "700 1 0.5 /Applications/Cu\n701 700 30.0 Cursor Helper (Plugin): extension-host Agents Window [1-1]\n702 700 9.0 Cursor: shared-process"
+        let fullComm = "800 1 0.8 /Applications/Cursor.app/Contents/MacOS/Cursor\n801 800 19.8 /Applications/Cursor.app/Contents/Frameworks/Cursor Helper.app/Contents/MacOS/Cursor Helper"
+        expect(AgentBackgroundScanner.busyAgents(pids: [800], cpuListing: fullComm, apps: [800: "Cursor"]).isEmpty, "helpers under the app's full bundle path are part of the app")
+        expect(AgentBackgroundScanner.busyAgents(pids: [700], cpuListing: retitled, apps: [700: "Cursor"]).isEmpty, "retitled Electron helpers are part of the app")
         let promptBundle = AgentBackgroundScanner.parseProcesses("42002 1 00:30 /usr/local/bin/co /usr/local/bin/codex exec fix Foo.app/Contents/Info.plist", now: now, isExecutable: { $0 == "/usr/local/bin/codex" })
         expect(promptBundle.map(\.provider) == ["Codex"], "a prompt mentioning a bundle path is still a Codex task")
         let promptScript = AgentBackgroundScanner.parseProcesses("42003 1 00:30 /usr/local/bin/co /usr/local/bin/codex exec Review /tmp/codex.js app-server integration", now: now)
