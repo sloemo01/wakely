@@ -6,10 +6,12 @@ Keychain, with codesign as the only explicitly allowed application. Only the
 public certificate and non-secret fingerprint configuration are retained here.
 No keychain is created/unlocked and no password is recorded.
 """
+import argparse
 import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -24,12 +26,51 @@ def run(*args, **kwargs):
     return subprocess.run(args, check=True, **kwargs)
 
 
+def allow_codesign_access(keychain, fingerprint):
+    if not re.fullmatch(r'[0-9A-Fa-f]{40}', fingerprint):
+        raise SystemExit('Invalid configured certificate fingerprint; refusing to change key access.')
+    certificates = subprocess.check_output(
+        ['/usr/bin/security', 'find-certificate', '-a', '-c', NAME, '-Z', str(keychain)],
+        text=True)
+    matches = []
+    for block in re.split(r'(?m)^SHA-1 hash: *', certificates)[1:]:
+        certificate_hash, _, attributes = block.partition('\n')
+        if certificate_hash.strip().upper() == fingerprint.upper():
+            matches.append(re.findall(r'(?m)^\s*"hpky"[^=\n]+=0x([0-9A-Fa-f]{40})(?=\s|$)', attributes))
+    if len(matches) != 1 or len(matches[0]) != 1:
+        raise SystemExit('No unique certificate/public-key hash matches the configured fingerprint; refusing to change key access.')
+    items = subprocess.check_output(['/usr/bin/security', 'dump-keychain', str(keychain)], text=True)
+    keys = []
+    for block in re.split(r'(?m)(?=^keychain: ")', items):
+        if (re.search(r'(?m)^class: 0x00000010\s*$', block)
+                and re.search(r'(?m)^\s*0x00000001\s+[^=\n]+="Imported Private Key"\s*$', block)):
+            keys.append(re.findall(r'(?m)^\s*0x00000006\s+[^=\n]+=0x([0-9A-Fa-f]{40})(?=\s|$)', block))
+    if len(keys) != 1 or len(keys[0]) != 1 or keys[0][0].upper() != matches[0][0].upper():
+        raise SystemExit('No unique Imported Private Key matches the certificate public-key hash; '
+                         'refusing to change key access. Recover via Keychain Access.')
+    print('Allow Apple signing tools to use the Wakely key. Enter the keychain password when security prompts.')
+    run('/usr/bin/security', 'set-key-partition-list', '-S', 'apple-tool:,apple:',
+        '-s', '-l', 'Imported Private Key', str(keychain))
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--allow-codesign-access', action='store_true',
+                        help='Allow Apple signing tools to use the existing Wakely key without rotating it.')
+    args = parser.parse_args()
     if CONFIG.exists():
         config = json.loads(CONFIG.read_text())
+        if args.allow_codesign_access:
+            keychain = Path(config['keychain'])
+            if config['name'] != NAME or config['mode'] != 'local-certificate' or not keychain.is_file():
+                raise SystemExit('A configured Wakely local identity and existing keychain are required.')
+            allow_codesign_access(keychain, config['identity'])
+            return
         print('Local signing is already configured:', config['identity'])
         print('Reusing it is essential; do not generate a new certificate per build.')
         return
+    if args.allow_codesign_access:
+        raise SystemExit('No local signing configuration exists; access migration will not create an identity.')
     if DIRECTORY.is_symlink() or KEYCHAIN.is_symlink():
         raise SystemExit('Refusing unexpected symlink for signing directory/keychain.')
     if not KEYCHAIN.is_file():
@@ -78,6 +119,7 @@ authorityKeyIdentifier = keyid:always
             run('/usr/bin/security', 'import', str(key), '-k', str(KEYCHAIN),
                 '-t', 'priv', '-f', 'openssl', '-T', '/usr/bin/codesign')
             run('/usr/bin/security', 'import', str(cert), '-k', str(KEYCHAIN), '-t', 'cert')
+            allow_codesign_access(KEYCHAIN, fingerprint)
             # USER trust, constrained to code signing. No -d (system/admin)
             # and no SSL/SMIME/basic trust or unrestricted private-key ACL.
             run('/usr/bin/security', 'add-trusted-cert', '-r', 'trustRoot',
