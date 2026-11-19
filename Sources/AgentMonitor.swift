@@ -332,6 +332,11 @@ enum AgentBackgroundScanner {
                                                         isExecutable: isExecutable) : nil)
             if let bundled = bundledPath {
                 guard let app = AgentProcessDescriptor.desktopAppProviders[URL(fileURLWithPath: bundled).lastPathComponent] else { continue }
+                // ChatGPT.app is the Codex app only when it is `com.openai.codex`;
+                // the ordinary ChatGPT chat app shares the executable name.
+                if URL(fileURLWithPath: bundled).lastPathComponent == "ChatGPT",
+                   Bundle(url: URL(fileURLWithPath: bundled).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent())?
+                       .bundleIdentifier != "com.openai.codex" { continue }
                 executable = bundled
                 provider = app
             } else {
