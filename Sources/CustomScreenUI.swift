@@ -615,7 +615,19 @@ struct ScreenPromptSheet: View {
         .pixelPanel(fill: Theme.window, border: Theme.strokeHover, cut: 4)
         .modifier(AppAppearanceModifier())
         .onExitCommand { onClose() }
-        .onAppear { requestFocused = !GuideCoordinator.shared.isPresented }
+        .onAppear {
+            requestFocused = !GuideCoordinator.shared.isPresented
+            // The prompt names this folder as the place to write the screen,
+            // so it has to exist before the agent (or the user) looks for it.
+            try? FileManager.default.createDirectory(at: store.folderURL(for: promptID),
+                                                     withIntermediateDirectories: true)
+        }
+        .onDisappear {
+            let folder = store.folderURL(for: promptID)
+            if (try? FileManager.default.contentsOfDirectory(atPath: folder.path))?.isEmpty == true {
+                try? FileManager.default.removeItem(at: folder)
+            }
+        }
         .onDisappear {
             copyReset?.cancel()
             copyReset = nil
