@@ -160,8 +160,13 @@ struct AgentTaskStateTests {
         41002 1 00:30 /Applications/Sa /Applications/Safari.app/Contents/MacOS/Safari
         41003 1 00:30 /opt/homebrew/bi /opt/homebrew/bin/codex --cd /Applications/Claude.app/Contents/MacOS/Claude
         41004 1 00:30 /Users/a/My - Ap /Users/a/My - Apps/Cursor.app/Contents/MacOS/Cursor
+        41005 1 00:30 /usr/bin/rsync /usr/bin/rsync --exclude=/Applications/Cursor.app/Contents/MacOS/Cursor
         """
-        let app = AgentBackgroundScanner.parseProcesses(desktopApp, now: now)
+        let installed: Set<String> = ["/Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness",
+                                      "/Applications/Codex.app/Contents/MacOS/Codex", "/Applications/Claude.app/Contents/MacOS/Claude",
+                                      "/Applications/Safari.app/Contents/MacOS/Safari", "/Users/a/My - Apps/Cursor.app/Contents/MacOS/Cursor",
+                                      "/Applications/Cursor.app/Contents/MacOS/Cursor"]
+        let app = AgentBackgroundScanner.parseProcesses(desktopApp, now: now, isExecutable: installed.contains)
         expect(app.map(\.pid) == [41000, 41001, 41003, 41004, 94237] && app.map(\.provider) == ["Codex App", "Claude", "Codex", "Cursor", "DeepSeek Harness"], "DeepSeek Harness desktop app matched by its spaced bundle path; helpers and dsh-named folders ignored")
         let full = AgentBackgroundScanner.parseProcesses(truncated, now: now)
         expect(full.count == 2 && full[0].pid == 200 && full[0].provider == "Codex" && full[1].pid == 203 && full[1].provider == "Claude Code", "truncated comm recovered from argv0; claude.exe matched; app-server skipped")

@@ -260,7 +260,8 @@ enum AgentBackgroundScanner {
     /// comm args`) layouts are accepted; a parent PID is only present when the
     /// column actually parses as one. No prompt/argument text is retained in
     /// returned descriptors or sent to diagnostics.
-    static func parseProcesses(_ listing: String, now: Date) -> [AgentProcessDescriptor] {
+    static func parseProcesses(_ listing: String, now: Date,
+                               isExecutable: (String) -> Bool = { FileManager.default.isExecutableFile(atPath: $0) }) -> [AgentProcessDescriptor] {
         var result: [AgentProcessDescriptor] = []
         for line in listing.split(separator: "\n") {
             let fields = line.split(maxSplits: 4, whereSeparator: { $0 == " " || $0 == "\t" })
@@ -286,7 +287,13 @@ enum AgentBackgroundScanner {
                 executable = argv0
             }
             let provider: String
-            if let bundled = bundledExecutable(commandLine: commandLine, truncated: String(fields[index + 1])) {
+            // A truncated `comm` is exactly 16 characters and may itself contain
+            // spaces (`/Users/a/My - Ap`), so also split comm from args at 16.
+            let rest = fields[(index + 1)...].joined(separator: " ")
+            let bundledPath = bundledExecutable(commandLine: commandLine, truncated: String(fields[index + 1]), isExecutable: isExecutable)
+                ?? (rest.count > 17 ? bundledExecutable(commandLine: String(rest.dropFirst(17)), truncated: String(rest.prefix(16)),
+                                                        isExecutable: isExecutable) : nil)
+            if let bundled = bundledPath {
                 guard let app = AgentProcessDescriptor.desktopAppProviders[URL(fileURLWithPath: bundled).lastPathComponent] else { continue }
                 executable = bundled
                 provider = app
@@ -309,18 +316,19 @@ enum AgentBackgroundScanner {
     /// A Mac app's path can contain spaces (`/Applications/DeepSeek
     /// Harness.app/Contents/MacOS/DeepSeek Harness`), which argv tokenizing
     /// splits apart. Recover `<Name>.app/Contents/MacOS/<Name>` whole.
-    static func bundledExecutable(commandLine: String, truncated: String) -> String? {
+    static func bundledExecutable(commandLine: String, truncated: String,
+                                  isExecutable: (String) -> Bool) -> String? {
         guard commandLine.hasPrefix(truncated),
               let marker = commandLine.range(of: ".app/Contents/MacOS/") else { return nil }
         let bundlePath = commandLine[..<marker.lowerBound]
-        // A bundle path inside a later argument (`node /Applications/X.app/…`)
-        // is not the executable: argv0 must run straight into the bundle.
-        guard !bundlePath.contains(" /") else { return nil }
         let bundleName = bundlePath.split(separator: "/").last.map(String.init) ?? ""
         guard !bundleName.isEmpty, commandLine[marker.upperBound...].hasPrefix(bundleName) else { return nil }
         let end = commandLine.index(marker.upperBound, offsetBy: bundleName.count)
         guard end == commandLine.endIndex || commandLine[end] == " " else { return nil }
-        return String(commandLine[..<end])
+        // A bundle path inside a later argument (`rsync --exclude=/Applications/
+        // X.app/…`) makes a candidate that is not a file on disk.
+        let candidate = String(commandLine[..<end])
+        return isExecutable(candidate) ? candidate : nil
     }
 
     private static func currentDirectory(pid: Int32) -> String? {
