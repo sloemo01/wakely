@@ -228,7 +228,9 @@ enum AgentBackgroundScanner {
             // waiting on its model), so a non-busy process-only agent is unknown.
             if processOnly.contains(process.provider) { state = busy.contains(process.pid) ? .working : .unknown }
             if let database = OpenCodeSessionState.database(provider: process.provider, home: home),
-               let row = OpenCodeSessionState.latest(database: database, cwd: process.cwd, since: process.startedAt),
+               let row = OpenCodeSessionState.latest(database: database, cwd: process.cwd, since: process.startedAt,
+                                                     excluding: processes.filter { $0.pid != process.pid && $0.provider == process.provider }
+                                                        .compactMap(\.cwd).filter { $0 != "/" }),
                let read = OpenCodeSessionState.state(row: row, hasChild: children[process.pid]?.isEmpty == false, now: Date()) {
                 state = read
             }
@@ -472,11 +474,14 @@ enum OpenCodeSessionState {
         return FileManager.default.fileExists(atPath: url.path) ? url : nil
     }
 
-    static func latest(database: URL, cwd: String?, since: Date?) -> Row? {
+    static func latest(database: URL, cwd: String?, since: Date?, excluding: [String] = []) -> Row? {
         let after = Int64(((since ?? .distantPast).timeIntervalSince1970 - 5) * 1000)
         // A desktop app runs from `/`; it owns the newest session instead.
         let directory = cwd.flatMap { $0 == "/" ? nil : $0 }
-        let filter = directory.map { "directory = '\($0.replacingOccurrences(of: "'", with: "''"))' AND " } ?? ""
+        func quoted(_ text: String) -> String { "'\(text.replacingOccurrences(of: "'", with: "''"))'" }
+        // Without a cwd (a desktop app), skip sessions a running CLI owns.
+        let filter = directory.map { "directory = \(quoted($0)) AND " }
+            ?? (excluding.isEmpty ? "" : "directory NOT IN (\(excluding.map(quoted).joined(separator: ", "))) AND ")
         let query = """
         SELECT m.data AS message,
           (SELECT p.data FROM part p WHERE p.message_id = m.id AND json_extract(p.data, '$.type') = 'tool'
