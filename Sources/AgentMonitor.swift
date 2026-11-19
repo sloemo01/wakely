@@ -375,7 +375,9 @@ enum AgentBackgroundScanner {
             // The Codex app also starts `codex -c … app-server` and `exec-server`.
             if provider == "Codex" {
                 // Under node/bun, Codex's own argv starts at its codex.js script.
-                let own = arguments.firstIndex { $0.hasSuffix("/codex.js") }.map { Array(arguments[$0...]) } ?? arguments
+                let launched = ["node", "nodejs", "bun"].contains(URL(fileURLWithPath: executable).lastPathComponent)
+                let script = launched ? arguments.prefix(4).firstIndex { $0.hasSuffix("/codex.js") } : nil
+                let own = script.map { Array(arguments[$0...]) } ?? arguments
                 if ["app-server", "exec-server"].contains(codexSubcommand(own)) { continue }
             }
             var descriptor = AgentProcessDescriptor(pid: pid, provider: provider,
