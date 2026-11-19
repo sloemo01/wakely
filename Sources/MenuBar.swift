@@ -166,6 +166,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
                     let entry = NSMenuItem(title: Self.agentRowTitle(for: thread), action: #selector(activateAgent(_:)), keyEquivalent: "")
                     entry.target = self
                     entry.representedObject = NSNumber(value: thread.pid)
+                    entry.image = NSImage(systemSymbolName: thread.isApp ? "macwindow" : "terminal",
+                                          accessibilityDescription: thread.isApp ? "App" : "CLI")
                     menu.addItem(entry)
                 }
             }

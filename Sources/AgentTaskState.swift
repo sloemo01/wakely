@@ -127,6 +127,7 @@ struct AgentProcessDescriptor: Equatable, Sendable {
     let startedAt: Date?
     var parentPID: Int32? = nil
     var isLauncher = false
+    var isApp = false
 
     /// Agents Wakely sees only as processes: they leave no transcript Wakely
     /// reads, so their task state stays unknown.

@@ -178,6 +178,11 @@ struct AgentTaskStateTests {
         expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: #"{"role":"assistant","time":{"created":1,"completed":2},"finish":"tool-calls"}"#, tool: nil)!, hasChild: false, now: now) == .working, "OpenCode tool-call handoff is still working")
         let fetching = #"{"type":"tool","tool":"webfetch","state":{"status":"running","time":{"start":\#(start - 10000)}}}"#
         expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: open, tool: fetching)!, hasChild: false, now: now) == .working, "a long in-process OpenCode tool is working, not waiting")
+        let v2Running: [String: Any] = ["role": "assistant", "updated": start - 10000, "busy": start - 11000, "idle": start - 60000,
+            "message": #"{"time":{"created":1},"content":[{"type":"tool","name":"shell","state":{"status":"running"}}]}"#]
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.rowV2(v2Running)!, hasChild: false, now: now) == .waiting, "OpenCode 2.x shell tool stalled with no child is waiting")
+        var v2Done = v2Running; v2Done["idle"] = start - 1000
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.rowV2(v2Done)!, hasChild: false, now: now) == .idle, "OpenCode 2.x session idle after busy is idle")
         var heldWaiting: [String: Date] = [:]
         let waitingOC = AgentThread(id: "OpenCode-9", provider: "OpenCode", pid: 9, state: .waiting)
         expect(AgentThread.holdingRecentlyBusy([waitingOC], lastBusy: &heldWaiting, now: now) == [waitingOC], "session-read waiting state is listed as is")

@@ -16,6 +16,8 @@ struct AgentThread: Identifiable, Equatable, Sendable {
     /// Last display-capable tool call, if the transcript exposed one.
     var activity: AgentDisplayActivity?
     var updatedAt: Date?
+    /// A desktop app rather than a CLI; the menu shows a different icon.
+    var isApp = false
 
     var working: Bool { state == .working }
     var waiting: Bool {
@@ -57,9 +59,9 @@ struct AgentThread: Identifiable, Equatable, Sendable {
             guard processOnly.contains(thread.provider), thread.state == .working || thread.state == .unknown else { return thread }
             if thread.state == .working { lastBusy[thread.id] = now; return thread }
             guard let last = lastBusy[thread.id], now.timeIntervalSince(last) < hold else { return nil }
-            return AgentThread(id: thread.id, provider: thread.provider, pid: thread.pid, state: .working,
-                               displayName: thread.displayName, host: thread.host, sessionID: thread.sessionID,
-                               activity: thread.activity, updatedAt: thread.updatedAt)
+            var held = thread
+            held.state = .working
+            return held
         }
     }
 
@@ -171,8 +173,10 @@ enum AgentBackgroundScanner {
         }
         processes = Array(processes.prefix(maxProcesses)).map { process in
             let cwd = process.sessionID == nil ? currentDirectory(pid: process.pid) : nil
-            return AgentProcessDescriptor(pid: process.pid, provider: process.provider,
-                                          sessionID: process.sessionID, cwd: cwd, startedAt: process.startedAt)
+            var descriptor = AgentProcessDescriptor(pid: process.pid, provider: process.provider,
+                                                    sessionID: process.sessionID, cwd: cwd, startedAt: process.startedAt)
+            descriptor.isApp = process.isApp
+            return descriptor
         }
         guard !processes.isEmpty else { return [] }
         let sessions = AgentSessionFiles.snapshots(home: home, processes: processes)
@@ -242,8 +246,10 @@ enum AgentBackgroundScanner {
             // A quiet CPU is not proof the task finished (the agent may be
             // waiting on its model), so a non-busy process-only agent is unknown.
             if processOnly.contains(process.provider) { state = busy.contains(process.pid) ? .working : .unknown }
+            // Electron apps idle above the CPU threshold; trust their transcripts only.
+            if process.provider == "Codex App" || process.provider == "Claude" { state = .unknown }
             if let database = OpenCodeSessionState.database(provider: process.provider, home: home),
-               let row = OpenCodeSessionState.latest(database: database, cwd: process.cwd, since: process.startedAt,
+               let row = OpenCodeSessionState.latest(database: database, cwd: process.isApp ? nil : process.cwd, since: process.startedAt,
                                                      excluding: processes.filter { $0.pid != process.pid && $0.provider == process.provider }
                                                         .compactMap(\.cwd).filter { $0 != "/" }),
                let read = OpenCodeSessionState.state(row: row, hasChild: runsTool(process.pid), now: Date()) {
@@ -257,10 +263,12 @@ enum AgentBackgroundScanner {
                 state = newest.state
             }
 
-            return AgentThread(id: "\(process.provider)-\(process.pid)", provider: process.provider, pid: process.pid,
-                               state: state, displayName: snapshot.name, host: snapshot.host,
-                               sessionID: snapshot.sessionID, activity: snapshot.activity,
-                               updatedAt: snapshot.updatedAt)
+            var thread = AgentThread(id: "\(process.provider)-\(process.pid)", provider: process.provider, pid: process.pid,
+                                     state: state, displayName: snapshot.name, host: snapshot.host,
+                                     sessionID: snapshot.sessionID, activity: snapshot.activity,
+                                     updatedAt: snapshot.updatedAt)
+            thread.isApp = process.isApp
+            return thread
         }.sorted { $0.id < $1.id }
     }
 
@@ -344,11 +352,13 @@ enum AgentBackgroundScanner {
                 provider = cli
             }
             // Codex's background app-server daemon is not a task.
-            if provider == "Codex", arguments.dropFirst().first == "app-server" { continue }
+            // The Codex app also starts `codex -c … app-server` and `exec-server`.
+            if provider == "Codex", arguments.dropFirst().contains(where: { $0 == "app-server" || $0 == "exec-server" }) { continue }
             var descriptor = AgentProcessDescriptor(pid: pid, provider: provider,
                                                     sessionID: AgentProcessDescriptor.explicitSessionID(arguments: arguments),
                                                     cwd: nil, startedAt: now.addingTimeInterval(-seconds))
             descriptor.parentPID = parentPID
+            descriptor.isApp = executable.contains(".app/Contents/MacOS/")
             descriptor.isLauncher = ["node", "nodejs", "bun"].contains(URL(fileURLWithPath: executable).lastPathComponent)
             result.append(descriptor)
         }
@@ -510,11 +520,43 @@ enum OpenCodeSessionState {
           ORDER BY time_updated DESC LIMIT 1)
         ORDER BY m.time_created DESC LIMIT 1;
         """
+        // OpenCode 2.x stores sessions in session_v2/session_message; older builds in session/message/part.
+        let v2 = """
+        SELECT m.type AS role, m.data AS message, m.time_updated AS updated, s.time_busy AS busy, s.time_idle AS idle
+        FROM session_message m JOIN session_v2 s ON s.id = m.session_id
+        WHERE m.session_id = (SELECT id FROM session_v2 WHERE \(filter)time_updated >= \(after)
+          ORDER BY time_updated DESC LIMIT 1) AND m.type IN ('user', 'assistant')
+        ORDER BY m.seq DESC LIMIT 1;
+        """
+        if let output = AgentBackgroundScanner.command("/usr/bin/sqlite3", ["-readonly", "-json", database.path, v2],
+                                                       timeout: 1, maxBytes: 512 * 1024),
+           let rows = try? JSONSerialization.jsonObject(with: Data(output.utf8)) as? [[String: Any]],
+           let first = rows.first, let row = rowV2(first) {
+            return row
+        }
         guard let output = AgentBackgroundScanner.command("/usr/bin/sqlite3", ["-readonly", "-json", database.path, query],
                                                           timeout: 1, maxBytes: 512 * 1024),
               let rows = try? JSONSerialization.jsonObject(with: Data(output.utf8)) as? [[String: Any]],
               let first = rows.first else { return nil }
         return row(message: first["message"] as? String, tool: first["tool"] as? String)
+    }
+
+    /// Maps a 2.x row onto the 1.x shape `state` reads.
+    static func rowV2(_ row: [String: Any]) -> Row? {
+        guard let role = row["role"] as? String, let text = row["message"] as? String,
+              let data = try? JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any] else { return nil }
+        var time = data["time"] as? [String: Any] ?? [:]
+        if let busy = row["busy"] as? Double, let idle = row["idle"] as? Double, idle >= busy { time["completed"] = idle }
+        var message: [String: Any] = ["role": role, "time": time]
+        message["finish"] = data["finish"]
+        let tools = (data["content"] as? [[String: Any]] ?? []).filter { $0["type"] as? String == "tool" }
+        var tool: [String: Any]?
+        if let last = tools.last {
+            var state = last["state"] as? [String: Any] ?? [:]
+            if state["time"] == nil, let updated = row["updated"] as? Double { state["time"] = ["start": updated] }
+            tool = ["tool": last["name"] as? String ?? "", "state": state]
+        }
+        return Row(message: message, tool: tool)
     }
 
     static func row(message: String?, tool: String?) -> Row? {
@@ -523,7 +565,7 @@ enum OpenCodeSessionState {
         return Row(message: parsed, tool: part)
     }
 
-    static let permissionTools: Set<String> = ["bash", "edit", "write", "patch", "multiedit"]
+    static let permissionTools: Set<String> = ["bash", "shell", "edit", "write", "patch", "multiedit"]
 
     static func state(row: Row, hasChild: Bool, now: Date, permissionDelay: TimeInterval = 3) -> AgentTaskState? {
         let role = row.message["role"] as? String
