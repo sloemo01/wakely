@@ -503,7 +503,8 @@ enum OpenCodeSessionState {
         if role == "user" { return .working }
         guard role == "assistant" else { return nil }
         let time = row.message["time"] as? [String: Any]
-        if time?["completed"] != nil { return .idle }
+        // A message that ends to call a tool is a handoff inside the same turn.
+        if time?["completed"] != nil { return row.message["finish"] as? String == "tool-calls" ? .working : .idle }
         if let state = row.tool?["state"] as? [String: Any], state["status"] as? String == "running", !hasChild,
            let started = (state["time"] as? [String: Any])?["start"] as? Double,
            now.timeIntervalSince1970 * 1000 - started >= permissionDelay * 1000 {
