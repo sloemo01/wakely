@@ -30,11 +30,13 @@ enum AppUninstaller {
 
         // The administrator path also removes a fallback-installed daemon and
         // the helper's root-owned data.
-        await HelperClient.shared.uninstall()
+        // The admin step goes first: if it is canceled, nothing has been
+        // unregistered yet and the helper keeps running.
         if case .failure(let error) = await HelperClient.shared.uninstallWithAdministratorPrompt(removeData: true) {
             Diagnostics.log("delete wakely: stopped, helper removal failed: \(error.localizedDescription)")
             return "The privileged helper wasn't removed (\(error.localizedDescription)), so Wakely was not deleted. Quit and reopen Wakely, then try again."
         }
+        await HelperClient.shared.uninstall()
 
         try? await SMAppService.agent(plistName: HelperService.agentPlistName).unregister()
         try? await SMAppService.mainApp.unregister()
