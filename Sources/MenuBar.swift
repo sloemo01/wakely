@@ -251,19 +251,30 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func activateAgent(_ sender: NSMenuItem) {
         guard let pid = sender.representedObject as? NSNumber else { return }
         if let application = NSRunningApplication(processIdentifier: pid.int32Value), application.activationPolicy == .regular {
-            application.activate(options: [])
+            Self.bringToFront(application)
         } else {
             let processID = pid.int32Value
             Task {
                 let ancestors = await Task.detached { Self.parentProcessIDs(of: processID) }.value
                 for ancestor in ancestors {
                     if let app = NSRunningApplication(processIdentifier: ancestor), app.activationPolicy == .regular {
-                        app.activate(options: [])
+                        Self.bringToFront(app)
                         return
                     }
                 }
                 NSSound.beep()
             }
+        }
+    }
+
+    /// macOS 14 ignores `activate` from a menu-bar app that isn't frontmost,
+    /// so reopen the app through Launch Services, which always raises it.
+    private static func bringToFront(_ application: NSRunningApplication) {
+        guard let url = application.bundleURL else { application.activate(options: [.activateAllWindows]); return }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
+        NSWorkspace.shared.openApplication(at: url, configuration: configuration) { _, error in
+            if error != nil { DispatchQueue.main.async { application.activate(options: [.activateAllWindows]) } }
         }
     }
 

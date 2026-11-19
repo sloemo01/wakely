@@ -168,6 +168,16 @@ struct AgentTaskStateTests {
                                       "/Applications/Cursor.app/Contents/MacOS/Cursor"]
         let app = AgentBackgroundScanner.parseProcesses(desktopApp, now: now, isExecutable: installed.contains)
         expect(app.map(\.pid) == [41000, 41001, 41003, 41004, 94237] && app.map(\.provider) == ["Codex App", "Claude", "Codex", "Cursor", "DeepSeek Harness"], "DeepSeek Harness desktop app matched by its spaced bundle path; helpers and dsh-named folders ignored")
+        let start = now.timeIntervalSince1970 * 1000
+        let open = #"{"role":"assistant","time":{"created":1}}"#
+        let pending = #"{"type":"tool","tool":"bash","state":{"status":"running","time":{"start":\#(start - 10000)}}}"#
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: open, tool: pending)!, hasChild: false, now: now) == .waiting, "OpenCode running tool with no child is waiting on a permission prompt")
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: open, tool: pending)!, hasChild: true, now: now) == .working, "OpenCode running tool with a child process is working")
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: open, tool: nil)!, hasChild: false, now: now) == .working, "OpenCode open assistant turn is working")
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: #"{"role":"assistant","time":{"created":1,"completed":2},"finish":"stop"}"#, tool: pending)!, hasChild: false, now: now) == .idle, "OpenCode completed turn is idle")
+        var heldWaiting: [String: Date] = [:]
+        let waitingOC = AgentThread(id: "OpenCode-9", provider: "OpenCode", pid: 9, state: .waiting)
+        expect(AgentThread.holdingRecentlyBusy([waitingOC], lastBusy: &heldWaiting, now: now) == [waitingOC], "session-read waiting state is listed as is")
         let full = AgentBackgroundScanner.parseProcesses(truncated, now: now)
         expect(full.count == 2 && full[0].pid == 200 && full[0].provider == "Codex" && full[1].pid == 203 && full[1].provider == "Claude Code", "truncated comm recovered from argv0; claude.exe matched; app-server skipped")
 

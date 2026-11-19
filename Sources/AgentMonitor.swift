@@ -53,7 +53,8 @@ struct AgentThread: Identifiable, Equatable, Sendable {
         // An open app or idle CLI is not a running agent, so a process-only
         // agent is listed only while it works (or within `hold` of working).
         return threads.compactMap { thread in
-            guard processOnly.contains(thread.provider) else { return thread }
+            // States read from the agent's own session (waiting, idle) stand.
+            guard processOnly.contains(thread.provider), thread.state == .working || thread.state == .unknown else { return thread }
             if thread.state == .working { lastBusy[thread.id] = now; return thread }
             guard let last = lastBusy[thread.id], now.timeIntervalSince(last) < hold else { return nil }
             return AgentThread(id: thread.id, provider: thread.provider, pid: thread.pid, state: .working,
@@ -186,6 +187,13 @@ enum AgentBackgroundScanner {
             ? busyAgents(pids: processes.filter { processOnly.contains($0.provider) }.map(\.pid),
                          cpuListing: command("/bin/ps", ["-axo", "pid=,ppid=,%cpu="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "")
             : []
+        var children: [Int32: [Int32]] = [:]
+        if processes.contains(where: { OpenCodeSessionState.database(provider: $0.provider, home: home) != nil }) {
+            for line in (command("/bin/ps", ["-axo", "pid=,ppid="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "").split(separator: "\n") {
+                let fields = line.split(whereSeparator: { $0 == " " || $0 == "\t" })
+                if fields.count == 2, let pid = Int32(fields[0]), let parent = Int32(fields[1]) { children[parent, default: []].append(pid) }
+            }
+        }
         return processes.map { process in
             let correlation = AgentTaskCorrelation.correlation(for: process, sessions: sessions, processes: processes)
             var snapshot = correlation.session ?? AgentSessionSnapshot(provider: process.provider)
@@ -219,6 +227,11 @@ enum AgentBackgroundScanner {
             // A quiet CPU is not proof the task finished (the agent may be
             // waiting on its model), so a non-busy process-only agent is unknown.
             if processOnly.contains(process.provider) { state = busy.contains(process.pid) ? .working : .unknown }
+            if let database = OpenCodeSessionState.database(provider: process.provider, home: home),
+               let row = OpenCodeSessionState.latest(database: database, cwd: process.cwd, since: process.startedAt),
+               let read = OpenCodeSessionState.state(row: row, hasChild: children[process.pid]?.isEmpty == false, now: Date()) {
+                state = read
+            }
 
             return AgentThread(id: "\(process.provider)-\(process.pid)", provider: process.provider, pid: process.pid,
                                state: state, displayName: snapshot.name, host: snapshot.host,
@@ -396,7 +409,7 @@ enum AgentBackgroundScanner {
         return result
     }
 
-    private static func command(_ executable: String, _ arguments: [String], timeout: TimeInterval, maxBytes: Int) -> String? {
+    static func command(_ executable: String, _ arguments: [String], timeout: TimeInterval, maxBytes: Int) -> String? {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: executable)
         process.arguments = arguments
@@ -423,5 +436,72 @@ enum AgentBackgroundScanner {
         process.waitUntilExit()
         guard process.terminationStatus == 0 else { return nil }
         return String(data: data, encoding: .utf8)
+    }
+}
+
+
+/// OpenCode (CLI and desktop app) and its fork Kilo keep every session in a
+/// local SQLite database. A permission prompt is not recorded: the tool part
+/// just stays `running`, so a running tool with no child process for a few
+/// seconds is read as waiting on you.
+enum OpenCodeSessionState {
+    struct Row: Equatable {
+        let message: [String: Any]
+        let tool: [String: Any]?
+        static func == (a: Row, b: Row) -> Bool {
+            NSDictionary(dictionary: a.message).isEqual(to: b.message)
+                && NSDictionary(dictionary: a.tool ?? [:]).isEqual(to: b.tool ?? [:])
+        }
+    }
+
+    static func database(provider: String, home: URL) -> URL? {
+        let name: String
+        switch provider {
+        case "OpenCode": name = "opencode/opencode.db"
+        case "Kilo": name = "kilo/kilo.db"
+        default: return nil
+        }
+        let url = home.appendingPathComponent(".local/share/\(name)")
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+    }
+
+    static func latest(database: URL, cwd: String?, since: Date?) -> Row? {
+        let after = Int64(((since ?? .distantPast).timeIntervalSince1970 - 5) * 1000)
+        // A desktop app runs from `/`; it owns the newest session instead.
+        let directory = cwd.flatMap { $0 == "/" ? nil : $0 }
+        let filter = directory.map { "directory = '\($0.replacingOccurrences(of: "'", with: "''"))' AND " } ?? ""
+        let query = """
+        SELECT m.data AS message,
+          (SELECT p.data FROM part p WHERE p.message_id = m.id AND json_extract(p.data, '$.type') = 'tool'
+           ORDER BY p.time_updated DESC LIMIT 1) AS tool
+        FROM message m WHERE m.session_id = (SELECT id FROM session WHERE \(filter)time_updated >= \(after)
+          ORDER BY time_updated DESC LIMIT 1)
+        ORDER BY m.time_created DESC LIMIT 1;
+        """
+        guard let output = AgentBackgroundScanner.command("/usr/bin/sqlite3", ["-readonly", "-json", database.path, query],
+                                                          timeout: 1, maxBytes: 512 * 1024),
+              let rows = try? JSONSerialization.jsonObject(with: Data(output.utf8)) as? [[String: Any]],
+              let first = rows.first else { return nil }
+        return row(message: first["message"] as? String, tool: first["tool"] as? String)
+    }
+
+    static func row(message: String?, tool: String?) -> Row? {
+        guard let message, let parsed = try? JSONSerialization.jsonObject(with: Data(message.utf8)) as? [String: Any] else { return nil }
+        let part = tool.flatMap { try? JSONSerialization.jsonObject(with: Data($0.utf8)) as? [String: Any] }
+        return Row(message: parsed, tool: part)
+    }
+
+    static func state(row: Row, hasChild: Bool, now: Date, permissionDelay: TimeInterval = 3) -> AgentTaskState? {
+        let role = row.message["role"] as? String
+        if role == "user" { return .working }
+        guard role == "assistant" else { return nil }
+        let time = row.message["time"] as? [String: Any]
+        if time?["completed"] != nil { return .idle }
+        if let state = row.tool?["state"] as? [String: Any], state["status"] as? String == "running", !hasChild,
+           let started = (state["time"] as? [String: Any])?["start"] as? Double,
+           now.timeIntervalSince1970 * 1000 - started >= permissionDelay * 1000 {
+            return .waiting
+        }
+        return .working
     }
 }
