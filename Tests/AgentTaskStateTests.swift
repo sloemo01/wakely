@@ -192,6 +192,14 @@ struct AgentTaskStateTests {
         76109 76018 02:29 /Users/devin/.co /Users/devin/.codex/computer-use/Codex Computer Use.app/Contents/MacOS/SkyComputerUseService
         """, now: now)
         expect(appHelpers.isEmpty, "Codex app helpers under spaced paths are not Codex CLIs")
+        let electron = """
+        500 1 30.0 /Applications/Cu
+        501 500 20.0 /Applications/Cu
+        600 1 1.0 /Applications/Wi
+        601 600 0.5 /Applications/Wi
+        602 601 40.0 /bin/zsh
+        """
+        expect(AgentBackgroundScanner.busyAgents(pids: [500, 600], cpuListing: electron, apps: [500, 600]) == [600], "an app counts as working only from work outside its bundle")
         var heldWaiting: [String: Date] = [:]
         let waitingOC = AgentThread(id: "OpenCode-9", provider: "OpenCode", pid: 9, state: .waiting)
         expect(AgentThread.holdingRecentlyBusy([waitingOC], lastBusy: &heldWaiting, now: now) == [waitingOC], "session-read waiting state is listed as is")

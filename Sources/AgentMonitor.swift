@@ -189,7 +189,8 @@ enum AgentBackgroundScanner {
         let processOnly = AgentProcessDescriptor.processOnlyProviderNames
         let busy: Set<Int32> = processes.contains { processOnly.contains($0.provider) }
             ? busyAgents(pids: processes.filter { processOnly.contains($0.provider) }.map(\.pid),
-                         cpuListing: command("/bin/ps", ["-axo", "pid=,ppid=,%cpu="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "")
+                         cpuListing: command("/bin/ps", ["-axo", "pid=,ppid=,%cpu=,comm="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "",
+                         apps: Set(processes.filter(\.isApp).map(\.pid)))
             : []
         var children: [Int32: [Int32]] = [:]
         var names: [Int32: String] = [:]
@@ -275,15 +276,20 @@ enum AgentBackgroundScanner {
     /// Agents with no readable transcript count as working while they or the
     /// processes they started (shells, builds, browsers) use CPU. An open but
     /// idle CLI stays under the threshold. `cpuListing` is `ps -o pid,ppid,%cpu`.
-    static func busyAgents(pids: [Int32], cpuListing: String, threshold: Double = 5) -> Set<Int32> {
+    /// For a desktop app, only work it started outside its own bundle counts
+    /// (shells, builds, servers): Electron windows and helpers idle above the
+    /// threshold. Helpers share the app's 16-character `comm` prefix.
+    static func busyAgents(pids: [Int32], cpuListing: String, apps: Set<Int32> = [], threshold: Double = 5) -> Set<Int32> {
         var cpu: [Int32: Double] = [:]
         var children: [Int32: [Int32]] = [:]
+        var names: [Int32: Substring] = [:]
         for line in cpuListing.split(separator: "\n") {
-            let fields = line.split(whereSeparator: { $0 == " " || $0 == "\t" })
-            guard fields.count == 3, let pid = Int32(fields[0]), let parent = Int32(fields[1]),
+            let fields = line.split(maxSplits: 3, whereSeparator: { $0 == " " || $0 == "\t" })
+            guard fields.count >= 3, let pid = Int32(fields[0]), let parent = Int32(fields[1]),
                   let usage = Double(fields[2]) else { continue }
             cpu[pid] = usage
             children[parent, default: []].append(pid)
+            if fields.count == 4 { names[pid] = fields[3] }
         }
         var result: Set<Int32> = []
         for pid in pids {
@@ -292,7 +298,8 @@ enum AgentBackgroundScanner {
             var seen: Set<Int32> = []
             while let next = queue.popLast(), seen.count < 512 {
                 guard seen.insert(next).inserted else { continue }
-                total += cpu[next] ?? 0
+                let ownBundle = apps.contains(pid) && (next == pid || (names[next] != nil && names[next] == names[pid]))
+                if !ownBundle { total += cpu[next] ?? 0 }
                 queue += children[next] ?? []
             }
             if total >= threshold { result.insert(pid) }
