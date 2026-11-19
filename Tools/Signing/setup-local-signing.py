@@ -11,6 +11,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -25,10 +26,22 @@ def run(*args, **kwargs):
     return subprocess.run(args, check=True, **kwargs)
 
 
-def allow_codesign_access(keychain):
+def allow_codesign_access(keychain, fingerprint):
+    if not re.fullmatch(r'[0-9A-Fa-f]{40}', fingerprint):
+        raise SystemExit('Invalid configured certificate fingerprint; refusing to change key access.')
+    certificates = subprocess.check_output(
+        ['/usr/bin/security', 'find-certificate', '-a', '-c', NAME, '-Z', str(keychain)],
+        text=True)
+    matches = []
+    for block in re.split(r'(?m)^SHA-1 hash: *', certificates)[1:]:
+        certificate_hash, _, attributes = block.partition('\n')
+        if certificate_hash.strip().upper() == fingerprint.upper():
+            matches.append(re.findall(r'(?m)^\s*"hpky"<blob>=0x([0-9A-Fa-f]{40})(?=\s|$)', attributes))
+    if len(matches) != 1 or len(matches[0]) != 1:
+        raise SystemExit('No unique certificate/public-key hash matches the configured fingerprint; refusing to change key access.')
     print('Allow Apple signing tools to use the Wakely key. Enter the keychain password when security prompts.')
     run('/usr/bin/security', 'set-key-partition-list', '-S', 'apple-tool:,apple:',
-        '-s', '-l', 'wakely-private', str(keychain))
+        '-s', '-a', matches[0][0], str(keychain))
 
 
 def main():
@@ -42,7 +55,7 @@ def main():
             keychain = Path(config['keychain'])
             if config['name'] != NAME or config['mode'] != 'local-certificate' or not keychain.is_file():
                 raise SystemExit('A configured Wakely local identity and existing keychain are required.')
-            allow_codesign_access(keychain)
+            allow_codesign_access(keychain, config['identity'])
             return
         print('Local signing is already configured:', config['identity'])
         print('Reusing it is essential; do not generate a new certificate per build.')
@@ -96,8 +109,8 @@ authorityKeyIdentifier = keyid:always
             fingerprint = hashlib.sha1(der.read_bytes()).hexdigest().upper()
             run('/usr/bin/security', 'import', str(key), '-k', str(KEYCHAIN),
                 '-t', 'priv', '-f', 'openssl', '-T', '/usr/bin/codesign')
-            allow_codesign_access(KEYCHAIN)
             run('/usr/bin/security', 'import', str(cert), '-k', str(KEYCHAIN), '-t', 'cert')
+            allow_codesign_access(KEYCHAIN, fingerprint)
             # USER trust, constrained to code signing. No -d (system/admin)
             # and no SSL/SMIME/basic trust or unrestricted private-key ACL.
             run('/usr/bin/security', 'add-trusted-cert', '-r', 'trustRoot',
