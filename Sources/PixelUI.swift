@@ -73,7 +73,7 @@ private struct PixelButtonChrome: View {
 
     var body: some View {
         configuration.label
-            .font(ClamType.body(12, .medium))
+            .font(WakelyType.body(12, .medium))
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
             .foregroundStyle(prominent ? Theme.accentInk : Theme.ink)
@@ -127,7 +127,7 @@ struct PixelCheckToggleStyle: ToggleStyle {
             configuration.isOn.toggle()
         } label: {
             configuration.label
-                .font(ClamType.body(11.5, .medium))
+                .font(WakelyType.body(11.5, .medium))
                 .padding(.horizontal, 9)
                 .padding(.vertical, 4)
                 .foregroundStyle(configuration.isOn ? Theme.accentText : Theme.textSecondary)
@@ -150,12 +150,12 @@ struct PixelSwitchToggleStyle: ToggleStyle {
                 configuration.isOn.toggle()
             } label: {
                 configuration.label
-                    .font(ClamType.body(12.5, .medium))
+                    .font(WakelyType.body(12.5, .medium))
                     .foregroundStyle(Theme.ink)
             }
             .buttonStyle(.plain)
             Spacer(minLength: 8)
-            ClamSwitch(isOn: configuration.isOn) { configuration.isOn.toggle() }
+            WakelySwitch(isOn: configuration.isOn) { configuration.isOn.toggle() }
         }
     }
 }
@@ -169,7 +169,7 @@ struct PixelMenu<Value: Hashable>: View {
     var body: some View {
         HStack(spacing: 10) {
             Text(title)
-                .font(ClamType.body(13, .medium))
+                .font(WakelyType.body(13, .medium))
                 .foregroundStyle(Theme.ink)
             Spacer(minLength: 8)
             Menu {
@@ -178,7 +178,7 @@ struct PixelMenu<Value: Hashable>: View {
                 }
             } label: {
                 HStack(spacing: 6) {
-                    Text(currentLabel).font(ClamType.body(13, .semibold))
+                    Text(currentLabel).font(WakelyType.body(13, .semibold))
                     Image(systemName: "chevron.down")
                         .font(.system(size: 9, weight: .bold))
                 }
@@ -219,16 +219,16 @@ struct PixelStepper: View {
         return VStack(alignment: .leading, spacing: 7) {
             HStack(spacing: 10) {
                 Text(label)
-                    .font(ClamType.body(13, .medium))
+                    .font(WakelyType.body(13, .medium))
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 8)
                 Text(digits)
-                    .font(ClamType.mono(13, .semibold))
+                    .font(WakelyType.mono(13, .semibold))
                     .fixedSize()
                     .frame(minWidth: 62, alignment: .trailing)
                 if !note.isEmpty {
                     Text(note)
-                        .font(ClamType.body(13))
+                        .font(WakelyType.body(13))
                         .foregroundStyle(Theme.textSecondary)
                 }
             }

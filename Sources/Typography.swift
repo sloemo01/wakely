@@ -15,7 +15,7 @@ import CoreText
 ///
 /// Preserve the authored compact pixel rhythm. Interaction contrast is refined
 /// through semantic colours, not by replacing the face or globally scaling it.
-enum ClamType {
+enum WakelyType {
 
     // MARK: Font faces
 

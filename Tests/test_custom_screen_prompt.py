@@ -15,7 +15,7 @@ class CustomScreenPromptTests(unittest.TestCase):
     def test_requires_real_reference_inspection_and_honest_limits(self):
         for reference in ("Sources/Typography.swift", "Sources/PixelUI.swift",
                           "Sources/SettingsUI.swift", "Sources/CustomScreenUI.swift",
-                          "ComponentCard", "GeneralPane", "ClamSwitch"):
+                          "ComponentCard", "GeneralPane", "WakelySwitch"):
             self.assertIn(reference, PROMPT)
         self.assertIn("READ Sources/Typography.swift", PROMPT)
         self.assertIn("do not claim you inspected it", PROMPT)

@@ -81,9 +81,9 @@ struct CustomScreenPane: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Swift screen bundle missing").font(ClamType.body(14, .semibold))
+                Text("Swift screen bundle missing").font(WakelyType.body(14, .semibold))
                 Text("Ask your agent to rebuild Screen.dylib, or delete this screen.")
-                    .font(ClamType.body(12)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(12)).foregroundStyle(Theme.textSecondary)
                 Button("Edit with Agent") { model.beginScreenPrompt(screen.id) }
             }
             .padding(28)
@@ -94,9 +94,9 @@ struct CustomScreenPane: View {
     private func emptyPage(screenID: UUID) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("This screen is empty")
-                .font(ClamType.body(14, .semibold))
+                .font(WakelyType.body(14, .semibold))
             Text("Add a note or some components to make it useful.")
-                .font(ClamType.body(12))
+                .font(WakelyType.body(12))
                 .foregroundStyle(Theme.textSecondary)
             Button("Edit with Agent") { model.beginScreenPrompt(screenID) }
                 .padding(.top, 2)
@@ -107,13 +107,13 @@ struct CustomScreenPane: View {
     private func sectionView(_ section: CustomScreenSection) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(section.title.isEmpty ? "SECTION" : section.title.uppercased())
-                .font(ClamType.label(10))
+                .font(WakelyType.label(10))
                 .foregroundStyle(Theme.textSecondary)
             ForEach(section.blocks) { block in
                 switch block.kind {
                 case .note:
                     Text(block.note)
-                        .font(ClamType.body(12.5))
+                        .font(WakelyType.body(12.5))
                         .foregroundStyle(Theme.ink)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -132,16 +132,16 @@ struct CustomScreenPane: View {
     private var statusBlock: some View {
         HStack(spacing: 22) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("WAKELY").font(ClamType.label(9)).foregroundStyle(Theme.textTertiary)
+                Text("WAKELY").font(WakelyType.label(9)).foregroundStyle(Theme.textTertiary)
                 Text(state.armed ? "Armed" : "Off")
-                    .font(ClamType.body(14, .semibold))
+                    .font(WakelyType.body(14, .semibold))
                     .foregroundStyle(state.armed ? Theme.gold : Theme.ink)
             }
             Rectangle().fill(Theme.stroke).frame(width: 1, height: 28)
             VStack(alignment: .leading, spacing: 3) {
-                Text("COMPONENTS ON").font(ClamType.label(9)).foregroundStyle(Theme.textTertiary)
+                Text("COMPONENTS ON").font(WakelyType.label(9)).foregroundStyle(Theme.textTertiary)
                 Text("\(model.onCount)")
-                    .font(ClamType.body(14, .semibold))
+                    .font(WakelyType.body(14, .semibold))
                     .foregroundStyle(Theme.ink)
             }
             Spacer(minLength: 0)
@@ -174,21 +174,21 @@ struct CustomScreenPane: View {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(component.name)
-                        .font(ClamType.body(12.5, .medium))
+                        .font(WakelyType.body(12.5, .medium))
                     Text(component.tagline)
-                        .font(ClamType.body(11))
+                        .font(WakelyType.body(11))
                         .foregroundStyle(Theme.textSecondary)
                         .lineLimit(1)
                 }
                 Spacer(minLength: 10)
-                ClamSwitch(isOn: model.isOn(id)) {
+                WakelySwitch(isOn: model.isOn(id)) {
                     model.setOn(id, !model.isOn(id))
                 }
                 .accessibilityLabel("Enable \(component.name)")
             }
         } else {
             Text("Component unavailable")
-                .font(ClamType.body(11.5))
+                .font(WakelyType.body(11.5))
                 .foregroundStyle(Theme.textTertiary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -223,9 +223,9 @@ struct ScreenEditorSheet: View {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 5) {
                         Text(store.screen(with: draft.id) == nil ? "Create a screen" : "Edit screen")
-                            .font(ClamType.name(17.1))
+                            .font(WakelyType.name(17.1))
                         Text("This becomes its own tab in Wakely. Components keep their normal settings and permissions.")
-                            .font(ClamType.body(12.5))
+                            .font(WakelyType.body(12.5))
                             .foregroundStyle(Theme.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -279,7 +279,7 @@ struct ScreenEditorSheet: View {
 
             if let errorMessage {
                 Text(errorMessage)
-                    .font(ClamType.body(11.5))
+                    .font(WakelyType.body(11.5))
                     .foregroundStyle(Color.orange)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 10)
@@ -322,7 +322,7 @@ struct ScreenEditorSheet: View {
             HStack {
                 TextField("Section title", text: section.title)
                     .textFieldStyle(.plain)
-                    .font(ClamType.body(13, .semibold))
+                    .font(WakelyType.body(13, .semibold))
                     .padding(8)
                     .background(PixelShape(cut: 2).fill(Theme.control))
                 Button {
@@ -358,7 +358,7 @@ struct ScreenEditorSheet: View {
             HStack {
                 Text(block.wrappedValue.kind == .note ? "NOTE"
                      : (block.wrappedValue.kind == .components ? "COMPONENTS" : "STATUS"))
-                    .font(ClamType.label(9))
+                    .font(WakelyType.label(9))
                     .foregroundStyle(Theme.textTertiary)
                 Spacer()
                 Button {
@@ -381,13 +381,13 @@ struct ScreenEditorSheet: View {
                     .background(PixelShape(cut: 2).fill(Theme.control))
             } else if block.wrappedValue.kind == .status {
                 Text("Shows whether Wakely is armed and how many components are on.")
-                    .font(ClamType.body(11))
+                    .font(WakelyType.body(11))
                     .foregroundStyle(Theme.textSecondary)
             } else {
                 ForEach(block.wrappedValue.componentIDs, id: \.self) { id in
                     HStack {
                         Text(ComponentCatalog.definition(for: id)?.name ?? id)
-                            .font(ClamType.body(11.5))
+                            .font(WakelyType.body(11.5))
                         Spacer()
                         Button {
                             block.wrappedValue.componentIDs.removeAll { $0 == id }
@@ -469,10 +469,10 @@ struct AddScreenCard: View {
                 }
                 .padding(.horizontal, 14).padding(.top, 14)
                 Spacer(minLength: 10)
-                Text("Add a screen").font(ClamType.name(14.5))
+                Text("Add a screen").font(WakelyType.name(14.5))
                     .foregroundStyle(Theme.ink).lineLimit(1).padding(.horizontal, 14)
                 Text("Describe a page to your agent. It builds the tab for you.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
                     .lineLimit(2).fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 14).padding(.top, 3).padding(.bottom, 14)
             }
@@ -524,16 +524,16 @@ struct ScreenPromptSheet: View {
                 VStack(alignment: .leading, spacing: 14) {
                     VStack(alignment: .leading, spacing: 5) {
                         Text(screen == nil ? "Make your own screen" : "Edit screen with your agent")
-                            .font(ClamType.name(17.1))
+                            .font(WakelyType.name(17.1))
                         Text("Describe the screen you want. Your coding agent builds a complete local screen app; Wakely adds it to the navigation when it is ready.")
-                            .font(ClamType.body(12.5))
+                            .font(WakelyType.body(12.5))
                             .foregroundStyle(Theme.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
                         Text(screen == nil ? "WHAT SHOULD IT DO?" : "WHAT SHOULD CHANGE?")
-                            .font(ClamType.label(9.5)).tracking(1.0)
+                            .font(WakelyType.label(9.5)).tracking(1.0)
                             .foregroundStyle(Theme.section)
                         TextField(screen == nil ? "A live weather screen for my city" : "Describe an edit to this screen",
                                   text: $request, axis: .vertical)
@@ -548,15 +548,15 @@ struct ScreenPromptSheet: View {
 
                     VStack(alignment: .leading, spacing: 7) {
                         HStack {
-                            Text("PROMPT").font(ClamType.label(9.5)).tracking(1.0)
+                            Text("PROMPT").font(WakelyType.label(9.5)).tracking(1.0)
                                 .foregroundStyle(Theme.section)
                             Spacer()
-                            Text("Read-only").font(ClamType.mono(9))
+                            Text("Read-only").font(WakelyType.mono(9))
                                 .foregroundStyle(Theme.textTertiary)
                         }
                         EdgeScrollView(topFade: 24, bottomFade: 32) {
                             Text(prompt)
-                                .font(ClamType.mono(11))
+                                .font(WakelyType.mono(11))
                                 .lineSpacing(2)
                                 .foregroundStyle(Theme.ink)
                                 .textSelection(.enabled)
@@ -573,16 +573,16 @@ struct ScreenPromptSheet: View {
 
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Your agent may ask once to read Wakely’s Screens folder. Allow it, then let it write screen.json, Screen.swift and Screen.dylib.")
-                            .font(ClamType.body(11.5))
+                            .font(WakelyType.body(11.5))
                             .foregroundStyle(Theme.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                         Text("The screen runs as native SwiftUI inside Wakely. It can use Swift and public APIs, but it has no automatic permission to components or settings.")
-                            .font(ClamType.body(11))
+                            .font(WakelyType.body(11))
                             .foregroundStyle(Theme.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                         if let error = store.lastError {
                             Text(error)
-                                .font(ClamType.body(11))
+                                .font(WakelyType.body(11))
                                 .foregroundStyle(Color.orange)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -723,13 +723,13 @@ private struct SwiftScreenErrorView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("\(screenTitle) couldn’t load")
-                .font(ClamType.body(15, .semibold))
+                .font(WakelyType.body(15, .semibold))
             Text(message)
-                .font(ClamType.body(12))
+                .font(WakelyType.body(12))
                 .foregroundStyle(Theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
             Text("Edit with your agent, rebuild Screen.dylib, then reopen this tab.")
-                .font(ClamType.body(11))
+                .font(WakelyType.body(11))
                 .foregroundStyle(Theme.textTertiary)
         }
         .padding(28)

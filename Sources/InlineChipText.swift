@@ -289,7 +289,7 @@ struct OptionChip<Value: Hashable>: View {
     @State private var revision = 0
     @State private var hover = false
 
-    private var font: NSFont { ClamType.bodyFont(12.5, .semibold) }
+    private var font: NSFont { WakelyType.bodyFont(12.5, .semibold) }
     private var lineHeight: CGFloat { max(18, TorphLayout.lineHeight(font)) }
 
     private var current: String {
@@ -306,7 +306,7 @@ struct OptionChip<Value: Hashable>: View {
                     .foregroundStyle(Theme.ink)
                     .frame(height: lineHeight)
                 Text("⌄")
-                    .font(ClamType.body(11, .bold))
+                    .font(WakelyType.body(11, .bold))
                     .foregroundStyle(Theme.gold)
                     .frame(height: lineHeight)
             }
@@ -328,7 +328,7 @@ struct OptionChip<Value: Hashable>: View {
                     } label: {
                         HStack(spacing: 8) {
                             Text(options[index].label)
-                                .font(ClamType.body(12.5))
+                                .font(WakelyType.body(12.5))
                                 .foregroundStyle(Theme.ink)
                             Spacer(minLength: 12)
                             if options[index].value == selection {

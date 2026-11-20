@@ -55,7 +55,7 @@ struct ComponentDetailHeader: View {
                 .offset(x: ComponentCardMetrics.headerIconX, y: ComponentCardMetrics.headerIconTop)
 
             Text(component.name)
-                .font(ClamType.name(16))
+                .font(WakelyType.name(16))
                 .tracking(-0.1)
                 .foregroundStyle(Theme.ink)
                 .lineLimit(1)
@@ -63,14 +63,14 @@ struct ComponentDetailHeader: View {
                 .offset(x: ComponentCardMetrics.headerTextX, y: ComponentCardMetrics.headerTitleTop)
 
             Text(component.tagline)
-                .font(ClamType.body(12.5))
+                .font(WakelyType.body(12.5))
                 .foregroundStyle(Theme.textSecondary)
                 .lineSpacing(2)
                 .lineLimit(2)
                 .frame(width: headerTextWidth, alignment: .leading)
                 .offset(x: ComponentCardMetrics.headerTextX, y: ComponentCardMetrics.headerTaglineTop)
 
-            ClamSwitch(isOn: isOn, action: onToggle)
+            WakelySwitch(isOn: isOn, action: onToggle)
                 .offset(x: max(0, detailWidth - ComponentCardMetrics.cardPadding
                                   - ComponentCardMetrics.switchWidth),
                         y: ComponentCardMetrics.headerSwitchTop)
@@ -124,7 +124,7 @@ struct ComponentDetailPage<Content: View>: View {
                 Button(action: onBack) {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.left").font(.system(size: 10, weight: .semibold))
-                        Text("All Components").font(ClamType.body(12.5, .medium))
+                        Text("All Components").font(WakelyType.body(12.5, .medium))
                     }
                     .foregroundStyle(backHover ? Theme.ink : Theme.textSecondary)
                     .contentShape(Rectangle())
@@ -316,7 +316,7 @@ struct CardMorphOverlay: View, Animatable {
 
         return ZStack(alignment: .topLeading) {
             Text(component.name)
-                .font(ClamType.name(lerp(15, 16, p)))
+                .font(WakelyType.name(lerp(15, 16, p)))
                 .tracking(-0.1)
                 .foregroundStyle(Theme.ink)
                 .lineLimit(1)
@@ -324,7 +324,7 @@ struct CardMorphOverlay: View, Animatable {
                 .offset(x: lerp(ComponentCardMetrics.cardPadding, ComponentCardMetrics.headerTextX, p),
                         y: lerp(ComponentCardMetrics.cardTitleTop, ComponentCardMetrics.headerTitleTop, p))
             Text(component.tagline)
-                .font(ClamType.body(12.5))
+                .font(WakelyType.body(12.5))
                 .foregroundStyle(Theme.textSecondary)
                 .lineSpacing(2)
                 .lineLimit(2)
@@ -335,7 +335,7 @@ struct CardMorphOverlay: View, Animatable {
             ComponentSprite(componentID: component.icon, isOn: isOn, size: ComponentCardMetrics.iconSize)
                 .offset(x: ComponentCardMetrics.headerIconX, y: iconTop)
 
-            ClamSwitch(isOn: isOn) {}
+            WakelySwitch(isOn: isOn) {}
                 .offset(x: max(0, frame.width - ComponentCardMetrics.cardPadding - ComponentCardMetrics.switchWidth),
                         y: switchTop)
                 .allowsHitTesting(false)

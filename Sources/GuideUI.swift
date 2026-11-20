@@ -20,7 +20,7 @@ private struct LegacyGuideDestinationView: View {
         GeometryReader { proxy in
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
-                Text("GETTING STARTED").font(ClamType.label(10))
+                Text("GETTING STARTED").font(WakelyType.label(10))
                     .foregroundStyle(Theme.textSecondary)
                 Spacer()
                 Button("Skip for now") { guide.dismiss() }
@@ -59,11 +59,11 @@ private struct LegacyGuideDestinationView: View {
                         .accessibilityLabel("Wakely logo")
                 }
                 Text(page.title)
-                    .font(ClamType.display(22))
+                    .font(WakelyType.display(22))
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityFocused($headingFocused)
                 Text(page.body)
-                    .font(ClamType.body(13))
+                    .font(WakelyType.body(13))
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(2)

@@ -759,8 +759,8 @@ private enum GooMenuRowKind {
 
     var font: NSFont {
         switch self {
-        case .primary, .destructive: return ClamType.bodyFont(12, .semibold)
-        case .standard, .status, .navigation: return ClamType.bodyFont(12)
+        case .primary, .destructive: return WakelyType.bodyFont(12, .semibold)
+        case .standard, .status, .navigation: return WakelyType.bodyFont(12)
         }
     }
 
