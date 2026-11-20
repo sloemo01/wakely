@@ -188,6 +188,18 @@ struct AgentTaskStateTests {
         let dshRows = AgentBackgroundScanner.distinct(AgentBackgroundScanner.parseProcesses(dsh, now: now, isExecutable: installed.contains))
         expect(dshRows.map(\.pid) == [94237, 95000] && dshRows.map(\.isApp) == [true, false],
                "the dsh CLI bundled in DeepSeek Harness is a CLI row, and its Node host is not another app row")
+        let aider = "52000 1 00:30 /opt/homebrew/Ce /opt/homebrew/Cellar/python@3.12/3.12.15/Frameworks/Python.framework/Versions/3.12/Resources/Python.app/Contents/MacOS/Python /Users/a/.venv/bin/aider --model x"
+        let aiderRows = AgentBackgroundScanner.parseProcesses(aider, now: now, isExecutable: { $0.hasSuffix("/MacOS/Python") })
+        expect(aiderRows.map(\.provider) == ["Aider"] && aiderRows.map(\.isApp) == [false], "aider under Homebrew's Python.app is the Aider CLI, not an app")
+        expect(AgentAppSessionState.cline(session: ["pid": 7, "status": "pending"], pids: [7]) == .waiting, "a Cline approval prompt is waiting")
+        expect(AgentAppSessionState.cline(session: ["pid": 7, "status": "running"], pids: [7]) == .working, "a running Cline session is working")
+        expect(AgentAppSessionState.cline(session: ["pid": 8, "status": "pending"], pids: [7]) == nil, "another Cline's session is ignored")
+        let qwenCall = #"{"type":"assistant","message":{"parts":[{"text":"x"},{"functionCall":{"name":"run_shell_command"}}]}}"#
+        let qwenRead = #"{"type":"assistant","message":{"parts":[{"functionCall":{"name":"read_file"}}]}}"#
+        expect(AgentAppSessionState.qwen(lines: [qwenCall], runningShell: false) == .waiting, "a Qwen tool call with no result and no shell awaits approval")
+        expect(AgentAppSessionState.qwen(lines: [qwenCall], runningShell: true) == .working, "a Qwen tool call with its shell running is working")
+        expect(AgentAppSessionState.qwen(lines: [qwenCall, #"{"type":"tool_result"}"#], runningShell: false) == nil, "an answered Qwen tool call is not waiting")
+        expect(AgentAppSessionState.qwen(lines: [qwenRead], runningShell: false) == nil, "a read-only Qwen tool never needs approval")
         let start = now.timeIntervalSince1970 * 1000
         let open = #"{"role":"assistant","time":{"created":1}}"#
         let pending = #"{"type":"tool","tool":"bash","state":{"status":"running","time":{"start":\#(start - 10000)}}}"#

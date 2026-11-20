@@ -270,6 +270,11 @@ enum AgentBackgroundScanner {
             if processOnly.contains(process.provider) {
                 state = busy.contains(process.pid) || (!process.isApp && runsShell(process.pid)) ? .working : .unknown
             }
+            if !process.isApp, let read = AgentAppSessionState.cli(provider: process.provider, home: home, since: process.startedAt,
+                                                                    pids: [process.pid] + (children[process.pid] ?? []),
+                                                                    runningShell: runsShell(process.pid)) {
+                state = read
+            }
             // An app's own startup (sign-in, indexing, updates) is not agent work.
             if process.isApp, let started = process.startedAt, Date().timeIntervalSince(started) < 45 { state = .unknown }
             // Electron apps idle above the CPU threshold; trust their transcripts only.
@@ -399,8 +404,14 @@ enum AgentBackgroundScanner {
             let bundledPath = bundledExecutable(commandLine: commandLine, truncated: String(fields[index + 1]), isExecutable: isExecutable)
                 ?? (rest.count > 17 ? bundledExecutable(commandLine: String(rest.dropFirst(17)), truncated: String(rest.prefix(16)),
                                                         isExecutable: isExecutable) : nil)
+            var cliInBundle = false
             if let bundled = bundledPath {
-                guard let app = AgentProcessDescriptor.desktopAppProviders[URL(fileURLWithPath: bundled).lastPathComponent] else { continue }
+                // Framework interpreters (Homebrew's Python.app) run CLIs such as aider.
+                let bundledName = URL(fileURLWithPath: bundled).lastPathComponent
+                let cli = AgentProcessDescriptor.desktopAppProviders[bundledName] == nil
+                    ? AgentProcessDescriptor.provider(executable: bundled, arguments: arguments) : nil
+                guard let app = AgentProcessDescriptor.desktopAppProviders[bundledName] ?? cli else { continue }
+                cliInBundle = cli != nil
                 // ChatGPT.app is the Codex app only when it is `com.openai.codex`;
                 // the ordinary ChatGPT chat app shares the executable name.
                 if URL(fileURLWithPath: bundled).lastPathComponent == "ChatGPT",
@@ -427,7 +438,7 @@ enum AgentBackgroundScanner {
                                                     cwd: nil, startedAt: now.addingTimeInterval(-seconds))
             descriptor.parentPID = parentPID
             // DeepSeek Harness's bundled `dsh` CLI runs the app executable as Node.
-            descriptor.isApp = executable.contains(".app/Contents/MacOS/") && !commandLine.contains("/dsh-desktop-host/lib/cli.js")
+            descriptor.isApp = executable.contains(".app/Contents/MacOS/") && !cliInBundle && !commandLine.contains("/dsh-desktop-host/lib/cli.js")
             if descriptor.isApp { descriptor.appName = URL(fileURLWithPath: executable).lastPathComponent }
             descriptor.isLauncher = ["node", "nodejs", "bun"].contains(URL(fileURLWithPath: executable).lastPathComponent)
             result.append(descriptor)
