@@ -168,6 +168,17 @@ struct AgentProcessDescriptor: Equatable, Sendable {
                 if argument.hasSuffix("/@openai/codex/bin/codex.js") { return "Codex" }
             }
         }
+        // `#!/usr/bin/env node` (or python) CLIs such as qwen, pi, cline and aider
+        // show up as the interpreter running the CLI's script path.
+        if ["node", "nodejs", "bun"].contains(name) || name.hasPrefix("python") {
+            // The script is the first non-flag argument, installed in a `bin` directory.
+            if let script = arguments.prefix(4).first(where: { !$0.hasPrefix("-") && URL(fileURLWithPath: $0).lastPathComponent.lowercased() != name }),
+               script.hasPrefix("/") {
+                let url = URL(fileURLWithPath: script)
+                if url.deletingLastPathComponent().lastPathComponent == "bin",
+                   let other = processOnlyProviders[url.lastPathComponent.lowercased()] { return other }
+            }
+        }
         return nil
     }
 

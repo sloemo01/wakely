@@ -171,7 +171,7 @@ enum AgentBackgroundScanner {
                 return false
             }
             // Electron apps re-run their own executable as a Node host (DeepSeek Harness).
-            return !(candidate.isApp && discovered.contains { $0.pid == candidate.parentPID && $0.isApp && $0.provider == candidate.provider })
+            return !(candidate.isApp && discovered.contains { $0.pid == candidate.parentPID && $0.provider == candidate.provider })
         }
     }
 
@@ -202,7 +202,8 @@ enum AgentBackgroundScanner {
             : []
         var children: [Int32: [Int32]] = [:]
         var names: [Int32: String] = [:]
-        if processes.contains(where: { OpenCodeSessionState.database(provider: $0.provider, home: home) != nil || $0.provider == "Codex App" }) {
+        if processes.contains(where: { OpenCodeSessionState.database(provider: $0.provider, home: home) != nil || $0.provider == "Codex App"
+            || (processOnly.contains($0.provider) && !$0.isApp) }) {
             for line in (command("/bin/ps", ["-axo", "pid=,ppid=,comm="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "").split(separator: "\n") {
                 let fields = line.split(maxSplits: 2, whereSeparator: { $0 == " " || $0 == "\t" })
                 if fields.count == 3, let pid = Int32(fields[0]), let parent = Int32(fields[1]) {
@@ -265,7 +266,10 @@ enum AgentBackgroundScanner {
             }
             // A quiet CPU is not proof the task finished (the agent may be
             // waiting on its model), so a non-busy process-only agent is unknown.
-            if processOnly.contains(process.provider) { state = busy.contains(process.pid) ? .working : .unknown }
+            // A CLI's tool command (e.g. `sleep`) can sit idle on CPU; its shell shows the tool is running.
+            if processOnly.contains(process.provider) {
+                state = busy.contains(process.pid) || (!process.isApp && runsShell(process.pid)) ? .working : .unknown
+            }
             // An app's own startup (sign-in, indexing, updates) is not agent work.
             if process.isApp, let started = process.startedAt, Date().timeIntervalSince(started) < 45 { state = .unknown }
             // Electron apps idle above the CPU threshold; trust their transcripts only.
@@ -422,7 +426,8 @@ enum AgentBackgroundScanner {
                                                     sessionID: AgentProcessDescriptor.explicitSessionID(arguments: arguments),
                                                     cwd: nil, startedAt: now.addingTimeInterval(-seconds))
             descriptor.parentPID = parentPID
-            descriptor.isApp = executable.contains(".app/Contents/MacOS/")
+            // DeepSeek Harness's bundled `dsh` CLI runs the app executable as Node.
+            descriptor.isApp = executable.contains(".app/Contents/MacOS/") && !commandLine.contains("/dsh-desktop-host/lib/cli.js")
             if descriptor.isApp { descriptor.appName = URL(fileURLWithPath: executable).lastPathComponent }
             descriptor.isLauncher = ["node", "nodejs", "bun"].contains(URL(fileURLWithPath: executable).lastPathComponent)
             result.append(descriptor)

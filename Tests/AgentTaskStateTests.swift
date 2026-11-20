@@ -172,6 +172,22 @@ struct AgentTaskStateTests {
             "94300 94237 01:09 /Applications/De /Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness --expose-internals /Applications/DeepSeek Harness.app/Contents/Resources/app.asar/dsh/node_modules/@deepseek-ai/dsh-desktop-host/lib/index.js"
         expect(AgentBackgroundScanner.distinct(AgentBackgroundScanner.parseProcesses(host, now: now, isExecutable: installed.contains)).map(\.pid) == [94237],
                "an app re-running its own executable as a Node host is one row")
+        let scripts = """
+        51000 1 00:30 node node /opt/homebrew/bin/qwen
+        51001 1 00:30 node node /opt/homebrew/bin/pi --mode text
+        51002 1 00:30 node node /opt/homebrew/bin/cline
+        51003 1 00:30 python3.12 /Users/a/.venv/bin/python3.12 /Users/a/.venv/bin/aider --model x
+        51004 1 00:30 node node /tmp/build.js qwen
+        """
+        let clis = AgentBackgroundScanner.parseProcesses(scripts, now: now, isExecutable: { _ in false })
+        expect(clis.map(\.provider) == ["Qwen Code", "Pi", "Cline", "Aider"] && !clis.contains(where: \.isApp),
+               "node and python CLIs are matched by their script path, never by a bare argument")
+        let dsh = "94237 1 01:10 /Applications/De /Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness\n" +
+            "95000 900 00:20 /Applications/De /Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness --expose-internals /Applications/DeepSeek Harness.app/Contents/Resources/app.asar/dsh/node_modules/@deepseek-ai/dsh-desktop-host/lib/cli.js\n" +
+            "95001 95000 00:19 /Applications/De /Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness --expose-internals /Applications/DeepSeek Harness.app/Contents/Resources/app.asar/dsh/node_modules/@deepseek-ai/dsh-desktop-host/lib/index.js"
+        let dshRows = AgentBackgroundScanner.distinct(AgentBackgroundScanner.parseProcesses(dsh, now: now, isExecutable: installed.contains))
+        expect(dshRows.map(\.pid) == [94237, 95000] && dshRows.map(\.isApp) == [true, false],
+               "the dsh CLI bundled in DeepSeek Harness is a CLI row, and its Node host is not another app row")
         let start = now.timeIntervalSince1970 * 1000
         let open = #"{"role":"assistant","time":{"created":1}}"#
         let pending = #"{"type":"tool","tool":"bash","state":{"status":"running","time":{"start":\#(start - 10000)}}}"#
