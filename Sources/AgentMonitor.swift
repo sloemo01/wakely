@@ -259,6 +259,9 @@ enum AgentBackgroundScanner {
                let read = OpenCodeSessionState.state(row: row, hasChild: runsTool(process.pid), now: Date()) {
                 state = read
             }
+            if process.isApp, let read = AgentAppSessionState.read(provider: process.provider, home: home, since: process.startedAt) {
+                state = read
+            }
             // The Codex and Claude desktop apps write the same transcripts as
             // their CLIs; the app owns the newest one written since it started.
             if let transcriptProvider = ["Codex App": "Codex", "Claude": "Claude Code"][process.provider],
@@ -276,17 +279,18 @@ enum AgentBackgroundScanner {
         }.sorted { $0.id < $1.id }
     }
 
-    /// Agents with no readable transcript count as working while they or the
-    /// processes they started (shells, builds, browsers) use CPU. An open but
-    /// idle CLI stays under the threshold. `cpuListing` is `ps -o pid,ppid,%cpu`.
-    /// For a desktop app, only work it started outside its own bundle counts
-    /// (shells, builds, servers): Electron windows and helpers idle above the
-    /// threshold. Helpers share the app's 16-character `comm` prefix.
     /// "/Applications/Cursor.app/" for a full `comm`; the whole cut-off `comm` otherwise.
     static func bundlePrefix(_ comm: Substring) -> Substring {
         guard let range = comm.range(of: ".app/") else { return comm }
         return comm[..<range.upperBound]
     }
+
+    /// Agents with no readable transcript count as working while they or the
+    /// processes they started (shells, builds, browsers) use CPU. An open but
+    /// idle CLI stays under the threshold. `cpuListing` is `ps -o pid,ppid,%cpu`.
+    /// For a desktop app, only work it started outside its own bundle counts
+    /// (shells, builds, servers): Electron windows and helpers idle above the
+    /// threshold. Helpers share the app's `comm` bundle prefix.
 
     static func busyAgents(pids: [Int32], cpuListing: String, apps: [Int32: String] = [:], threshold: Double = 5) -> Set<Int32> {
         var cpu: [Int32: Double] = [:]

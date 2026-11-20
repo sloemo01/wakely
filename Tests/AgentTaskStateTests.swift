@@ -203,6 +203,22 @@ struct AgentTaskStateTests {
         let retitled = "700 1 0.5 /Applications/Cu\n701 700 30.0 Cursor Helper (Plugin): extension-host Agents Window [1-1]\n702 700 9.0 Cursor: shared-process"
         let fullComm = "800 1 0.8 /Applications/Cursor.app/Contents/MacOS/Cursor\n801 800 19.8 /Applications/Cursor.app/Contents/Frameworks/Cursor Helper.app/Contents/MacOS/Cursor Helper"
         expect(AgentBackgroundScanner.busyAgents(pids: [800], cpuListing: fullComm, apps: [800: "Cursor"]).isEmpty, "helpers under the app's full bundle path are part of the app")
+        func kiroLine(_ type: String, _ extra: String = "") -> String { "{\"id\":\"x\",\"payload\":{\"type\":\"\(type)\"\(extra)}}" }
+        expect(AgentAppSessionState.kiro(lines: [kiroLine("turn_start")]) == .working, "an open Kiro turn is working")
+        expect(AgentAppSessionState.kiro(lines: [kiroLine("turn_start"), kiroLine("pending_interaction", ",\"interactionType\":\"tool_approval\",\"toolCallId\":\"t1\"")]) == .waiting,
+               "an unanswered Kiro approval waits on you")
+        expect(AgentAppSessionState.kiro(lines: [kiroLine("turn_start"), kiroLine("pending_interaction", ",\"toolCallId\":\"t1\""),
+                                                 kiroLine("interaction_resolved", ",\"toolCallId\":\"t1\"")]) == .working, "an answered approval resumes work")
+        expect(AgentAppSessionState.kiro(lines: [kiroLine("turn_start"), kiroLine("turn_end", ",\"stopReason\":\"end_turn\"")]) == .idle, "an ended Kiro turn is idle")
+        expect(AgentAppSessionState.kiro(lines: [kiroLine("session_event")]) == nil, "no turn records, no Kiro state")
+        let appStart = Date(timeIntervalSince1970: 1_000)
+        expect(AgentAppSessionState.cursor(rows: [["status": "none", "generating": 0, "updated": 2_000_000.0],
+                                                   ["status": "generating", "generating": 1, "updated": 1.0]], since: appStart) == .working,
+               "any generating Cursor chat is working")
+        expect(AgentAppSessionState.cursor(rows: [["status": "aborted", "generating": 2, "updated": 2_000_000.0]], since: appStart) == .idle,
+               "a stopped Cursor chat with stale generating ids is idle")
+        expect(AgentAppSessionState.cursor(rows: [["status": "completed", "generating": 0, "updated": 10.0]], since: appStart) == .unknown,
+               "a Cursor chat from before the app started is not shown")
         expect(AgentBackgroundScanner.busyAgents(pids: [700], cpuListing: retitled, apps: [700: "Cursor"]).isEmpty, "retitled Electron helpers are part of the app")
         let promptBundle = AgentBackgroundScanner.parseProcesses("42002 1 00:30 /usr/local/bin/co /usr/local/bin/codex exec fix Foo.app/Contents/Info.plist", now: now, isExecutable: { $0 == "/usr/local/bin/codex" })
         expect(promptBundle.map(\.provider) == ["Codex"], "a prompt mentioning a bundle path is still a Codex task")
