@@ -28,17 +28,32 @@ enum AgentAppSessionState {
         SELECT json_extract(value, '$.status') AS status,
           json_array_length(json_extract(value, '$.generatingBubbleIds')) AS generating,
           json_extract(value, '$.isContinuationInProgress') AS continuing,
-          json_extract(value, '$.lastUpdatedAt') AS updated
+          json_extract(value, '$.lastUpdatedAt') AS updated, substr(key, 14) AS id
         FROM cursorDiskKV WHERE key LIKE 'composerData:%' AND json_valid(value)
         ORDER BY updated DESC LIMIT 20;
         """
         guard let output = AgentBackgroundScanner.command("/usr/bin/sqlite3", ["-readonly", "-json", database.path, query],
                                                           timeout: 1, maxBytes: 256 * 1024) else { return nil }
         let rows = output.isEmpty ? [] : (try? JSONSerialization.jsonObject(with: Data(output.utf8)) as? [[String: Any]]) ?? []
-        return cursor(rows: rows, since: since)
+        return cursor(rows: rows, since: since, runningTools: runningTools(database: database, rows: rows, since: since))
     }
 
-    static func cursor(rows: [[String: Any]], since: Date?) -> AgentTaskState {
+    /// Cursor marks a chat "aborted" while a tool awaits approval or runs; the
+    /// tool call itself stays "loading" until it finishes.
+    static func runningTools(database: URL, rows: [[String: Any]], since: Date?) -> Int {
+        let start = (since ?? .distantPast).timeIntervalSince1970 * 1000
+        let ids = rows.filter { ($0["updated"] as? Double ?? 0) >= start }.compactMap { $0["id"] as? String }
+            .filter { !$0.isEmpty && $0.allSatisfy { $0.isHexDigit || $0 == "-" } }
+        guard !ids.isEmpty else { return 0 }
+        let ranges = ids.map { "(key >= 'bubbleId:\($0):' AND key < 'bubbleId:\($0);')" }.joined(separator: " OR ")
+        let query = "SELECT COUNT(*) FROM cursorDiskKV WHERE (\(ranges)) AND json_valid(value) " +
+            "AND json_extract(value, '$.toolFormerData.status') = 'loading';"
+        let output = AgentBackgroundScanner.command("/usr/bin/sqlite3", ["-readonly", database.path, query], timeout: 1, maxBytes: 1024)
+        return Int(output?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "") ?? 0
+    }
+
+    static func cursor(rows: [[String: Any]], since: Date?, runningTools: Int = 0) -> AgentTaskState {
+        if runningTools > 0 { return .working }
         if rows.contains(where: {
             cursor(status: $0["status"] as? String, generating: ($0["generating"] as? Int) ?? 0,
                    continuing: ($0["continuing"] as? Int ?? 0) != 0)

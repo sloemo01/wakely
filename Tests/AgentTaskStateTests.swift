@@ -224,6 +224,8 @@ struct AgentTaskStateTests {
         expect(AgentAppSessionState.deepSeek(events: ["turn/start", "turn/end"]) == .idle, "a finished Harness turn is idle")
         expect(AgentAppSessionState.deepSeek(events: ["approval/policy"]) == nil, "no Harness turn, no state")
         let appStart = Date(timeIntervalSince1970: 1_000)
+        expect(AgentAppSessionState.cursor(rows: [["status": "aborted", "updated": 2_000_000.0]], since: appStart, runningTools: 1) == .working,
+               "a Cursor chat marked aborted with a tool call still loading is working")
         expect(AgentAppSessionState.hermes(leases: 1, lastMessage: 5, since: appStart) == .working, "a Hermes turn lease is working")
         expect(AgentAppSessionState.hermes(leases: 0, lastMessage: 2_000, since: appStart) == .idle, "a finished Hermes turn is idle at once")
         expect(AgentAppSessionState.hermes(leases: 0, lastMessage: 5, since: appStart) == nil, "no Hermes work since launch, no state")
