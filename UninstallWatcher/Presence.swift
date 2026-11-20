@@ -80,6 +80,55 @@ enum WakelyPresence {
         }
     }
 
+    /// Positive proof of deletion: a Wakely bundle sitting in the Trash.
+    ///
+    /// Absence alone must never wipe — a Spotlight-excluded folder or a
+    /// missing index can hide a perfectly installed app, and a move or rename
+    /// must keep every byte. Only a bundle the user actually trashed counts.
+    /// A trashed app keeps its bundle id even when Finder renames the copy
+    /// ("Wakely 2.app"), so the Info.plist is checked as well as the name.
+    /// Uncertainty resolves toward "not confirmed": an unreadable Trash keeps
+    /// every byte, and so does emptying the Trash before the wipe ran — the
+    /// safe direction.
+    static func trashContainsApp(homeDirectory: URL) -> Bool {
+        let trash = homeDirectory.appendingPathComponent(".Trash", isDirectory: true)
+        guard let entries = try? FileManager.default.contentsOfDirectory(
+            at: trash, includingPropertiesForKeys: nil) else { return false }
+        return entries.contains { url in
+            guard url.pathExtension == "app" else { return false }
+            if url.lastPathComponent == "Wakely.app" { return true }
+            guard let plist = try? Data(contentsOf: url.appendingPathComponent("Contents/Info.plist")),
+                  let object = try? PropertyListSerialization.propertyList(from: plist, format: nil),
+                  let dictionary = object as? [String: Any] else { return false }
+            return dictionary["CFBundleIdentifier"] as? String == UninstallWatcherPolicy.bundleID
+        }
+    }
+
+    /// Marker the watcher drops after a Trash-confirmed wipe so the root
+    /// helper daemon can confirm the same deletion: macOS privacy protection
+    /// bars a LaunchDaemon from reading the user's Trash ("you don't have
+    /// permission to view it"), while the user-level watcher reads it fine.
+    /// /tmp is writable by both and cleared on reboot; the content is the
+    /// write time as epoch seconds.
+    static let deletionMarkerPath = "/tmp/dev.wakely.app-deleted"
+
+    static func writeDeletionMarker() {
+        try? "\(Int(Date().timeIntervalSince1970))\n".write(
+            toFile: deletionMarkerPath, atomically: true, encoding: .utf8)
+    }
+
+    /// A marker only confirms a deletion it was written for: an old one must
+    /// not bless a later, unrelated absence (reinstall, then a move into a
+    /// Spotlight-excluded folder). Future-dated markers (clock skew) count.
+    static func deletionMarkerIsFresh(maxAge: TimeInterval = 900,
+                                      now: Date = Date()) -> Bool {
+        guard let text = try? String(contentsOfFile: deletionMarkerPath, encoding: .utf8),
+              let written = TimeInterval(text.trimmingCharacters(in: .whitespacesAndNewlines)),
+              written > 0 else { return false }
+        let age = now.timeIntervalSince1970 - written
+        return age >= -60 && age <= maxAge
+    }
+
     /// True while ANY Wakely process runs — installed app or a development
     /// build. A running instance is proof the user still has Wakely, so the
     /// watcher must never wipe underneath it.

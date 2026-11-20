@@ -154,6 +154,7 @@ private func runWatcher() -> Int32 {
 
     var absentStreak = 0
     var announced = false
+    var blockedLogged = false
 
     while true {
         Thread.sleep(forTimeInterval: poll)
@@ -171,9 +172,14 @@ private func runWatcher() -> Int32 {
         // Trash is not indexed, so a real deletion still reads as absent.
         let present = WakelyPresence.anyCandidateExists(candidates)
             || WakelyPresence.spotlightFindsApp(homeDirectory: home)
+        // Absence is not proof of deletion: only a Wakely bundle found in the
+        // Trash confirms the user actually deleted the app. A move into a
+        // Spotlight-excluded folder, a missing index or a rename keeps data.
+        let confirmed = WakelyPresence.trashContainsApp(homeDirectory: home)
 
         let decision = UninstallWatcherPolicy.decide(appRunning: running,
                                                      appCandidatesPresent: present,
+                                                     deletionConfirmed: confirmed,
                                                      consecutiveAbsentChecks: absentStreak + 1,
                                                      requiredAbsentChecks: requiredAbsent)
         switch decision {
@@ -184,16 +190,27 @@ private func runWatcher() -> Int32 {
                 }
                 absentStreak = 0
                 announced = false
+                blockedLogged = false
             } else {
                 absentStreak += 1
-                if !announced {
-                    logLine("app absent (\(absentStreak)/\(requiredAbsent) checks); wiping after the grace window")
+                let shown = min(absentStreak, requiredAbsent)
+                if absentStreak >= requiredAbsent && !confirmed {
+                    if !blockedLogged {
+                        logLine("app absent for the full grace but no trashed Wakely.app found; keeping all data")
+                        blockedLogged = true
+                    }
+                } else if !announced {
+                    logLine("app absent (\(shown)/\(requiredAbsent) checks); wiping after the grace window once the Trash confirms the deletion")
                     announced = true
                 } else {
-                    logLine("app still absent (\(absentStreak)/\(requiredAbsent) checks)")
+                    logLine("app still absent (\(shown)/\(requiredAbsent) checks)")
                 }
             }
         case .wipe:
+            // Tell the root helper daemon (which cannot read the user's
+            // Trash) that this wipe is Trash-confirmed, before user state
+            // that might carry the news is removed.
+            WakelyPresence.writeDeletionMarker()
             return wipeEverything()
         }
     }

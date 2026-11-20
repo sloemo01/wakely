@@ -342,6 +342,16 @@ final class SleepUntilResetController {
         return kept
     }
 
+    /// Delete Wakely: cancel the owned wakes and WAIT for the XPC round trips.
+    /// `didQuit`'s cancellation is fire-and-forget, which is fine for a quit
+    /// (the termination drain covers it) but not for a delete: the helper is
+    /// removed moments later, and a wake it still owns would survive the
+    /// uninstall. Returns how many wakes were canceled.
+    @discardableResult
+    func cancelOwnedWakesForDelete(reason: String) async -> Int {
+        await cancelOwnedWakes(reason: reason)
+    }
+
     /// Cancel every wake this component owns. Never cancels by date alone: the
     /// helper matches its own ownership record, and only the component label it
     /// stored is treated as ours.

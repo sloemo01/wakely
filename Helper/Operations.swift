@@ -1567,6 +1567,71 @@ enum Operations {
         return HelperReply(id: request.id, ok: ok, message: message, details: details)
     }
 
+    /// Roll back every system change before the daemon deletes itself.
+    ///
+    /// Called only by `HelperAppRemoval.wipeAndExit`: the app is gone, so no
+    /// client can ask for `restoreAll`, and persistent settings plus pending
+    /// wakes would otherwise survive the uninstall. Unlike `restoreAll` this
+    /// has no request journal and no reply — it is best effort, and the
+    /// caller proceeds with the wipe even when individual restores fail.
+    /// Every owned wake still in the future is canceled through the same
+    /// ownership-matched path the app uses; `cancelall` is never used.
+    static func restoreEverythingBeforeDeletion()
+        -> (restored: Int, failed: Int, wakesCancelled: Int, unreadableStore: Bool) {
+        var restored = 0
+        var failed = 0
+
+        let entries: [BackupStore.Entry]
+        let unreadableStore: Bool
+        do {
+            entries = try BackupStore.list()
+            unreadableStore = false
+        } catch {
+            entries = []
+            unreadableStore = true
+        }
+
+        var order: [String] = []
+        var grouped: [String: [BackupStore.Entry]] = [:]
+        for entry in entries {
+            if grouped[entry.componentID] == nil { order.append(entry.componentID) }
+            grouped[entry.componentID, default: []].append(entry)
+        }
+
+        for componentID in order {
+            var failures: [String] = []
+            for entry in grouped[componentID] ?? [] {
+                let outcome = restore(entry)
+                if outcome.ok {
+                    restored += 1
+                } else {
+                    failed += 1
+                    failures.append("\(entry.operation): \(outcome.message)")
+                }
+            }
+            // Only a fully restored component loses its record here; the
+            // caller deletes the whole directory right after regardless, so
+            // a partial failure changes nothing about what survives — it is
+            // logged above and counted in the result.
+            if failures.isEmpty {
+                try? BackupStore.remove(componentID: componentID)
+            } else {
+                HelperLog.write("delete rollback: \(componentID.isEmpty ? "unassigned" : componentID) "
+                    + "could not be fully restored: " + failures.joined(separator: "; "))
+            }
+        }
+
+        var wakesCancelled = 0
+        let now = Date().timeIntervalSince1970
+        let storedWakes = (try? WakeStore().list()) ?? []
+        let scheduler = WakeScheduler()
+        for entry in storedWakes where entry.at > now {
+            if scheduler.cancel(dateValue: entry.at).ok { wakesCancelled += 1 }
+        }
+
+        return (restored, failed, wakesCancelled, unreadableStore)
+    }
+
     /// Re-apply one saved prior value and verify it. The backup entry is not
     /// touched here: the caller removes it only after every entry for the
     /// component has verified.

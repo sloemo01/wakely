@@ -12,10 +12,13 @@
 // and UninstallWatcher/Presence.swift.
 //
 // Safety rule: the watcher only wipes after the app has been absent for a
-// bounded number of consecutive checks. An app update swaps the bundle in
-// seconds and the updater relaunches the app within its wait cap, so a
-// multi-minute grace makes a false wipe impossible in practice. The checks
-// also require that NO Wakely process is running and that NONE of the
+// bounded number of consecutive checks AND deletion is positively confirmed
+// (a Wakely bundle found in the Trash). Absence alone never wipes: a
+// Spotlight-excluded folder or a missing index can hide a perfectly installed
+// app, and a move or rename must keep every byte. An app update swaps the
+// bundle in seconds and the updater relaunches the app within its wait cap,
+// so the multi-minute grace makes a false wipe impossible in practice. The
+// checks also require that NO Wakely process is running and that NONE of the
 // candidate install locations exists.
 
 import Foundation
@@ -60,13 +63,18 @@ enum UninstallWatcherPolicy {
     static let daemonPollInterval: TimeInterval = 60
     static let daemonAbsentChecksBeforeWipe = 5
 
-    /// Decide from the three facts one probe can establish. Pure: the caller
-    /// does the process scan and path probes.
+    /// Decide from the facts one probe can establish. Pure: the caller does
+    /// the process scan, path probes and Trash scan.
+    ///
+    /// `deletionConfirmed` is the positive Trash evidence. Without it the
+    /// decision is always `.keepWatching`, no matter how long the app has
+    /// been absent: absence is not proof of deletion.
     static func decide(appRunning: Bool,
                        appCandidatesPresent: Bool,
+                       deletionConfirmed: Bool,
                        consecutiveAbsentChecks: Int,
                        requiredAbsentChecks: Int = absentChecksBeforeWipe) -> UninstallWatcherDecision {
-        guard !appRunning, !appCandidatesPresent else { return .keepWatching }
+        guard !appRunning, !appCandidatesPresent, deletionConfirmed else { return .keepWatching }
         guard consecutiveAbsentChecks >= requiredAbsentChecks else { return .keepWatching }
         return .wipe
     }
