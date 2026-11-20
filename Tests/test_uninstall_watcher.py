@@ -209,3 +209,12 @@ print("uninstall watcher structure: all checks passed")
 
 installer_src = (ROOT / "Sources/UninstallWatcherInstaller.swift").read_text() if "ROOT" in globals() else open("Sources/UninstallWatcherInstaller.swift").read()
 assert "Pipe()" not in installer_src, "launchctl output is never left in an unread Pipe (blocks app launch)"
+
+watcher_main = open("UninstallWatcher/main.swift").read()
+wipe = watcher_main.split("private func wipeEverything()", 1)[1]
+assert wipe.index("--unregister-services") < wipe.index("removeItem(supportDirectory())"), \
+    "the trashed app unregisters its Login Items records before the wipe"
+app_main = open("Sources/main.swift").read()
+flag = app_main.split('"--unregister-services"', 1)[1].split("exit(0)", 1)[0]
+for needle in ("SMAppService.daemon", "SMAppService.agent", "SMAppService.mainApp", ".unregister()"):
+    assert needle in flag, needle

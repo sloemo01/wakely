@@ -70,8 +70,12 @@ private func logLine(_ text: String) {
 
 // MARK: - Cleanup primitives
 
+/// Every code identity Wakely ships; TCC grants are kept per identity.
+private let wakelyBundleIDs = [UninstallWatcherPolicy.bundleID, "dev.wakely.helper",
+                               "dev.wakely.watchdog", "dev.wakely.uninstall-watcher"]
+
 @discardableResult
-private func run(_ path: String, _ arguments: [String]) -> Int32 {
+private func run(_ path: String, _ arguments: [String], timeout: TimeInterval? = nil) -> Int32 {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: path)
     process.arguments = arguments
@@ -79,7 +83,13 @@ private func run(_ path: String, _ arguments: [String]) -> Int32 {
     process.standardError = FileHandle.nullDevice
     do {
         try process.run()
-        process.waitUntilExit()
+        if let timeout {
+            let deadline = Date().addingTimeInterval(timeout)
+            while process.isRunning && Date() < deadline { usleep(100_000) }
+            if process.isRunning { process.terminate(); return -2 }
+        } else {
+            process.waitUntilExit()
+        }
         return process.terminationStatus
     } catch {
         return -1
@@ -109,8 +119,19 @@ private func wipeEverything() -> Int32 {
 
     logLine("app is gone; wiping every user-level Wakely leftover")
 
+    // Login Items & Extensions records outlive the bundle and confuse a
+    // reinstall's helper. Only the app's identity can unregister them, and the
+    // trashed copy is still there, so run it once for that.
+    if let trashed = WakelyPresence.trashedAppURL(homeDirectory: home) {
+        let status = run(trashed.appendingPathComponent("Contents/MacOS/Wakely").path,
+                         ["--unregister-services"], timeout: 15)
+        logLine("unregistered Login Items records via the trashed app (exit \(status))")
+    }
+
     // macOS privacy grants (Accessibility, Screen Recording, ...).
-    _ = run("/usr/bin/tccutil", ["reset", "All", UninstallWatcherPolicy.bundleID])
+    for id in wakelyBundleIDs {
+        _ = run("/usr/bin/tccutil", ["reset", "All", id])
+    }
 
     // Persistent settings: this is what made a reinstall "remember" modules.
     _ = run("/usr/bin/defaults", ["delete", UninstallWatcherPolicy.bundleID])
@@ -128,7 +149,9 @@ private func wipeEverything() -> Int32 {
     for path in ["Caches/\(UninstallWatcherPolicy.bundleID)",
                  "Caches/Wakely",
                  "HTTPStorages/\(UninstallWatcherPolicy.bundleID)",
-                 "Saved Application State/\(UninstallWatcherPolicy.bundleID).savedState"] {
+                 "Saved Application State/\(UninstallWatcherPolicy.bundleID).savedState",
+                 "WebKit/\(UninstallWatcherPolicy.bundleID)",
+                 "Logs/Wakely"] {
         removeItem(library.appendingPathComponent(path))
     }
 

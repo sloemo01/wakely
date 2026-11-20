@@ -52,11 +52,14 @@ enum AppUninstaller {
         UninstallWatcherInstaller.uninstall()
 
         // Accessibility, Location, Automation and every other TCC grant.
-        run("/usr/bin/tccutil", ["reset", "All", bundleID])
+        for id in [bundleID, "dev.wakely.helper", "dev.wakely.watchdog", "dev.wakely.uninstall-watcher"] {
+            run("/usr/bin/tccutil", ["reset", "All", id])
+        }
 
         try? FileManager.default.removeItem(at: ManualAgentInstaller.supportDirectory())
         let library = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library")
-        for path in ["Caches/\(bundleID)", "Caches/Wakely", "HTTPStorages/\(bundleID)", "Saved Application State/\(bundleID).savedState"] {
+        for path in ["Caches/\(bundleID)", "Caches/Wakely", "HTTPStorages/\(bundleID)", "Saved Application State/\(bundleID).savedState",
+                     "WebKit/\(bundleID)", "Logs/Wakely"] {
             try? FileManager.default.removeItem(at: library.appendingPathComponent(path))
         }
         UserDefaults.standard.removePersistentDomain(forName: bundleID)
