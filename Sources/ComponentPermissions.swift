@@ -631,7 +631,7 @@ struct ComponentSetupContent: View {
             if coordinator.currentPermission != .helper && !isDone {
                 Button("Open System Settings") { coordinator.openSettings() }
                     .buttonStyle(.link)
-                    .font(ClamType.body(11.5))
+                    .font(WakelyType.body(11.5))
                     .padding(.top, 8)
             }
         }

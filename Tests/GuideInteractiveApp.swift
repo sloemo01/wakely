@@ -35,7 +35,7 @@ final class GuideInteractiveDelegate: NSObject, NSApplicationDelegate {
     private var assertionTask: Task<Void, Never>?
     func applicationDidFinishLaunching(_ notification: Notification) {
         try? "started\n".write(toFile: "/tmp/wakely-guide-ui-lifecycle.log", atomically: true, encoding: .utf8)
-        _ = ClamType.registerBundledFonts()
+        _ = WakelyType.registerBundledFonts()
         let window = NSWindow(contentRect: NSRect(x: 100, y: 160, width: 700, height: 500),
                               styleMask: [.titled, .closable], backing: .buffered, defer: false)
         window.title = "Wakely Guide QA"

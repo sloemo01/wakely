@@ -15,8 +15,8 @@ struct InlineValueChip: View {
     var requestEditing = false
     var onEditingChanged: ((Bool) -> Void)? = nil
 
-    private var font: NSFont { ClamType.bodyFont(12.5, .semibold) }
-    private var arrowFont: NSFont { ClamType.bodyFont(14, .bold) }
+    private var font: NSFont { WakelyType.bodyFont(12.5, .semibold) }
+    private var arrowFont: NSFont { WakelyType.bodyFont(14, .bold) }
 
     @State private var hover = false
     @State private var revision = 0
@@ -64,7 +64,7 @@ struct InlineValueChip: View {
             if editing {
                 TextField("", text: $editText)
                     .textFieldStyle(.plain)
-                    .font(ClamType.mono(12.5, .semibold))
+                    .font(WakelyType.mono(12.5, .semibold))
                     .foregroundStyle(Theme.accentInk)
                     .tint(Theme.accentInk)
                     .multilineTextAlignment(.center)
@@ -301,7 +301,7 @@ struct InlineCycleChip<Value: Hashable>: View {
         } label: {
             HStack(spacing: 5) {
                 Text(current)
-                    .font(ClamType.body(12.5, .semibold))
+                    .font(WakelyType.body(12.5, .semibold))
                     .fixedSize()
                     .foregroundStyle(Theme.ink)
                 Image(systemName: "arrow.triangle.2.circlepath")

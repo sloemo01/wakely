@@ -161,7 +161,7 @@ if let index = CommandLine.arguments.firstIndex(of: "--render-ui-preview"),
         let app = NSApplication.shared
         app.setActivationPolicy(.prohibited)
         AppAppearance.shared.apply()
-        _ = ClamType.registerBundledFonts()
+        _ = WakelyType.registerBundledFonts()
         SettingsModel.shared.showOnOnly = CommandLine.arguments.contains("--on-only")
         let width: CGFloat = CommandLine.arguments.contains("--compact") ? 860 : 1040
         let size = NSSize(width: width, height: 760)
@@ -344,7 +344,7 @@ if let index = CommandLine.arguments.firstIndex(of: "--render-guide-preview"),
     MainActor.assumeIsolated {
         NSApplication.shared.setActivationPolicy(.prohibited)
         AppAppearance.shared.apply()
-        _ = ClamType.registerBundledFonts()
+        _ = WakelyType.registerBundledFonts()
         configureGuidePreview()
         guard GuideCoordinator.shared.isPresented else { exit(1) }
         SettingsModel.shared.panelPresented = true
@@ -360,7 +360,7 @@ if let index = CommandLine.arguments.firstIndex(of: "--render-guide-preview"),
             : (CommandLine.arguments.contains("--guide-dark") ? .dark : AppAppearance.shared.preferredColorScheme)
         let view = NSHostingView(rootView: GuideDestinationView()
             .background(Theme.window)
-            .environment(\.font, ClamType.body(13))
+            .environment(\.font, WakelyType.body(13))
             .preferredColorScheme(previewScheme)
             .frame(width: size.width, height: size.height))
         let window = NSWindow(contentRect: NSRect(origin: CGPoint(x: -20000, y: -20000), size: size),
@@ -433,9 +433,9 @@ if let index = CommandLine.arguments.firstIndex(of: "--render-panel-preview"),
         app.setActivationPolicy(.prohibited)
         AppAppearance.shared.apply()
         // The preview must exercise the same bundled display face as the app.
-        _ = ClamType.registerBundledFonts()
+        _ = WakelyType.registerBundledFonts()
         if ProcessInfo.processInfo.environment["WAKELY_FONT_DIAGNOSTICS"] == "1" {
-            print("fonts: \(ClamType.resolvedFontSummary())")
+            print("fonts: \(WakelyType.resolvedFontSummary())")
         }
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Arm Wakely", action: nil, keyEquivalent: ""))

@@ -194,7 +194,7 @@ struct SettingsView: View {
         .toggleStyle(PixelSwitchToggleStyle())
         // Pixel Operator is the default for anything without an explicit face:
         // Button labels, field placeholders and picker text included.
-        .environment(\.font, ClamType.body(13))
+        .environment(\.font, WakelyType.body(13))
         .environment(\.componentMorph, morph)
         .frame(minWidth: 700, minHeight: 500)
         .overlay(alignment: .topLeading) {
@@ -202,10 +202,10 @@ struct SettingsView: View {
             // aside instead of colliding with it.
             if model.tab != "components" || model.detailComponent == nil {
                 VStack(alignment: .leading, spacing: 6) {
-                    TorphText(paneTitle, font: ClamType.displayFont(19))
+                    TorphText(paneTitle, font: WakelyType.displayFont(19))
                         .foregroundStyle(Theme.ink)
                     if let paneSubtitle {
-                        TorphText(paneSubtitle, font: ClamType.bodyFont(13))
+                        TorphText(paneSubtitle, font: WakelyType.bodyFont(13))
                             .foregroundStyle(Theme.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                             .tourTarget(model.tab == "components" ? "componentsIntro" : "paneSubtitle-\(model.tab)")
@@ -227,7 +227,7 @@ struct SettingsView: View {
             SettingsOverlay()
                 .buttonStyle(PixelButtonStyle())
                 .toggleStyle(PixelSwitchToggleStyle())
-                .environment(\.font, ClamType.body(13))
+                .environment(\.font, WakelyType.body(13))
                 .disabled(guides.isPresented)
                 .allowsHitTesting(!guides.isPresented)
                 .accessibilityHidden(guides.isPresented)
@@ -236,7 +236,7 @@ struct SettingsView: View {
             if guides.isPresented && !guides.isMenuTour {
                 HighlightTourOverlay(anchors: anchors)
                     .id(guides.generation)
-                    .environment(\.font, ClamType.body(13))
+                    .environment(\.font, WakelyType.body(13))
                     .transition(.identity)
             }
         }
@@ -493,7 +493,7 @@ private struct FloatingNav: View {
             HStack(spacing: 7) {
                 Image(systemName: icon).font(.system(size: 11))
                 Text(title)
-                    .font(ClamType.body(13, selected ? .semibold : .medium))
+                    .font(WakelyType.body(13, selected ? .semibold : .medium))
                     .foregroundStyle(selected ? Theme.goldSoft : Theme.ink)
                     .lineLimit(1)
                     .fixedSize(horizontal: true, vertical: false)
@@ -706,11 +706,11 @@ private struct ComponentsPane: View {
                 // exact text block so the search field stays aligned.
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Components")
-                        .font(ClamType.display(19))
+                        .font(WakelyType.display(19))
                         .hidden()
                         .accessibilityHidden(true)
                     Text("Choose what your Mac does next.")
-                        .font(ClamType.body(13))
+                        .font(WakelyType.body(13))
                         .hidden()
                         .accessibilityHidden(true)
                 }
@@ -909,18 +909,18 @@ private struct ComponentsPane: View {
         }
     }
 
-    /// One type role for every section eyebrow: `ClamType.label(9.5)` at 1.0pt
+    /// One type role for every section eyebrow: `WakelyType.label(9.5)` at 1.0pt
     /// tracking. The count and the rule that closes the row carry the section's
     /// accent; every accent in `Theme` clears 4.5:1 on the window and 3:1 as a
     /// 1pt rule, so the tint is never the only difference.
     private func sectionLabel(_ title: String, count: Int, accent: Color) -> some View {
         HStack(spacing: 8) {
             Text(title.uppercased())
-                .font(ClamType.label(9.5))
+                .font(WakelyType.label(9.5))
                 .tracking(1.0)
                 .foregroundStyle(Theme.textSecondary)
             Text(String(format: "%02d", count))
-                .font(ClamType.mono(9.5, .medium))
+                .font(WakelyType.mono(9.5, .medium))
                 .foregroundStyle(accent)
                 .monospacedDigit()
             Rectangle().fill(accent.opacity(0.8)).frame(height: 1)
@@ -932,11 +932,11 @@ private struct ComponentsPane: View {
         HStack(spacing: 9) {
             Image(systemName: "magnifyingglass").font(.system(size: 12)).foregroundStyle(Theme.textTertiary)
             TextField("Find a component…", text: $model.query)
-                .textFieldStyle(.plain).font(ClamType.body(13))
+                .textFieldStyle(.plain).font(WakelyType.body(13))
                 .focused($searchFocused).accessibilityLabel("Search components")
             if !model.query.isEmpty {
                 Button { withAnimation(motion) { model.query = "" } } label: {
-                    Text("×").font(ClamType.body(14, .semibold)).foregroundStyle(Theme.textTertiary)
+                    Text("×").font(WakelyType.body(14, .semibold)).foregroundStyle(Theme.textTertiary)
                 }.buttonStyle(.plain).accessibilityLabel("Clear search")
             } else {
                 // Two keycaps rather than one inline hint: each key gets its
@@ -954,7 +954,7 @@ private struct ComponentsPane: View {
 
     private func keycap(_ symbol: String) -> some View {
         Text(symbol)
-            .font(ClamType.mono(13, .medium))
+            .font(WakelyType.mono(13, .medium))
             .foregroundStyle(Theme.textSecondary)
             .frame(width: 22, height: 22)
             .background(PixelShape(cut: 2).fill(Theme.control))
@@ -980,10 +980,10 @@ private struct ComponentsPane: View {
         } label: {
             HStack(spacing: 6) {
                 Text(title)
-                    .font(ClamType.body(13, .medium))
+                    .font(WakelyType.body(13, .medium))
                     .foregroundStyle(selected ? Theme.ink : Theme.textSecondary)
                 Text(String(format: "%02d", count))
-                    .font(ClamType.mono(10.5, .medium))
+                    .font(WakelyType.mono(10.5, .medium))
                     .foregroundStyle(selected ? Theme.textSecondary : Theme.textTertiary)
                     .monospacedDigit()
             }
@@ -1009,7 +1009,7 @@ private struct ComponentsPane: View {
             ComponentSprite(componentID: "agentScreen", isOn: false)
             PixelText(text: model.query.isEmpty ? "A quiet workspace" : "No components found", pixel: 2)
             Text(model.query.isEmpty ? "Turn on a component in All to see it here." : "Try another name or clear your search.")
-                .font(ClamType.body(12)).foregroundStyle(Theme.textSecondary)
+                .font(WakelyType.body(12)).foregroundStyle(Theme.textSecondary)
             Button(model.query.isEmpty ? "Explore all components" : "Clear search") {
                 withAnimation(motion) {
                     if model.query.isEmpty { model.showOnOnly = false }
@@ -1065,13 +1065,13 @@ struct ComponentCard: View {
                 // CardTitle + CardDescription
                 VStack(alignment: .leading, spacing: 5) {
                     Text(component.name)
-                        .font(ClamType.name(15))
+                        .font(WakelyType.name(15))
                         .tracking(-0.1)
                         .foregroundStyle(Theme.ink)
                         .lineLimit(1)
 
                     Text(component.tagline)
-                        .font(ClamType.body(12.5))
+                        .font(WakelyType.body(12.5))
                         .foregroundStyle(Theme.textSecondary)
                         .lineSpacing(2)
                         .lineLimit(2)
@@ -1103,7 +1103,7 @@ struct ComponentCard: View {
         }
         .buttonStyle(ComponentPressStyle(scales: false))
         .overlay(alignment: .topTrailing) {
-            ClamSwitch(isOn: isOn, action: onToggle)
+            WakelySwitch(isOn: isOn, action: onToggle)
                 .accessibilityLabel("Enable \(component.name)")
                 .padding(.trailing, ComponentCardMetrics.cardPadding)
                 .padding(.top, ComponentCardMetrics.cardSwitchTop)
@@ -1141,7 +1141,7 @@ private struct ComponentPressStyle: ButtonStyle {
 
 // MARK: - Switch
 
-struct ClamSwitch: View {
+struct WakelySwitch: View {
     let isOn: Bool
     var action: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -1311,12 +1311,12 @@ private struct ComponentDetailContent: View {
             } else {
             if let chips = inlineChips, !chips.isEmpty {
                 InlineChipText(text: component.detail, chips: chips)
-                    .font(ClamType.body(12.5))
+                    .font(WakelyType.body(12.5))
                     .lineSpacing(3)
                     .foregroundStyle(Theme.ink)
             } else {
                 Text(component.detail.replacingOccurrences(of: "{value}", with: ""))
-                    .font(ClamType.body(12.5))
+                    .font(WakelyType.body(12.5))
                     .lineSpacing(3)
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
@@ -1325,13 +1325,13 @@ private struct ComponentDetailContent: View {
             if component.needsHelper, !helperInstalled {
                 VStack(alignment: .leading, spacing: 4) {
                     Label(helperRequirementText, systemImage: "lock.shield")
-                        .font(ClamType.body(11.5))
+                        .font(WakelyType.body(11.5))
                         .foregroundStyle(Color.orange.opacity(0.9))
                         .fixedSize(horizontal: false, vertical: true)
                     if let refusal = ComponentEngine.shared.enablementReason(for: component.id),
                        !model.isOn(component.id) {
                         Text(refusal)
-                            .font(ClamType.body(11))
+                            .font(WakelyType.body(11))
                             .foregroundStyle(Theme.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -1341,7 +1341,7 @@ private struct ComponentDetailContent: View {
             ComponentPermissionStatusView(componentID: component.id)
             if !model.enablementNotice.isEmpty {
                 Text(model.enablementNotice)
-                    .font(ClamType.body(11.5))
+                    .font(WakelyType.body(11.5))
                     .foregroundStyle(Theme.goldSoft)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -1353,7 +1353,7 @@ private struct ComponentDetailContent: View {
                     revision += 1
                 }
                 .buttonStyle(.plain)
-                .font(ClamType.body(12, .medium))
+                .font(WakelyType.body(12, .medium))
                 .foregroundStyle(Theme.textSecondary)
                 .underline()
             }
@@ -1372,10 +1372,10 @@ private struct ComponentDetailContent: View {
                     .fixedSize()
                     .tourTarget("inlineOption").tourTarget("optionEditor")
             )])
-            .font(ClamType.body(12.5)).foregroundStyle(Theme.ink)
+            .font(WakelyType.body(12.5)).foregroundStyle(Theme.ink)
             .tourTarget("componentDetail")
             Text("Practice only. This value isn't saved and the component stays as it was.")
-                .font(ClamType.body(11.5)).foregroundStyle(Theme.textTertiary)
+                .font(WakelyType.body(11.5)).foregroundStyle(Theme.textTertiary)
         }
     }
 
@@ -1480,9 +1480,9 @@ private struct GeneralPane: View {
                 section("GETTING STARTED") {
                     HStack(alignment: .center, spacing: 12) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("A tour of the real controls").font(ClamType.body(13, .semibold))
+                            Text("A tour of the real controls").font(WakelyType.body(13, .semibold))
                             Text("Follow the highlights through a component, its options, creation tools, settings and the menu. Practice changes aren't saved.")
-                                .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                                .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         Spacer(minLength: 8)
@@ -1514,16 +1514,16 @@ private struct GeneralPane: View {
                     HStack(alignment: .center, spacing: 12) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(updateStatusTitle)
-                                .font(ClamType.body(13, .semibold))
+                                .font(WakelyType.body(13, .semibold))
                             if !updateStatusDetail.isEmpty {
                                 Text(updateStatusDetail)
-                                    .font(ClamType.body(11.5))
+                                    .font(WakelyType.body(11.5))
                                     .foregroundStyle(Theme.textSecondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                             if let installError = updates.installError {
                                 Text(installError)
-                                    .font(ClamType.body(11.5))
+                                    .font(WakelyType.body(11.5))
                                     .foregroundStyle(.orange)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -1550,15 +1550,15 @@ private struct GeneralPane: View {
                     HStack(alignment: .center, spacing: 12) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(helperStateTitle)
-                                .font(ClamType.body(13))
+                                .font(WakelyType.body(13))
                                 .fontWeight(.semibold)
                             Text("Every helper component shares this one installation. macOS asks for your administrator password once; no Apple ID is required.")
-                                .font(ClamType.body(11.5))
+                                .font(WakelyType.body(11.5))
                                 .foregroundStyle(Theme.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
                             if !permissions.message.isEmpty {
                                 Text(permissions.message)
-                                    .font(ClamType.body(11))
+                                    .font(WakelyType.body(11))
                                     .foregroundStyle(Theme.goldSoft)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -1596,12 +1596,12 @@ private struct GeneralPane: View {
                     // gave SAFETY a double border and a double shadow.
                     VStack(alignment: .leading, spacing: 3) {
                         HStack {
-                            Text("Disarm on low battery").font(ClamType.body(13, .semibold))
+                            Text("Disarm on low battery").font(WakelyType.body(13, .semibold))
                             Spacer()
-                            ClamSwitch(isOn: state.lowBatteryGuard) { state.lowBatteryGuard.toggle() }
+                            WakelySwitch(isOn: state.lowBatteryGuard) { state.lowBatteryGuard.toggle() }
                         }
                         Text("Disarms at 20% battery while unplugged. Thermal protection stays on regardless of this setting.")
-                            .font(ClamType.body(11.5))
+                            .font(WakelyType.body(11.5))
                             .foregroundStyle(Theme.textSecondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -1613,9 +1613,9 @@ private struct GeneralPane: View {
                     // instead of centring on the two-line block beneath it.
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("Copy diagnostics for support").font(ClamType.body(13, .semibold))
+                            Text("Copy diagnostics for support").font(WakelyType.body(13, .semibold))
                             Text("Copies the log you can paste anywhere. Nothing is sent.")
-                                .font(ClamType.body(11.5))
+                                .font(WakelyType.body(11.5))
                                 .foregroundStyle(Theme.textSecondary)
                         }
                         Spacer()
@@ -1630,14 +1630,14 @@ private struct GeneralPane: View {
                     HStack(alignment: .top, spacing: 12) {
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Delete Wakely from this Mac")
-                                .font(ClamType.body(13, .semibold))
+                                .font(WakelyType.body(13, .semibold))
                             Text("Removes the helper, watchdog, login items, macOS permissions, settings and data, then moves Wakely to the Trash.")
-                                .font(ClamType.body(11.5))
+                                .font(WakelyType.body(11.5))
                                 .foregroundStyle(Theme.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
                             if let deleteError {
                                 Text(deleteError)
-                                    .font(ClamType.body(11.5))
+                                    .font(WakelyType.body(11.5))
                                     .foregroundStyle(.orange)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -1722,10 +1722,10 @@ private struct GeneralPane: View {
     private func toggleRow(_ title: String, isOn: Binding<Bool>, disabled: Bool = false) -> some View {
         HStack {
             Text(title)
-                .font(ClamType.body(13, .semibold))
+                .font(WakelyType.body(13, .semibold))
                 .foregroundStyle(disabled ? Theme.textTertiary : Theme.ink)
             Spacer()
-            ClamSwitch(isOn: isOn.wrappedValue) { if !disabled { isOn.wrappedValue.toggle() } }
+            WakelySwitch(isOn: isOn.wrappedValue) { if !disabled { isOn.wrappedValue.toggle() } }
                 .disabled(disabled)
                 .opacity(disabled ? 0.4 : 1)
         }
@@ -1735,7 +1735,7 @@ private struct GeneralPane: View {
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title.uppercased())
-                .font(ClamType.label(9.5))
+                .font(WakelyType.label(9.5))
                 .tracking(1.0)
                 .foregroundStyle(Theme.section)
             VStack(spacing: 0) { content() }
@@ -1767,12 +1767,12 @@ private struct AboutPane: View {
                     .resizable()
                     .frame(width: 64, height: 64)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Wakely").font(ClamType.name(16.1))
-                    Text("Version \(AppVersion.current) · MIT licensed").font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    Text("Wakely").font(WakelyType.name(16.1))
+                    Text("Version \(AppVersion.current) · MIT licensed").font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
                 }
             }
             Text("Wakely is a free, MIT-licensed utility for Apple Silicon Macs. It keeps your Mac awake with the lid closed, so long downloads, renders, builds and agent sessions keep running while the machine stays shut.")
-                .font(ClamType.body(12.5))
+                .font(WakelyType.body(12.5))
                 .lineSpacing(2)
                 .foregroundStyle(Theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -1782,12 +1782,12 @@ private struct AboutPane: View {
                 Label("Opt-in components for power, security, connections and agents", systemImage: "checkmark.seal")
                 Label("Runs entirely on your Mac; no telemetry leaves the app", systemImage: "checkmark.seal")
             }
-            .font(ClamType.body(12))
+            .font(WakelyType.body(12))
             .foregroundStyle(Theme.textSecondary)
             .padding(14)
             .pixelPanel(fill: Theme.card, border: Theme.stroke, cut: 4)
             Text("Source is MIT licensed: use it, change it, ship it. Licence notes ship alongside the code.")
-                .font(ClamType.body(11))
+                .font(WakelyType.body(11))
                 .foregroundStyle(Theme.textTertiary)
             Spacer()
         }
@@ -1864,7 +1864,7 @@ struct ComponentOptions: View {
                 .onChange(of: soundName) { _, _ in CloseSoundPlayer.shared.prepare() }
             case "batteryBudget":
                 Text("Only time on battery counts; opening the lid resets it.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "sleepTimer":
                 row {
                     PixelMenu(title: "Sleep after", selection: $timerMinutes,
@@ -1873,7 +1873,7 @@ struct ComponentOptions: View {
                 }
             case "sleepWhenIdle":
                 Text("Counted only while nothing is downloading, copying, playing audio or using the CPU.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "keepAwake":
                 row {
                     PixelMenu(title: "Stay awake for", selection: $keepMinutes,
@@ -1887,7 +1887,7 @@ struct ComponentOptions: View {
                 }
             case "awakeWhileConnected":
                 Text("Arms only while on the charger with the lid open.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "armOnSchedule":
                 VStack(alignment: .leading, spacing: 8) {
                     row {
@@ -1906,7 +1906,7 @@ struct ComponentOptions: View {
                         }
                     }
                     Text("Overnight schedules belong to the day they start. Requires charger power.")
-                        .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                        .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
                 }
             case "armWhenDriveConnects":
                 VStack(alignment: .leading, spacing: 8) {
@@ -1920,7 +1920,7 @@ struct ComponentOptions: View {
                     if availableDrives.isEmpty { Text("Connect a drive to choose it.").foregroundStyle(Theme.textSecondary) }
                     Button("Refresh drives") { availableDrives = Volumes.external() }
                     Text("Only selected drives can arm Wakely. Requires charger power.")
-                        .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                        .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
                 }
                 .onAppear { availableDrives = Volumes.external() }
             case "armOnWiFi":
@@ -1971,28 +1971,28 @@ struct ComponentOptions: View {
                     Text(availableShortcuts.isEmpty
                          ? "Type the exact name of the Shortcut to run on each event."
                          : "Pick one of your Shortcuts; “—” runs nothing.")
-                        .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                        .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
                 }
                 .task { await loadAvailableShortcuts() }
             case "passwordAfterClose":
                 // The display and timing choices are the sentence's own chips.
                 Text("Touch ID for unlocking returns as soon as you unlock again.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "fanBoost":
                 Text("Applied only while the lid is closed and the Mac is working hard, then handed back when it idles.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "agentLight":
                 Text("After the last agent finishes, the light keeps showing done for this long.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "finishWorkThenSleep":
                 Text("While the lid is closed, your Mac stays awake until the agents finish, then sleeps.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "finishJobsThenSleep":
                 Text("Counts downloads, exports and backups; other apps' jobs are not waited for.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "agentScreen":
                 Text("The display stays black but usable for agents until the closed-lid lock timer expires. It then turns off and your Mac locks, even if an agent still needs the screen.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "agentNotifications":
                 VStack(alignment: .leading, spacing: 8) {
                     row {
@@ -2006,21 +2006,21 @@ struct ComponentOptions: View {
                 }
             case "ejectOnSleep":
                 Text("Drives are still only ejected when nothing is using them and the lid is closed.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "cleaningLock":
                 Text("Turn on the switch to lock the keyboard and pointer for the time above. Hold Escape for three seconds to unlock early. The switch turns off when the lock ends.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
                 if !actionState.cleaningLockMessage.isEmpty {
                     Text(actionState.cleaningLockMessage)
-                        .font(ClamType.body(12)).foregroundStyle(Theme.goldSoft)
+                        .font(WakelyType.body(12)).foregroundStyle(Theme.goldSoft)
                         .accessibilityLabel(actionState.cleaningLockMessage)
                 }
             case "sleepUntilReset":
                 Text("Uses the shared Wakely Helper. No separate administrator prompt is needed; turn it on above and Wakely schedules the wake itself.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "sleepMeansSleep":
                 Text("Uses the shared Wakely Helper to suppress battery Power Nap, proximity wake and Wake-on-LAN while enabled. Other scheduled wake events are left alone.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
             default:
                 EmptyView()
             }
@@ -2029,7 +2029,7 @@ struct ComponentOptions: View {
 
     private func row<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         HStack(spacing: 8) { content() }
-            .font(ClamType.body(13))
+            .font(WakelyType.body(13))
             .padding(.horizontal, 12)
             .padding(.vertical, 9)
             .background(PixelShape(cut: 3).fill(Theme.ink.opacity(0.05)))
@@ -2160,14 +2160,14 @@ struct CustomComponentCard: View {
             HStack(alignment: .top) {
                 CustomComponentSprite(lines: component.iconLines, isOn: store.isEnabled(component.id), isHovered: hover)
                 Spacer()
-                ClamSwitch(isOn: store.isEnabled(component.id)) {
+                WakelySwitch(isOn: store.isEnabled(component.id)) {
                     store.setEnabled(component.id, !store.isEnabled(component.id))
                 }.accessibilityLabel("Enable \(component.name)")
             }
             .padding(.horizontal, 16).padding(.top, 16)
             Spacer(minLength: 10)
-            Text(component.name).font(ClamType.name(14.5)).lineLimit(1).padding(.horizontal, 14)
-            Text(component.tagline).font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+            Text(component.name).font(WakelyType.name(14.5)).lineLimit(1).padding(.horizontal, 14)
+            Text(component.tagline).font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
                 .lineLimit(2).fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 14).padding(.top, 3).padding(.bottom, 14)
         }
@@ -2240,10 +2240,10 @@ struct MakeYourOwnCard: View {
                     Spacer()
                 }.padding(.horizontal, 14).padding(.top, 14)
                 Spacer(minLength: 10)
-                Text("Make your own component").font(ClamType.name(14.5))
+                Text("Make your own component").font(WakelyType.name(14.5))
                     .foregroundStyle(Theme.ink).lineLimit(1).padding(.horizontal, 14)
                 Text("Describe a component and an AI coding agent builds it.")
-                    .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    .font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
                     .lineLimit(2).fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 14).padding(.top, 3).padding(.bottom, 14)
             }
@@ -2290,10 +2290,10 @@ private struct MakeYourOwnSheet: View {
             EdgeScrollView(topFade: 24, bottomFade: 32) {
                 VStack(alignment: .leading, spacing: 14) {
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("Make your own component").font(ClamType.name(17.1))
+                        Text("Make your own component").font(WakelyType.name(17.1))
                         // The three steps, in one line, so the area explains itself.
                         Text("Copy the prompt, give it to your agent, and the component appears in the Custom group.")
-                            .font(ClamType.body(12.5))
+                            .font(WakelyType.body(12.5))
                             .foregroundStyle(Theme.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -2302,17 +2302,17 @@ private struct MakeYourOwnSheet: View {
                     VStack(alignment: .leading, spacing: 7) {
                         HStack(spacing: 8) {
                             Text("PROMPT")
-                                .font(ClamType.label(9.5))
+                                .font(WakelyType.label(9.5))
                                 .tracking(1.0)
                                 .foregroundStyle(Theme.section)
                             Spacer(minLength: 0)
                             Text("Read-only")
-                                .font(ClamType.mono(9))
+                                .font(WakelyType.mono(9))
                                 .foregroundStyle(Theme.textTertiary)
                         }
                         EdgeScrollView(topFade: 24, bottomFade: 32) {
                             Text(prompt)
-                                .font(ClamType.mono(11.5))
+                                .font(WakelyType.mono(11.5))
                                 .lineSpacing(2)
                                 .foregroundStyle(Theme.ink)
                                 .textSelection(.enabled)
@@ -2329,11 +2329,11 @@ private struct MakeYourOwnSheet: View {
 
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Your agent may ask once to read Wakely's component folder. Allow it, then say what your component should do.")
-                            .font(ClamType.body(11.5))
+                            .font(WakelyType.body(11.5))
                             .foregroundStyle(Theme.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                         Text("New components start off. To change one later, right-click its card and choose Edit with Your Agent.")
-                            .font(ClamType.body(11))
+                            .font(WakelyType.body(11))
                             .foregroundStyle(Theme.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -2415,11 +2415,11 @@ struct InvalidComponentCard: View {
             Spacer(minLength: 10)
 
             Text(id)
-                .font(ClamType.name(14.5))
+                .font(WakelyType.name(14.5))
                 .lineLimit(1)
                 .padding(.horizontal, 14)
             Text(errors.first ?? "This component has an error.")
-                .font(ClamType.body(11.5))
+                .font(WakelyType.body(11.5))
                 .foregroundStyle(Color.orange.opacity(0.85))
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
