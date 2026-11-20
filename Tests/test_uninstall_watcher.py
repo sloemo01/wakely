@@ -206,3 +206,6 @@ assert "cancelOwnedWakesForDelete" in app_uninstaller, (
 )
 
 print("uninstall watcher structure: all checks passed")
+
+installer_src = (ROOT / "Sources/UninstallWatcherInstaller.swift").read_text() if "ROOT" in globals() else open("Sources/UninstallWatcherInstaller.swift").read()
+assert "Pipe()" not in installer_src, "launchctl output is never left in an unread Pipe (blocks app launch)"
