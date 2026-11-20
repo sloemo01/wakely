@@ -696,6 +696,7 @@ final class ComponentEngine {
                 displayAssertion = id
                 displayAsserted = true
                 Diagnostics.log("agent screen: display assertion held")
+                wakeDisplayForAgents()
             }
         }
         if holdDisplay { agentScreenIdleSince = nil }
@@ -703,6 +704,21 @@ final class ComponentEngine {
             agentScreenIdleSince = agentScreenIdleSince ?? Date()
             if Date().timeIntervalSince(agentScreenIdleSince!) >= releaseDelay { releaseDisplayAssertion() }
         }
+    }
+
+    /// The assertion only stops idle sleep: a display that already slept
+    /// (an armed close while no agent needed it) stays dark, and screenshots
+    /// come back black, until user activity wakes it.
+    private func wakeDisplayForAgents() {
+        var activity = IOPMAssertionID(0)
+        let result = IOPMAssertionDeclareUserActivity(
+            "Wakely: waking the screen for agents" as CFString, kIOPMUserActiveLocal, &activity)
+        guard result == kIOReturnSuccess else {
+            Diagnostics.log("agent screen: display wake failed (\(result))")
+            return
+        }
+        IOPMAssertionRelease(activity)
+        Diagnostics.log("agent screen: display woken")
     }
 
     private func releaseDisplayAssertion() {
