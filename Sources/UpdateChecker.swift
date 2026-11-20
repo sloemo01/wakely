@@ -278,10 +278,11 @@ final class UpdateManager: ObservableObject {
         relaunch.standardOutput = FileHandle.nullDevice
         relaunch.standardError = FileHandle.nullDevice
         try? relaunch.run()
-        // Quit on a later main-queue turn: terminating from inside the
-        // install task keeps the main actor busy, so the termination cleanup
-        // task never runs and the old process hangs instead of exiting.
-        DispatchQueue.main.async { NSApp.terminate(nil) }
+        // Quit from a run-loop timer, not from this task or a main-queue
+        // block: terminate waits in a nested run loop for the main-actor
+        // cleanup task, and the main queue cannot drain while it is already
+        // running a job, so the old process would hang instead of exiting.
+        NSApp.perform(#selector(NSApplication.terminate(_:)), with: nil, afterDelay: 0)
     }
 }
 
