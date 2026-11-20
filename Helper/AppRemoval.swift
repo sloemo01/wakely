@@ -114,8 +114,17 @@ enum HelperAppRemoval {
             // Spotlight-excluded folder or a missing index must keep the
             // helper and its data. The streak is kept so evidence that
             // appears later simply keeps waiting — the safe direction.
+            let homeOwnerID = (try? FileManager.default.attributesOfItem(atPath: home.path))?[.ownerAccountID] as? UInt32
+            // The marker is accepted only when owned by the console user:
+            // /tmp is world-writable, so an unchecked marker would let any
+            // local user trigger the wipe. An unreadable home owner means no
+            // marker confirmation — the Trash probe and the safe direction
+            // (keep everything) still apply.
+            let markerConfirmed = homeOwnerID.map {
+                WakelyPresence.deletionMarkerIsFresh(expectedOwnerID: $0)
+            } ?? false
             let deletionConfirmed = WakelyPresence.trashContainsApp(homeDirectory: home)
-                || WakelyPresence.deletionMarkerIsFresh()
+                || markerConfirmed
             guard deletionConfirmed else {
                 if !blockedLogged {
                     HelperLog.write("app absent for the full grace but no trashed Wakely.app found; keeping the helper and its data")

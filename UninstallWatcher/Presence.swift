@@ -120,8 +120,19 @@ enum WakelyPresence {
     /// A marker only confirms a deletion it was written for: an old one must
     /// not bless a later, unrelated absence (reinstall, then a move into a
     /// Spotlight-excluded folder). Future-dated markers (clock skew) count.
-    static func deletionMarkerIsFresh(maxAge: TimeInterval = 900,
+    ///
+    /// /tmp is world-writable, so ownership is checked too: only a marker
+    /// owned by the console user with no group/other write bit counts. Another
+    /// local user cannot forge that (they could not write into the console
+    /// user's home either), and the console user forging their own marker is
+    /// equivalent to them trashing the app — the legitimate trigger.
+    static func deletionMarkerIsFresh(expectedOwnerID: UInt32,
+                                      maxAge: TimeInterval = 900,
                                       now: Date = Date()) -> Bool {
+        guard let attributes = try? FileManager.default.attributesOfItem(atPath: deletionMarkerPath),
+              (attributes[.ownerAccountID] as? UInt32) == expectedOwnerID else { return false }
+        let permissions = (attributes[.posixPermissions] as? NSNumber)?.intValue ?? 0o777
+        guard permissions & 0o022 == 0 else { return false }
         guard let text = try? String(contentsOfFile: deletionMarkerPath, encoding: .utf8),
               let written = TimeInterval(text.trimmingCharacters(in: .whitespacesAndNewlines)),
               written > 0 else { return false }

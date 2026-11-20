@@ -178,6 +178,9 @@ assert "writeDeletionMarker" in watcher_main, (
 assert "deletionMarkerIsFresh" in app_removal, (
     "the helper must accept the watcher's fresh deletion marker"
 )
+assert "expectedOwnerID" in presence and "expectedOwnerID" in app_removal, (
+    "the marker is world-writable in /tmp, so the helper must verify the console user's ownership"
+)
 assert "removeItem(atPath: WakelyPresence.deletionMarkerPath)" in app_removal, (
     "the helper must remove the marker once the wipe it authorized is done"
 )
