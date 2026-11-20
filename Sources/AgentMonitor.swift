@@ -195,7 +195,7 @@ enum AgentBackgroundScanner {
             : []
         var children: [Int32: [Int32]] = [:]
         var names: [Int32: String] = [:]
-        if processes.contains(where: { OpenCodeSessionState.database(provider: $0.provider, home: home) != nil }) {
+        if processes.contains(where: { OpenCodeSessionState.database(provider: $0.provider, home: home) != nil || $0.provider == "Codex App" }) {
             for line in (command("/bin/ps", ["-axo", "pid=,ppid=,comm="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "").split(separator: "\n") {
                 let fields = line.split(maxSplits: 2, whereSeparator: { $0 == " " || $0 == "\t" })
                 if fields.count == 3, let pid = Int32(fields[0]), let parent = Int32(fields[1]) {
@@ -211,6 +211,17 @@ enum AgentBackgroundScanner {
             var seen = Set<Int32>()
             while let next = queue.popLast(), seen.insert(next).inserted {
                 if !(names[next] ?? "").contains("opencode") && !(names[next] ?? "").contains("kilo") { return true }
+                queue += children[next] ?? []
+            }
+            return false
+        }
+        // The ChatGPT app's Work tab keeps no local transcript; it runs its
+        // commands through a shell under its embedded Codex, and idles without one.
+        func runsShell(_ pid: Int32) -> Bool {
+            var queue = children[pid] ?? []
+            var seen = Set<Int32>()
+            while let next = queue.popLast(), seen.insert(next).inserted {
+                if Self.shells.contains(URL(fileURLWithPath: names[next] ?? "").lastPathComponent) { return true }
                 queue += children[next] ?? []
             }
             return false
@@ -269,6 +280,7 @@ enum AgentBackgroundScanner {
                newest.state != .unknown {
                 state = newest.state
             }
+            if process.provider == "Codex App", state == .unknown, runsShell(process.pid) { state = .working }
 
             var thread = AgentThread(id: "\(process.provider)-\(process.pid)", provider: process.provider, pid: process.pid,
                                      state: state, displayName: snapshot.name, host: snapshot.host,
@@ -280,6 +292,8 @@ enum AgentBackgroundScanner {
     }
 
     /// "/Applications/Cursor.app/" for a full `comm`; the whole cut-off `comm` otherwise.
+    static let shells: Set<String> = ["zsh", "bash", "sh", "fish", "dash", "-zsh", "-bash"]
+
     static func bundlePrefix(_ comm: Substring) -> Substring {
         guard let range = comm.range(of: ".app/") else { return comm }
         return comm[..<range.upperBound]
