@@ -119,15 +119,6 @@ private func wipeEverything() -> Int32 {
 
     logLine("app is gone; wiping every user-level Wakely leftover")
 
-    // Login Items & Extensions records outlive the bundle and confuse a
-    // reinstall's helper. Only the app's identity can unregister them, and the
-    // trashed copy is still there, so run it once for that.
-    if let trashed = WakelyPresence.trashedAppURL(homeDirectory: home) {
-        let status = run(trashed.appendingPathComponent("Contents/MacOS/Wakely").path,
-                         ["--unregister-services"], timeout: 15)
-        logLine("unregistered Login Items records via the trashed app (exit \(status))")
-    }
-
     // macOS privacy grants (Accessibility, Screen Recording, ...).
     for id in wakelyBundleIDs {
         _ = run("/usr/bin/tccutil", ["reset", "All", id])
