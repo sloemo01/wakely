@@ -8,7 +8,7 @@ enum AgentAppSessionState {
         switch provider {
         case "Cursor": return cursor(home: home, since: since)
         case "Kiro": return kiro(home: home, since: since, now: now)
-        case "Hermes Agent": return hermes(home: home, now: now)
+        case "Hermes Agent": return hermes(home: home, since: since, now: now)
         default: return nil
         }
     }
@@ -105,15 +105,23 @@ enum AgentAppSessionState {
 
     // MARK: Hermes
 
-    /// Hermes holds a turn lease in `state.db` while a conversation's turn runs.
-    static func hermes(home: URL, now: Date) -> AgentTaskState? {
+    /// Hermes holds a turn lease in `state.db` while a conversation's turn
+    /// runs; with no lease, a message since the app started means it finished.
+    static func hermes(leases: Int, lastMessage: Double?, since: Date?) -> AgentTaskState? {
+        if leases > 0 { return .working }
+        guard let lastMessage, lastMessage >= (since ?? .distantPast).timeIntervalSince1970 else { return nil }
+        return .idle
+    }
+
+    static func hermes(home: URL, since: Date?, now: Date) -> AgentTaskState? {
         let database = home.appendingPathComponent(".hermes/state.db")
+        let query = "SELECT (SELECT COUNT(*) FROM session_turn_leases WHERE expires_at > \(now.timeIntervalSince1970)) AS leases, " +
+            "(SELECT MAX(timestamp) FROM messages) AS last;"
         guard FileManager.default.fileExists(atPath: database.path),
-              let output = AgentBackgroundScanner.command(
-                "/usr/bin/sqlite3",
-                ["-readonly", database.path, "SELECT COUNT(*) FROM session_turn_leases WHERE expires_at > \(now.timeIntervalSince1970);"],
-                timeout: 1, maxBytes: 1024),
-              let count = Int(output.trimmingCharacters(in: .whitespacesAndNewlines)), count > 0 else { return nil }
-        return .working
+              let output = AgentBackgroundScanner.command("/usr/bin/sqlite3", ["-readonly", "-json", database.path, query],
+                                                          timeout: 1, maxBytes: 4096),
+              let row = (try? JSONSerialization.jsonObject(with: Data(output.utf8)) as? [[String: Any]])?.first
+        else { return nil }
+        return hermes(leases: row["leases"] as? Int ?? 0, lastMessage: row["last"] as? Double, since: since)
     }
 }

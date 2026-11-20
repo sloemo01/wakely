@@ -212,6 +212,9 @@ struct AgentTaskStateTests {
         expect(AgentAppSessionState.kiro(lines: [kiroLine("turn_start"), kiroLine("turn_end", ",\"stopReason\":\"end_turn\"")]) == .idle, "an ended Kiro turn is idle")
         expect(AgentAppSessionState.kiro(lines: [kiroLine("session_event")]) == nil, "no turn records, no Kiro state")
         let appStart = Date(timeIntervalSince1970: 1_000)
+        expect(AgentAppSessionState.hermes(leases: 1, lastMessage: 5, since: appStart) == .working, "a Hermes turn lease is working")
+        expect(AgentAppSessionState.hermes(leases: 0, lastMessage: 2_000, since: appStart) == .idle, "a finished Hermes turn is idle at once")
+        expect(AgentAppSessionState.hermes(leases: 0, lastMessage: 5, since: appStart) == nil, "no Hermes work since launch, no state")
         expect(AgentAppSessionState.cursor(rows: [["status": "none", "generating": 0, "updated": 2_000_000.0],
                                                    ["status": "generating", "generating": 1, "updated": 1.0]], since: appStart) == .working,
                "any generating Cursor chat is working")
