@@ -168,6 +168,10 @@ struct AgentTaskStateTests {
                                       "/Applications/Cursor.app/Contents/MacOS/Cursor"]
         let app = AgentBackgroundScanner.parseProcesses(desktopApp, now: now, isExecutable: installed.contains)
         expect(app.map(\.pid) == [41000, 41001, 41003, 41004, 94237] && app.map(\.provider) == ["Codex App", "Claude", "Codex", "Cursor", "DeepSeek Harness"], "DeepSeek Harness desktop app matched by its spaced bundle path; helpers and dsh-named folders ignored")
+        let host = "94237 1 01:10 /Applications/De /Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness\n" +
+            "94300 94237 01:09 /Applications/De /Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness --expose-internals /Applications/DeepSeek Harness.app/Contents/Resources/app.asar/dsh/node_modules/@deepseek-ai/dsh-desktop-host/lib/index.js"
+        expect(AgentBackgroundScanner.distinct(AgentBackgroundScanner.parseProcesses(host, now: now, isExecutable: installed.contains)).map(\.pid) == [94237],
+               "an app re-running its own executable as a Node host is one row")
         let start = now.timeIntervalSince1970 * 1000
         let open = #"{"role":"assistant","time":{"created":1}}"#
         let pending = #"{"type":"tool","tool":"bash","state":{"status":"running","time":{"start":\#(start - 10000)}}}"#
@@ -203,6 +207,33 @@ struct AgentTaskStateTests {
         let retitled = "700 1 0.5 /Applications/Cu\n701 700 30.0 Cursor Helper (Plugin): extension-host Agents Window [1-1]\n702 700 9.0 Cursor: shared-process"
         let fullComm = "800 1 0.8 /Applications/Cursor.app/Contents/MacOS/Cursor\n801 800 19.8 /Applications/Cursor.app/Contents/Frameworks/Cursor Helper.app/Contents/MacOS/Cursor Helper"
         expect(AgentBackgroundScanner.busyAgents(pids: [800], cpuListing: fullComm, apps: [800: "Cursor"]).isEmpty, "helpers under the app's full bundle path are part of the app")
+        func kiroLine(_ type: String, _ extra: String = "") -> String { "{\"id\":\"x\",\"payload\":{\"type\":\"\(type)\"\(extra)}}" }
+        expect(AgentAppSessionState.kiro(lines: [kiroLine("turn_start")]) == .working, "an open Kiro turn is working")
+        expect(AgentAppSessionState.kiro(lines: [kiroLine("turn_start"), kiroLine("pending_interaction", ",\"interactionType\":\"tool_approval\",\"toolCallId\":\"t1\"")]) == .waiting,
+               "an unanswered Kiro approval waits on you")
+        expect(AgentAppSessionState.kiro(lines: [kiroLine("turn_start"), kiroLine("pending_interaction", ",\"toolCallId\":\"t1\""),
+                                                 kiroLine("interaction_resolved", ",\"toolCallId\":\"t1\"")]) == .working, "an answered approval resumes work")
+        expect(AgentAppSessionState.kiro(lines: [kiroLine("turn_start"), kiroLine("turn_end", ",\"stopReason\":\"end_turn\"")]) == .idle, "an ended Kiro turn is idle")
+        expect(AgentAppSessionState.kiro(lines: [kiroLine("session_event")]) == nil, "no turn records, no Kiro state")
+        expect(AgentAppSessionState.combined([.idle, .working]) == .working, "a finished Kiro chat doesn't hide a running one")
+        expect(AgentAppSessionState.combined([.working, .waiting, .idle]) == .waiting, "a waiting Kiro chat wins")
+        expect(AgentAppSessionState.combined([]) == .unknown, "no fresh Kiro chats, no state")
+        expect(AgentAppSessionState.deepSeek(events: ["approval/policy", "turn/start"]) == .working, "a Harness turn is working")
+        expect(AgentAppSessionState.deepSeek(events: ["turn/start", "approval/asked"]) == .waiting, "a Harness approval prompt is waiting")
+        expect(AgentAppSessionState.deepSeek(events: ["turn/start", "approval/asked", "approval/decided"]) == .working, "an answered Harness prompt resumes")
+        expect(AgentAppSessionState.deepSeek(events: ["turn/start", "turn/end"]) == .idle, "a finished Harness turn is idle")
+        expect(AgentAppSessionState.deepSeek(events: ["approval/policy"]) == nil, "no Harness turn, no state")
+        let appStart = Date(timeIntervalSince1970: 1_000)
+        expect(AgentAppSessionState.hermes(leases: 1, lastMessage: 5, since: appStart) == .working, "a Hermes turn lease is working")
+        expect(AgentAppSessionState.hermes(leases: 0, lastMessage: 2_000, since: appStart) == .idle, "a finished Hermes turn is idle at once")
+        expect(AgentAppSessionState.hermes(leases: 0, lastMessage: 5, since: appStart) == nil, "no Hermes work since launch, no state")
+        expect(AgentAppSessionState.cursor(rows: [["status": "none", "generating": 0, "updated": 2_000_000.0],
+                                                   ["status": "generating", "generating": 1, "updated": 1.0]], since: appStart) == .working,
+               "any generating Cursor chat is working")
+        expect(AgentAppSessionState.cursor(rows: [["status": "aborted", "generating": 2, "updated": 2_000_000.0]], since: appStart) == .idle,
+               "a stopped Cursor chat with stale generating ids is idle")
+        expect(AgentAppSessionState.cursor(rows: [["status": "completed", "generating": 0, "updated": 10.0]], since: appStart) == .unknown,
+               "a Cursor chat from before the app started is not shown")
         expect(AgentBackgroundScanner.busyAgents(pids: [700], cpuListing: retitled, apps: [700: "Cursor"]).isEmpty, "retitled Electron helpers are part of the app")
         let promptBundle = AgentBackgroundScanner.parseProcesses("42002 1 00:30 /usr/local/bin/co /usr/local/bin/codex exec fix Foo.app/Contents/Info.plist", now: now, isExecutable: { $0 == "/usr/local/bin/codex" })
         expect(promptBundle.map(\.provider) == ["Codex"], "a prompt mentioning a bundle path is still a Codex task")

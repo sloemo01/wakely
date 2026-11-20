@@ -163,14 +163,21 @@ final class AgentMonitor {
 enum AgentBackgroundScanner {
     private static let maxProcesses = 24
 
+    static func distinct(_ discovered: [AgentProcessDescriptor]) -> [AgentProcessDescriptor] {
+        discovered.filter { candidate in
+            // npm Codex launches a native Codex child. Don't count that wrapper as
+            // a second task (or make the real child's cwd correlation ambiguous).
+            if candidate.isLauncher, discovered.contains(where: { $0.parentPID == candidate.pid && $0.provider == candidate.provider }) {
+                return false
+            }
+            // Electron apps re-run their own executable as a Node host (DeepSeek Harness).
+            return !(candidate.isApp && discovered.contains { $0.pid == candidate.parentPID && $0.isApp && $0.provider == candidate.provider })
+        }
+    }
+
     static func scan(home: URL) -> [AgentThread] {
         guard let listing = command("/bin/ps", ["-axo", "pid=,ppid=,etime=,comm=,args="], timeout: 2, maxBytes: 2 * 1024 * 1024) else { return [] }
-        let discovered = parseProcesses(listing, now: Date())
-        // npm Codex launches a native Codex child. Don't count that wrapper as
-        // a second task (or make the real child's cwd correlation ambiguous).
-        var processes = discovered.filter { candidate in
-            !candidate.isLauncher || !discovered.contains { $0.parentPID == candidate.pid && $0.provider == candidate.provider }
-        }
+        var processes = distinct(parseProcesses(listing, now: Date()))
         processes = Array(processes.prefix(maxProcesses)).map { process in
             let cwd = process.sessionID == nil ? currentDirectory(pid: process.pid) : nil
             var descriptor = AgentProcessDescriptor(pid: process.pid, provider: process.provider,
@@ -195,7 +202,7 @@ enum AgentBackgroundScanner {
             : []
         var children: [Int32: [Int32]] = [:]
         var names: [Int32: String] = [:]
-        if processes.contains(where: { OpenCodeSessionState.database(provider: $0.provider, home: home) != nil }) {
+        if processes.contains(where: { OpenCodeSessionState.database(provider: $0.provider, home: home) != nil || $0.provider == "Codex App" }) {
             for line in (command("/bin/ps", ["-axo", "pid=,ppid=,comm="], timeout: 2, maxBytes: 2 * 1024 * 1024) ?? "").split(separator: "\n") {
                 let fields = line.split(maxSplits: 2, whereSeparator: { $0 == " " || $0 == "\t" })
                 if fields.count == 3, let pid = Int32(fields[0]), let parent = Int32(fields[1]) {
@@ -211,6 +218,17 @@ enum AgentBackgroundScanner {
             var seen = Set<Int32>()
             while let next = queue.popLast(), seen.insert(next).inserted {
                 if !(names[next] ?? "").contains("opencode") && !(names[next] ?? "").contains("kilo") { return true }
+                queue += children[next] ?? []
+            }
+            return false
+        }
+        // The ChatGPT app's Work tab keeps no local transcript; it runs its
+        // commands through a shell under its embedded Codex, and idles without one.
+        func runsShell(_ pid: Int32) -> Bool {
+            var queue = children[pid] ?? []
+            var seen = Set<Int32>()
+            while let next = queue.popLast(), seen.insert(next).inserted {
+                if Self.shells.contains(URL(fileURLWithPath: names[next] ?? "").lastPathComponent) { return true }
                 queue += children[next] ?? []
             }
             return false
@@ -259,6 +277,9 @@ enum AgentBackgroundScanner {
                let read = OpenCodeSessionState.state(row: row, hasChild: runsTool(process.pid), now: Date()) {
                 state = read
             }
+            if process.isApp, let read = AgentAppSessionState.read(provider: process.provider, home: home, since: process.startedAt, pid: process.pid) {
+                state = read
+            }
             // The Codex and Claude desktop apps write the same transcripts as
             // their CLIs; the app owns the newest one written since it started.
             if let transcriptProvider = ["Codex App": "Codex", "Claude": "Claude Code"][process.provider],
@@ -266,6 +287,7 @@ enum AgentBackgroundScanner {
                newest.state != .unknown {
                 state = newest.state
             }
+            if process.provider == "Codex App", state == .unknown, runsShell(process.pid) { state = .working }
 
             var thread = AgentThread(id: "\(process.provider)-\(process.pid)", provider: process.provider, pid: process.pid,
                                      state: state, displayName: snapshot.name, host: snapshot.host,
@@ -276,17 +298,20 @@ enum AgentBackgroundScanner {
         }.sorted { $0.id < $1.id }
     }
 
+    /// "/Applications/Cursor.app/" for a full `comm`; the whole cut-off `comm` otherwise.
+    static let shells: Set<String> = ["zsh", "bash", "sh", "fish", "dash", "-zsh", "-bash"]
+
+    static func bundlePrefix(_ comm: Substring) -> Substring {
+        guard let range = comm.range(of: ".app/") else { return comm }
+        return comm[..<range.upperBound]
+    }
+
     /// Agents with no readable transcript count as working while they or the
     /// processes they started (shells, builds, browsers) use CPU. An open but
     /// idle CLI stays under the threshold. `cpuListing` is `ps -o pid,ppid,%cpu`.
     /// For a desktop app, only work it started outside its own bundle counts
     /// (shells, builds, servers): Electron windows and helpers idle above the
-    /// threshold. Helpers share the app's 16-character `comm` prefix.
-    /// "/Applications/Cursor.app/" for a full `comm`; the whole cut-off `comm` otherwise.
-    static func bundlePrefix(_ comm: Substring) -> Substring {
-        guard let range = comm.range(of: ".app/") else { return comm }
-        return comm[..<range.upperBound]
-    }
+    /// threshold. Helpers share the app's `comm` bundle prefix.
 
     static func busyAgents(pids: [Int32], cpuListing: String, apps: [Int32: String] = [:], threshold: Double = 5) -> Set<Int32> {
         var cpu: [Int32: Double] = [:]
