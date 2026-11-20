@@ -125,8 +125,11 @@ enum UninstallWatcherInstaller {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
         process.arguments = ["print", "gui/\(getuid())/\(label)"]
-        process.standardOutput = Pipe()
-        process.standardError = Pipe()
+        // Never an unread Pipe: `launchctl print` can write more than a pipe
+        // holds, then blocks on the write while waitUntilExit waits forever,
+        // which hung app launch before the menu bar appeared.
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
         do {
             try process.run()
             process.waitUntilExit()
@@ -141,8 +144,11 @@ enum UninstallWatcherInstaller {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
         process.arguments = arguments
-        process.standardOutput = Pipe()
-        process.standardError = Pipe()
+        // Never an unread Pipe: `launchctl print` can write more than a pipe
+        // holds, then blocks on the write while waitUntilExit waits forever,
+        // which hung app launch before the menu bar appeared.
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
         do {
             try process.run()
             process.waitUntilExit()
