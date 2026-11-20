@@ -1534,7 +1534,7 @@ private struct GeneralPane: View {
                             }
                             .disabled(updates.status == .checking)
                             if case .available(_, let url) = updates.status {
-                                Button("Download Update") {
+                                Button("Update Now") {
                                     Task { await updates.installUpdate(from: url) }
                                 }
                             }

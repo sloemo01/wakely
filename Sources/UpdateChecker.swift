@@ -128,7 +128,7 @@ final class UpdateManager: ObservableObject {
             alert.messageText = "Wakely \(release.version) is available"
             alert.informativeText = "You're running Wakely \(self.currentVersion). Download and install the update now?"
             alert.alertStyle = .informational
-            alert.addButton(withTitle: "Download Update")
+            alert.addButton(withTitle: "Update Now")
             alert.addButton(withTitle: "Later")
             NSApp.activate(ignoringOtherApps: true)
             let answer = alert.runModal()
@@ -157,6 +157,7 @@ final class UpdateManager: ObservableObject {
                 .appendingPathComponent("Wakely-update-\(UUID().uuidString).dmg")
             let (downloaded, _) = try await URLSession.shared.download(from: url)
             try FileManager.default.moveItem(at: downloaded, to: dmg)
+            defer { try? FileManager.default.removeItem(at: dmg) }
             Diagnostics.log("update downloaded: \(dmg.path)")
             let mount = try await Self.attach(dmg)
             defer { Task { await Self.detach(mount) } }
@@ -164,15 +165,51 @@ final class UpdateManager: ObservableObject {
             guard FileManager.default.fileExists(atPath: mountedApp.path) else {
                 throw UpdateError.mountFailed("no Wakely.app in the download")
             }
+            try await Self.verifySignature(mountedApp)
             let destination = Bundle.main.bundleURL
+            // Stage via a backup of the running bundle so a failed copy can
+            // never leave Wakely deleted or half-replaced.
+            let backup = FileManager.default.temporaryDirectory
+                .appendingPathComponent("Wakely-backup-\(UUID().uuidString).app")
+            try FileManager.default.copyItem(at: destination, to: backup)
             try FileManager.default.removeItem(at: destination)
-            try FileManager.default.copyItem(at: mountedApp, to: destination)
+            do {
+                try FileManager.default.copyItem(at: mountedApp, to: destination)
+                try? FileManager.default.removeItem(at: backup)
+            } catch {
+                do {
+                    // Clear the partial copy before restoring the backup.
+                    try? FileManager.default.removeItem(at: destination)
+                    try FileManager.default.copyItem(at: backup, to: destination)
+                    try? FileManager.default.removeItem(at: backup)
+                    Diagnostics.log("update restored the previous bundle")
+                } catch {
+                    Diagnostics.log("update restore failed; backup kept at \(backup.path)")
+                }
+                throw error
+            }
             Diagnostics.log("update installed over \(destination.path)")
-            try? FileManager.default.removeItem(at: dmg)
             offerRestart()
         } catch {
             Diagnostics.log("update install failed: \(error.localizedDescription)")
             installError = error.localizedDescription
+        }
+    }
+
+    /// Only accept an update signed by Wakely's own team; the download host
+    /// (or a hijacked redirect) must not be able to swap in another app.
+    private static let expectedTeamID = "DSMWVZT3B8"
+
+    private static func verifySignature(_ app: URL) async throws {
+        _ = try await run("/usr/bin/codesign", ["--verify", "--deep", "--strict", app.path], result: { _ in () })
+        let details = try await run("/usr/bin/codesign", ["-dv", "--verbose=4", app.path], result: { $0 })
+        // Exact line match: the mount volume name appears in codesign's
+        // output paths, so a substring check could be spoofed.
+        let teamLine = "TeamIdentifier=\(expectedTeamID)"
+        let matched = details.components(separatedBy: .newlines)
+            .contains { $0.trimmingCharacters(in: .whitespaces) == teamLine }
+        guard matched else {
+            throw UpdateError.verificationFailed("signed by an unexpected team")
         }
     }
 
@@ -228,11 +265,18 @@ final class UpdateManager: ObservableObject {
         alert.addButton(withTitle: "Later")
         NSApp.activate(ignoringOtherApps: true)
         guard alert.runModal() == .alertFirstButtonReturn else { return }
-        let path = Bundle.main.bundleURL.path
-        let escaped = path.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+        // Wait for this process to exit before reopening, however long
+        // shutdown takes, and pass the paths through the environment so no
+        // shell ever interprets them.
+        var environment = ProcessInfo.processInfo.environment
+        environment["WAKELY_PID"] = "\(ProcessInfo.processInfo.processIdentifier)"
+        environment["WAKELY_APP"] = Bundle.main.bundleURL.path
         let relaunch = Process()
         relaunch.executableURL = URL(fileURLWithPath: "/bin/sh")
-        relaunch.arguments = ["-c", "sleep 1; exec /usr/bin/open \"\(escaped)\""]
+        relaunch.arguments = ["-c", "i=0; while kill -0 \"$WAKELY_PID\" 2>/dev/null && [ $i -lt 150 ]; do /bin/sleep 0.2; i=$((i+1)); done; exec /usr/bin/open \"$WAKELY_APP\""]
+        relaunch.environment = environment
+        relaunch.standardOutput = FileHandle.nullDevice
+        relaunch.standardError = FileHandle.nullDevice
         try? relaunch.run()
         NSApp.terminate(nil)
     }
@@ -241,11 +285,13 @@ final class UpdateManager: ObservableObject {
 enum UpdateError: LocalizedError {
     case badResponse
     case mountFailed(String)
+    case verificationFailed(String)
 
     var errorDescription: String? {
         switch self {
         case .badResponse: return "The update server returned something unexpected."
         case .mountFailed(let detail): return detail.isEmpty ? "The update download could not be mounted." : detail
+        case .verificationFailed(let detail): return "The update failed signature verification (\(detail))."
         }
     }
 }
