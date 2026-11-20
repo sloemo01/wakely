@@ -27,7 +27,7 @@ import Foundation
 
 // MARK: - Logging
 
-private enum HelperLog {
+enum HelperLog {
     private static let lock = NSLock()
 
     static func write(_ message: String) {
@@ -146,6 +146,12 @@ HelperLog.write(
     "listening on \(HelperService.machServiceName), version \(Operations.version), "
         + "protocol \(HelperService.protocolVersion)"
 )
+
+// Deletion sentinel: when the app has been gone long enough, remove this
+// daemon's root-level footprint and exit. Runs off the listener thread.
+DispatchQueue.global(qos: .utility).async {
+    HelperAppRemoval.watchUntilAppReturnsOrWipe()
+}
 
 RunLoop.current.run()
 
