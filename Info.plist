@@ -2,52 +2,52 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleName</key>
-    <string>Wakely</string>
-    <key>CFBundleDisplayName</key>
-    <string>Wakely</string>
-    <key>CFBundleExecutable</key>
-    <string>Wakely</string>
-    <key>CFBundleIdentifier</key>
-    <string>dev.wakely.app</string>
-    <key>CFBundleIconFile</key>
-    <string>Wakely</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-    <key>CFBundleShortVersionString</key>
-    <string>2.0.8</string>
-    <key>CFBundleVersion</key>
-    <string>242</string>
-    <key>CFBundleDevelopmentRegion</key>
-    <string>en</string>
-    <key>LSMinimumSystemVersion</key>
-    <string>14.0</string>
-    <key>LSApplicationCategoryType</key>
-    <string>public.app-category.utilities</string>
-    <key>NSLocationUsageDescription</key>
-    <string>Wakely uses your approximate location to show local weather and to read the current Wi-Fi network for Arm on a Wi-Fi Network. Wakely sends only coordinates to Open-Meteo for the forecast; no account or identity is sent.</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Wakely uses your approximate location to show local weather and to read the current Wi-Fi network for Arm on a Wi-Fi Network. Only coordinates are sent to Open-Meteo for the forecast.</string>
-    <key>NSAppleEventsUsageDescription</key>
-    <string>Wakely asks System Events to sleep your Mac only when your configured sleep action runs.</string>
-    <key>LSUIElement</key>
-    <true/>
-    <key>NSSupportsAutomaticTermination</key>
-    <false/>
-    <key>NSSupportsSuddenTermination</key>
-    <false/>
-    <key>NSHumanReadableCopyright</key>
-    <string>Wakely. Open source.</string>
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleURLName</key>
-            <string>dev.wakely.command</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>wakely</string>
-            </array>
-        </dict>
-    </array>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>Wakely</string>
+	<key>CFBundleExecutable</key>
+	<string>Wakely</string>
+	<key>CFBundleIconFile</key>
+	<string>Wakely</string>
+	<key>CFBundleIdentifier</key>
+	<string>dev.wakely.app</string>
+	<key>CFBundleName</key>
+	<string>Wakely</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.0.9</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>dev.wakely.command</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wakely</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>243</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Wakely asks System Events to sleep your Mac only when your configured sleep action runs.</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Wakely. Open source.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Wakely uses your approximate location to show local weather and to read the current Wi-Fi network for Arm on a Wi-Fi Network. Wakely sends only coordinates to Open-Meteo for the forecast; no account or identity is sent.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Wakely uses your approximate location to show local weather and to read the current Wi-Fi network for Arm on a Wi-Fi Network. Only coordinates are sent to Open-Meteo for the forecast.</string>
+	<key>NSSupportsAutomaticTermination</key>
+	<false/>
+	<key>NSSupportsSuddenTermination</key>
+	<false/>
 </dict>
 </plist>
