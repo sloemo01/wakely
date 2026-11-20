@@ -50,6 +50,12 @@ assert "KeepAlive" in installer and "true" in installer, (
 )
 assert "RunAtLoad" in installer, "the watcher must start at login"
 assert "WakelyUninstallWatcher.new" in installer, "the installer must replace changed bytes atomically"
+assert '"kickstart", "-k"' in installer, (
+    "a replaced watcher binary must restart the running job, or old code survives until logout"
+)
+assert installer.index("if !isLoaded()") < installer.index("let loaded = isLoaded()"), (
+    "the installer must re-bootstrap a job that is not loaded, or cleanup stays disabled"
+)
 
 # App-side mirrors of the policy constants (the app test builds compile
 # Sources/*.swift without UninstallWatcher/, so the values are inlined).

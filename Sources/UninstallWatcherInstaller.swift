@@ -43,11 +43,13 @@ enum UninstallWatcherInstaller {
         }
         let support = supportDirectory()
         let destination = installedWatcherURL()
+        var binaryChanged = false
         do {
             try FileManager.default.createDirectory(at: support, withIntermediateDirectories: true,
                                                     attributes: [.posixPermissions: 0o700])
             let existing = try? Data(contentsOf: destination)
             if existing != data {
+                binaryChanged = true
                 let temporary = support.appendingPathComponent("WakelyUninstallWatcher.new")
                 try data.write(to: temporary, options: .atomic)
                 _ = try? FileManager.default.removeItem(at: destination)
@@ -70,6 +72,7 @@ enum UninstallWatcherInstaller {
             "ThrottleInterval": 10,
         ]
         let plistURL = launchAgentURL()
+        var plistRewritten = false
         do {
             try FileManager.default.createDirectory(at: plistURL.deletingLastPathComponent(),
                                                     withIntermediateDirectories: true)
@@ -77,6 +80,7 @@ enum UninstallWatcherInstaller {
             // Skip the rewrite when nothing changed: bootstrapping an
             // already-loaded job would bounce the watcher for no reason.
             if (try? Data(contentsOf: plistURL)) != data {
+                plistRewritten = true
                 try data.write(to: plistURL, options: .atomic)
                 _ = runLaunchctl(["bootout", "gui/\(getuid())/\(label)"])
                 _ = runLaunchctl(["bootstrap", "gui/\(getuid())", plistURL.path])
@@ -86,6 +90,22 @@ enum UninstallWatcherInstaller {
         } catch {
             Diagnostics.log("uninstall watcher: could not write plist: \(error.localizedDescription)")
             return false
+        }
+
+        // Recovery: the plist comparison above only rewrites on change, so a
+        // job that failed to bootstrap earlier (or was unloaded externally)
+        // would otherwise stay unloaded forever. And when only the binary
+        // changed, the running watcher still executes the old code — restart
+        // it so the update takes effect without waiting for logout.
+        if !plistRewritten {
+            if !isLoaded() {
+                _ = runLaunchctl(["bootout", "gui/\(getuid())/\(label)"])
+                _ = runLaunchctl(["bootstrap", "gui/\(getuid())", plistURL.path])
+                _ = runLaunchctl(["enable", "gui/\(getuid())/\(label)"])
+                _ = runLaunchctl(["kickstart", "gui/\(getuid())/\(label)"])
+            } else if binaryChanged {
+                _ = runLaunchctl(["kickstart", "-k", "gui/\(getuid())/\(label)"])
+            }
         }
 
         let loaded = isLoaded()
