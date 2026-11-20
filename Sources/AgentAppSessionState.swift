@@ -218,3 +218,83 @@ enum AgentAppSessionState {
         return states.isEmpty ? nil : combined(states)
     }
 }
+
+extension AgentAppSessionState {
+    static func cli(provider: String, home: URL, since: Date?, pids: [Int32], runningShell: Bool) -> AgentTaskState? {
+        switch provider {
+        case "Cline": return cline(home: home, since: since, pids: Set(pids))
+        case "Qwen Code": return qwen(home: home, since: since, runningShell: runningShell)
+        default: return nil
+        }
+    }
+
+    /// Cline records each session's `pid` and `status`: pending at an approval, running, idle.
+    static func cline(session: [String: Any], pids: Set<Int32>) -> AgentTaskState? {
+        guard let pid = session["pid"] as? Int, pids.contains(Int32(pid)) else { return nil }
+        switch session["status"] as? String {
+        case "pending": return .waiting
+        case "running": return .working
+        case "idle": return .idle
+        default: return nil
+        }
+    }
+
+    static func cline(home: URL, since: Date?, pids: Set<Int32>) -> AgentTaskState? {
+        let fm = FileManager.default
+        // The CLI keeps sessions in ~/.cline/data/sessions; CLINE_DIR setups use <dir>/sessions.
+        let files = [".cline/data/sessions", ".cline/sessions"].map { home.appendingPathComponent($0) }
+            .flatMap { root in ((try? fm.contentsOfDirectory(atPath: root.path)) ?? []).map { root.appendingPathComponent($0).appendingPathComponent("\($0).json") } }
+            .compactMap { url -> (URL, Date)? in
+                guard let date = (try? fm.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date,
+                      date >= (since ?? .distantPast) else { return nil }
+                return (url, date)
+            }
+            .sorted { $0.1 > $1.1 }.prefix(8)
+        for (url, _) in files {
+            if let data = try? Data(contentsOf: url),
+               let session = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let state = cline(session: session, pids: pids) { return state }
+        }
+        return nil
+    }
+
+    static let qwenReadOnlyTools: Set<String> = ["read_file", "read_many_files", "list_directory", "glob", "search_file_content",
+                                                 "grep_search", "web_fetch", "web_search", "google_web_search", "todo_write", "save_memory"]
+
+    /// Qwen Code logs the model's tool call, and the tool result only once it is approved and has run.
+    static func qwen<S: StringProtocol>(lines: [S], runningShell: Bool) -> AgentTaskState? {
+        var pending = false
+        for line in lines {
+            guard let record = try? JSONSerialization.jsonObject(with: Data(String(line).utf8)) as? [String: Any] else { continue }
+            switch record["type"] as? String {
+            case "assistant":
+                let parts = (record["message"] as? [String: Any])?["parts"] as? [[String: Any]] ?? []
+                pending = parts.contains { part in
+                    guard let name = (part["functionCall"] as? [String: Any])?["name"] as? String else { return false }
+                    return !qwenReadOnlyTools.contains(name)
+                }
+            case "tool_result", "user": pending = false
+            default: break
+            }
+        }
+        guard pending else { return nil }
+        return runningShell ? .working : .waiting
+    }
+
+    static func qwen(home: URL, since: Date?, runningShell: Bool) -> AgentTaskState? {
+        let root = home.appendingPathComponent(".qwen/projects")
+        let fm = FileManager.default
+        guard let projects = try? fm.contentsOfDirectory(atPath: root.path) else { return nil }
+        var newest: (URL, Date)?
+        for project in projects {
+            let chats = root.appendingPathComponent(project).appendingPathComponent("chats")
+            for file in (try? fm.contentsOfDirectory(atPath: chats.path)) ?? [] where file.hasSuffix(".jsonl") {
+                let url = chats.appendingPathComponent(file)
+                if let date = (try? fm.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date,
+                   date >= (since ?? .distantPast), date > (newest?.1 ?? .distantPast) { newest = (url, date) }
+            }
+        }
+        guard let url = newest?.0, let text = tail(of: url, bytes: 256 * 1024) else { return nil }
+        return qwen(lines: text.split(separator: "\n"), runningShell: runningShell)
+    }
+}
