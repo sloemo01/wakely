@@ -51,6 +51,8 @@ run local-signing python3 Tests/test_local_signing.py
 run keep-awake-selection "${SWIFTC[@]}" Sources/KeepAwakeSelection.swift Tests/KeepAwakeSelectionTests.swift -o build/tests/keep-awake-selection
 [[ -x build/tests/keep-awake-selection ]] && run keep-awake-selection-run build/tests/keep-awake-selection
 run keep-awake-options python3 Tests/test_keep_awake_options.py
+run update-version "${SWIFTC[@]}" Sources/UpdateVersion.swift Tests/UpdateVersionTests.swift -o build/tests/update-version
+[[ -x build/tests/update-version ]] && run update-version-run build/tests/update-version
 run typography-scale "${SWIFTC[@]}" Sources/Typography.swift Tests/TypographyMetricsTests.swift -o build/tests/typography-scale
 [[ -x build/tests/typography-scale ]] && run typography-scale-run build/tests/typography-scale
 run guide-content "${SWIFTC[@]}" Sources/ComponentCatalog.swift Sources/GuideContent.swift Tests/GuideContentTests.swift -o build/tests/guide-content

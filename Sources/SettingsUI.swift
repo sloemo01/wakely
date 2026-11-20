@@ -1446,6 +1446,7 @@ private struct GeneralPane: View {
     @ObservedObject private var appearance = AppAppearance.shared
     @ObservedObject private var state = AppState.shared
     @ObservedObject private var permissions = ComponentPermissions.shared
+    @ObservedObject private var updates = UpdateManager.shared
     @State private var copiedDiagnostics = false
     @State private var helperCheckPending = true
     @FocusState private var gettingStartedFocused: Bool
@@ -1503,7 +1504,43 @@ private struct GeneralPane: View {
                 section("STARTUP") {
                     toggleRow("Open at login", isOn: $state.launchAtLogin)
                     divider
-                    toggleRow("Install updates automatically", isOn: .constant(false), disabled: true)
+                    toggleRow("Check for updates automatically", isOn: $updates.automaticChecks)
+                }
+
+                section("UPDATES") {
+                    HStack(alignment: .center, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(updateStatusTitle)
+                                .font(ClamType.body(13, .semibold))
+                            if !updateStatusDetail.isEmpty {
+                                Text(updateStatusDetail)
+                                    .font(ClamType.body(11.5))
+                                    .foregroundStyle(Theme.textSecondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            if let installError = updates.installError {
+                                Text(installError)
+                                    .font(ClamType.body(11.5))
+                                    .foregroundStyle(.orange)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        Spacer(minLength: 8)
+                        if updates.installing {
+                            ProgressView().controlSize(.small)
+                        } else {
+                            Button("Check for Updates") {
+                                Task { await updates.checkForUpdates() }
+                            }
+                            .disabled(updates.status == .checking)
+                            if case .available(_, let url) = updates.status {
+                                Button("Download Update") {
+                                    Task { await updates.installUpdate(from: url) }
+                                }
+                            }
+                        }
+                    }
+                    .padding(14)
                 }
 
                 section("PRIVILEGED HELPER") {
@@ -1645,6 +1682,36 @@ private struct GeneralPane: View {
         }
     }
 
+    private var updateStatusTitle: String {
+        switch updates.status {
+        case .idle:
+            return "Wakely \(updates.currentVersion)"
+        case .checking:
+            return "Checking for updates…"
+        case .upToDate:
+            return "Wakely \(updates.currentVersion) is up to date"
+        case .available(let version, _):
+            return "Wakely \(version) is available"
+        case .failed:
+            return "Update check failed"
+        }
+    }
+
+    private var updateStatusDetail: String {
+        switch updates.status {
+        case .idle:
+            return "Running Wakely \(updates.currentVersion). New releases are announced here and once at launch."
+        case .checking:
+            return ""
+        case .upToDate:
+            return "You're running the latest release."
+        case .available:
+            return "Download installs the signed update, then offers a restart."
+        case .failed(let message):
+            return message
+        }
+    }
+
     private var divider: some View {
         Rectangle().fill(Theme.separator).frame(height: 1).padding(.horizontal, 14)
     }
@@ -1698,7 +1765,7 @@ private struct AboutPane: View {
                     .frame(width: 64, height: 64)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Wakely").font(ClamType.name(16.1))
-                    Text("Version 2.0.0 · MIT licensed").font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
+                    Text("Version \(AppVersion.current) · MIT licensed").font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
                 }
             }
             Text("Wakely is a free, MIT-licensed utility for Apple Silicon Macs. It keeps your Mac awake with the lid closed, so long downloads, renders, builds and agent sessions keep running while the machine stays shut.")

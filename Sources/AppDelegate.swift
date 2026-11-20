@@ -56,6 +56,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         Diagnostics.truncateIfNeeded()
         Diagnostics.log("launch")
+        // Throttled to once a day; the prompt itself is once per release.
+        UpdateManager.shared.checkOnLaunch()
         CapsLockLight.reportTrust()
         CapsLockLight.onCapsLockChange = { on in
             guard ComponentEngine.shared.isEnabled("capsLock") else { return }
@@ -416,7 +418,7 @@ private struct AboutWindowView: View {
     var body: some View {
         VStack(spacing: 10) {
             Text("Wakely").font(ClamType.display(19))
-            Text("Version 2.0.0").font(ClamType.body(12)).foregroundStyle(.secondary)
+            Text("Version \(AppVersion.current)").font(ClamType.body(12)).foregroundStyle(.secondary)
             Text("Open source. No license, no trial.")
                 .font(ClamType.body(13))
                 .foregroundStyle(.secondary)
