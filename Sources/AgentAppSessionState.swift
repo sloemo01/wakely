@@ -240,10 +240,10 @@ extension AgentAppSessionState {
     }
 
     static func cline(home: URL, since: Date?, pids: Set<Int32>) -> AgentTaskState? {
-        let root = home.appendingPathComponent(".cline/sessions")
         let fm = FileManager.default
-        guard let ids = try? fm.contentsOfDirectory(atPath: root.path) else { return nil }
-        let files = ids.map { root.appendingPathComponent($0).appendingPathComponent("\($0).json") }
+        // The CLI keeps sessions in ~/.cline/data/sessions; CLINE_DIR setups use <dir>/sessions.
+        let files = [".cline/data/sessions", ".cline/sessions"].map { home.appendingPathComponent($0) }
+            .flatMap { root in ((try? fm.contentsOfDirectory(atPath: root.path)) ?? []).map { root.appendingPathComponent($0).appendingPathComponent("\($0).json") } }
             .compactMap { url -> (URL, Date)? in
                 guard let date = (try? fm.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date,
                       date >= (since ?? .distantPast) else { return nil }
