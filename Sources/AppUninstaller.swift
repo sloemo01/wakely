@@ -28,6 +28,11 @@ enum AppUninstaller {
         }
         AppLiveness.clear()
 
+        // Pending wakes are helper-owned and survive a quit; cancel them and
+        // wait for the round trips BEFORE the helper is removed, or they would
+        // outlive the uninstall.
+        _ = await SleepUntilResetController.shared.cancelOwnedWakesForDelete(reason: "Wakely is being deleted")
+
         // The administrator path also removes a fallback-installed daemon and
         // the helper's root-owned data.
         // The admin step goes first: if it is canceled, nothing has been

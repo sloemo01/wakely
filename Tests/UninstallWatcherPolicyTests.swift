@@ -19,35 +19,46 @@ struct UninstallWatcherPolicyTests {
     }
 
     static func main() {
-        let wipe = UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false,
+        let wipe = UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false, deletionConfirmed: true,
                                                 consecutiveAbsentChecks: UninstallWatcherPolicy.absentChecksBeforeWipe)
         check(wipe == .wipe, "app absent for the full grace wipes")
 
-        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false,
+        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false, deletionConfirmed: true,
                                             consecutiveAbsentChecks: UninstallWatcherPolicy.absentChecksBeforeWipe - 1) == .keepWatching,
               "one check short of the grace keeps watching")
 
-        check(UninstallWatcherPolicy.decide(appRunning: true, appCandidatesPresent: false,
+        check(UninstallWatcherPolicy.decide(appRunning: true, appCandidatesPresent: false, deletionConfirmed: true,
                                             consecutiveAbsentChecks: 999) == .keepWatching,
               "a running Wakely process always keeps everything")
 
-        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: true,
+        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: true, deletionConfirmed: true,
                                             consecutiveAbsentChecks: 999) == .keepWatching,
               "an installed app at a candidate location always keeps everything")
 
-        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false,
+        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false, deletionConfirmed: true,
                                             consecutiveAbsentChecks: 0) == .keepWatching,
               "the first absent probe never wipes")
 
-        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false,
+        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false, deletionConfirmed: true,
                                             consecutiveAbsentChecks: 3,
                                             requiredAbsentChecks: 3) == .wipe,
               "the daemon threshold parameterises the same decision")
 
-        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false,
+        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false, deletionConfirmed: true,
                                             consecutiveAbsentChecks: 2,
                                             requiredAbsentChecks: 3) == .keepWatching,
               "below the daemon threshold keeps watching")
+
+        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false,
+                                            deletionConfirmed: false,
+                                            consecutiveAbsentChecks: 999) == .keepWatching,
+              "absence alone never wipes: without Trash evidence a moved or unindexed app keeps everything")
+
+        check(UninstallWatcherPolicy.decide(appRunning: false, appCandidatesPresent: false,
+                                            deletionConfirmed: true,
+                                            consecutiveAbsentChecks: 999,
+                                            requiredAbsentChecks: 1000) == .keepWatching,
+              "Trash evidence still waits for the full grace")
 
         // Test-only seams: absent or malformed values fall back to production cadence.
         check(UninstallWatcherPolicy.pollIntervalFromEnvironment([:]) == UninstallWatcherPolicy.pollInterval,

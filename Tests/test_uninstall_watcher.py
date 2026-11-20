@@ -20,6 +20,8 @@ app_delegate = (root / "Sources/AppDelegate.swift").read_text()
 app_uninstaller = (root / "Sources/AppUninstaller.swift").read_text()
 helper_main = (root / "Helper/main.swift").read_text()
 app_removal = (root / "Helper/AppRemoval.swift").read_text()
+operations = (root / "Helper/Operations.swift").read_text()
+sleep_controller = (root / "Sources/SleepUntilResetController.swift").read_text()
 build = (root / "build.sh").read_text()
 continuity = (root / "Tools/Signing/verify-continuity.py").read_text()
 
@@ -152,6 +154,55 @@ assert "WakelyPresence.appIsRunning" in app_removal or "appIsRunning" in app_rem
 )
 assert "UninstallWatcherPolicy.daemonAbsentChecksBeforeWipe" in app_removal, (
     "the helper must use the longer daemon grace"
+)
+
+# --- Deletion must be positively confirmed, never inferred from absence ----
+
+assert "trashContainsApp" in presence, (
+    "the watcher needs a Trash probe: absence alone must never wipe"
+)
+assert "deletionConfirmed" in policy and "deletionConfirmed" in watcher_main, (
+    "the decision must require positive Trash evidence"
+)
+assert watcher_main.index("trashContainsApp") < watcher_main.index("UninstallWatcherPolicy.decide"), (
+    "the watcher must scan the Trash before deciding"
+)
+assert "trashContainsApp" in app_removal, (
+    "the helper daemon must also require Trash evidence before wiping"
+)
+# macOS privacy protection bars a LaunchDaemon from reading the user's
+# Trash, so the watcher hands the helper a fresh marker instead.
+assert "writeDeletionMarker" in watcher_main, (
+    "the watcher must leave deletion evidence for the helper daemon"
+)
+assert "deletionMarkerIsFresh" in app_removal, (
+    "the helper must accept the watcher's fresh deletion marker"
+)
+assert "expectedOwnerID" in presence and "expectedOwnerID" in app_removal, (
+    "the marker is world-writable in /tmp, so the helper must verify the console user's ownership"
+)
+assert "removeItem(atPath: WakelyPresence.deletionMarkerPath)" in app_removal, (
+    "the helper must remove the marker once the wipe it authorized is done"
+)
+assert app_removal.index("restoreEverythingBeforeDeletion") < app_removal.index("removeItem(atPath: WakelyPresence.deletionMarkerPath)"), (
+    "the marker is removed only after the rollback it authorized ran"
+)
+
+# --- System changes roll back before any wipe --------------------------------
+
+assert "restoreEverythingBeforeDeletion" in operations, (
+    "the helper must be able to roll back settings and wakes without a client"
+)
+assert "WakeStore" in operations and "scheduler.cancel" in operations, (
+    "the delete rollback must cancel owned pending wakes"
+)
+# Rollback runs BEFORE the root data directory (which holds the backup
+# store) is deleted.
+assert app_removal.index("restoreEverythingBeforeDeletion") < app_removal.index("removeItem(atPath: rootDataPath)"), (
+    "the helper must roll back system changes before deleting its records"
+)
+assert "cancelOwnedWakesForDelete" in app_uninstaller, (
+    "Delete Wakely must cancel pending wakes before removing the helper"
 )
 
 print("uninstall watcher structure: all checks passed")

@@ -89,6 +89,7 @@ enum HelperAppRemoval {
         let poll = UninstallWatcherPolicy.daemonPollInterval
         let required = UninstallWatcherPolicy.daemonAbsentChecksBeforeWipe
         var absentStreak = 0
+        var blockedLogged = false
 
         while true {
             Thread.sleep(forTimeInterval: poll)
@@ -98,11 +99,39 @@ enum HelperAppRemoval {
                     HelperLog.write("app is present; absence streak reset")
                 }
                 absentStreak = 0
+                blockedLogged = false
                 continue
             }
             absentStreak += 1
             HelperLog.write("app absent (\(absentStreak)/\(required) checks)")
             guard absentStreak >= required else { continue }
+
+            // Absence is not proof of deletion: only positive evidence
+            // confirms it — a Wakely bundle in the user's Trash, or the
+            // marker the user-level watcher drops after its own
+            // Trash-confirmed wipe (macOS privacy protection bars this
+            // daemon from reading the user's Trash). A move into a
+            // Spotlight-excluded folder or a missing index must keep the
+            // helper and its data. The streak is kept so evidence that
+            // appears later simply keeps waiting — the safe direction.
+            let homeOwnerID = (try? FileManager.default.attributesOfItem(atPath: home.path))?[.ownerAccountID] as? UInt32
+            // The marker is accepted only when owned by the console user:
+            // /tmp is world-writable, so an unchecked marker would let any
+            // local user trigger the wipe. An unreadable home owner means no
+            // marker confirmation — the Trash probe and the safe direction
+            // (keep everything) still apply.
+            let markerConfirmed = homeOwnerID.map {
+                WakelyPresence.deletionMarkerIsFresh(expectedOwnerID: $0)
+            } ?? false
+            let deletionConfirmed = WakelyPresence.trashContainsApp(homeDirectory: home)
+                || markerConfirmed
+            guard deletionConfirmed else {
+                if !blockedLogged {
+                    HelperLog.write("app absent for the full grace but no trashed Wakely.app found; keeping the helper and its data")
+                    blockedLogged = true
+                }
+                continue
+            }
 
             wipeAndExit()
             // wipeAndExit ends in exit(0); this is unreachable.
@@ -115,17 +144,26 @@ enum HelperAppRemoval {
     static func wipeAndExit() {
         HelperLog.write("app is gone; removing the helper's root-level footprint")
 
+        // Roll Wakely's system changes back BEFORE deleting the records that
+        // describe them: an uninstalled Mac must return to normal. Persistent
+        // settings (Stay Off When Opened, Home Server autorestart, ...) and
+        // pending wakes survive an ordinary quit, so this is the only path
+        // that puts them back on a Trash deletion. Best effort: the app is
+        // already gone, so a failed restore must not block the wipe; the
+        // counts go to the log.
+        let rollback = Operations.restoreEverythingBeforeDeletion()
+        HelperLog.write("rollback before wipe: \(rollback.restored) setting(s) restored, "
+            + "\(rollback.wakesCancelled) wake(s) canceled"
+            + (rollback.failed > 0 ? ", \(rollback.failed) setting(s) could not be restored" : "")
+            + (rollback.unreadableStore ? ", the backup store was unreadable" : ""))
+
+        // The deletion marker is single-use: the wipe it authorized is done.
+        try? FileManager.default.removeItem(atPath: WakelyPresence.deletionMarkerPath)
         let manager = FileManager.default
         for path in [daemonPlistPath, installedHelperPath, peerConfigPath] {
             try? manager.removeItem(atPath: path)
         }
         try? manager.removeItem(atPath: rootDataPath)
-
-        // Restore any persistent settings this daemon still holds leases for?
-        // No: the app restores its settings before Delete Wakely, and a manual
-        // Trash has no client left to ask. The daemon's leases are exactly the
-        // values it changed; leaving them is the same state a crash leaves,
-        // which the watchdog's session restore already covers on next install.
 
         HelperLog.write("footprint removed; booting out \(daemonLabel)")
         let bootout = Process()
