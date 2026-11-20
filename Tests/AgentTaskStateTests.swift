@@ -146,8 +146,75 @@ struct AgentTaskStateTests {
         let quietPi = AgentThread(id: "Pi-5", provider: "Pi", pid: 5, state: .unknown)
         _ = AgentThread.holdingRecentlyBusy([busyPi], lastBusy: &lastBusy, now: now)
         expect(AgentThread.holdingRecentlyBusy([quietPi], lastBusy: &lastBusy, now: now.addingTimeInterval(30))[0].state == .working, "short CPU pause keeps a process-only agent working")
-        expect(AgentThread.holdingRecentlyBusy([quietPi], lastBusy: &lastBusy, now: now.addingTimeInterval(61))[0].state == .unknown, "long quiet stops holding, never claims idle")
+        expect(AgentThread.holdingRecentlyBusy([quietPi], lastBusy: &lastBusy, now: now.addingTimeInterval(61)).isEmpty, "long quiet hides the agent, never claims idle")
+        var neverBusy: [String: Date] = [:]
+        expect(AgentThread.holdingRecentlyBusy([quietPi], lastBusy: &neverBusy, now: now).isEmpty, "an open but idle process-only agent is not listed")
         expect(AgentThread.finishedTransitions(from: [busyPi], to: [quietPi]).isEmpty, "quiet process-only agent is not a finished task")
+        let desktopApp = """
+        94237 1 01:10 /Applications/De /Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness
+        94238 94237 01:10 /Applications/De /Applications/DeepSeek Harness.app/Contents/Frameworks/DeepSeek Harness Helper.app/Contents/MacOS/DeepSeek Harness Helper --type=gpu-process
+        94248 94237 01:09 /Applications/De /Applications/DeepSeek Harness.app/Contents/Frameworks/DeepSeek Harness Helper (Renderer).app/Contents/MacOS/DeepSeek Harness Helper (Renderer) --type=renderer
+        29670 1 03:00 /opt/homebrew/bi /opt/homebrew/bin/node /Users/apple/dsh workspace/dsh-lan/server.js
+        41000 1 00:30 /Applications/Co /Applications/Codex.app/Contents/MacOS/Codex
+        41001 1 00:30 /Applications/Cl /Applications/Claude.app/Contents/MacOS/Claude
+        41002 1 00:30 /Applications/Sa /Applications/Safari.app/Contents/MacOS/Safari
+        41003 1 00:30 /opt/homebrew/bi /opt/homebrew/bin/codex --cd /Applications/Claude.app/Contents/MacOS/Claude
+        41004 1 00:30 /Users/a/My - Ap /Users/a/My - Apps/Cursor.app/Contents/MacOS/Cursor
+        41005 1 00:30 /usr/bin/rsync /usr/bin/rsync --exclude=/Applications/Cursor.app/Contents/MacOS/Cursor
+        """
+        let installed: Set<String> = ["/Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness",
+                                      "/Applications/Codex.app/Contents/MacOS/Codex", "/Applications/Claude.app/Contents/MacOS/Claude",
+                                      "/Applications/Safari.app/Contents/MacOS/Safari", "/Users/a/My - Apps/Cursor.app/Contents/MacOS/Cursor",
+                                      "/Applications/Cursor.app/Contents/MacOS/Cursor"]
+        let app = AgentBackgroundScanner.parseProcesses(desktopApp, now: now, isExecutable: installed.contains)
+        expect(app.map(\.pid) == [41000, 41001, 41003, 41004, 94237] && app.map(\.provider) == ["Codex App", "Claude", "Codex", "Cursor", "DeepSeek Harness"], "DeepSeek Harness desktop app matched by its spaced bundle path; helpers and dsh-named folders ignored")
+        let start = now.timeIntervalSince1970 * 1000
+        let open = #"{"role":"assistant","time":{"created":1}}"#
+        let pending = #"{"type":"tool","tool":"bash","state":{"status":"running","time":{"start":\#(start - 10000)}}}"#
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: open, tool: pending)!, hasChild: false, now: now) == .waiting, "OpenCode running tool with no child is waiting on a permission prompt")
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: open, tool: pending)!, hasChild: true, now: now) == .working, "OpenCode running tool with a child process is working")
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: open, tool: nil)!, hasChild: false, now: now) == .working, "OpenCode open assistant turn is working")
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: #"{"role":"assistant","time":{"created":1,"completed":2},"finish":"stop"}"#, tool: pending)!, hasChild: false, now: now) == .idle, "OpenCode completed turn is idle")
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: #"{"role":"assistant","time":{"created":1,"completed":2},"finish":"tool-calls"}"#, tool: nil)!, hasChild: false, now: now) == .working, "OpenCode tool-call handoff is still working")
+        let fetching = #"{"type":"tool","tool":"webfetch","state":{"status":"running","time":{"start":\#(start - 10000)}}}"#
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.row(message: open, tool: fetching)!, hasChild: false, now: now) == .working, "a long in-process OpenCode tool is working, not waiting")
+        let v2Running: [String: Any] = ["role": "assistant", "updated": start - 10000, "busy": start - 11000, "idle": start - 60000,
+            "message": #"{"time":{"created":1},"content":[{"type":"tool","name":"shell","state":{"status":"running"}}]}"#]
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.rowV2(v2Running)!, hasChild: false, now: now) == .waiting, "OpenCode 2.x shell tool stalled with no child is waiting")
+        var v2Done = v2Running; v2Done["idle"] = start - 1000
+        expect(OpenCodeSessionState.state(row: OpenCodeSessionState.rowV2(v2Done)!, hasChild: false, now: now) == .idle, "OpenCode 2.x session idle after busy is idle")
+        expect(AgentBackgroundScanner.codexSubcommand(["codex", "-c", "x=1", "app-server", "--listen"]) == "app-server", "Codex app-server behind -c options is skipped")
+        expect(AgentBackgroundScanner.codexSubcommand(["codex", "fix", "the", "app-server", "bug"]) == "fix", "a Codex prompt mentioning app-server is a task")
+        let launcherDaemon = AgentBackgroundScanner.parseProcesses("42001 1 00:30 /opt/homebrew/bi /opt/homebrew/bin/node /opt/homebrew/lib/node_modules/@openai/codex/bin/codex.js app-server --listen", now: now)
+        expect(launcherDaemon.isEmpty, "a node-launched Codex app-server is not an agent")
+        let appHelpers = AgentBackgroundScanner.parseProcesses("""
+        76021 1 02:34 /Applications/Ch /Applications/ChatGPT.app/Contents/Frameworks/Codex Framework.framework/Versions/157/Helpers/browser_crashpad_handler --monitor-self
+        76109 76018 02:29 /Users/devin/.co /Users/devin/.codex/computer-use/Codex Computer Use.app/Contents/MacOS/SkyComputerUseService
+        """, now: now)
+        expect(appHelpers.isEmpty, "Codex app helpers under spaced paths are not Codex CLIs")
+        let electron = """
+        500 1 30.0 /Applications/Cu
+        501 500 20.0 /Applications/Cu
+        600 1 1.0 /Applications/Wi
+        601 600 0.5 /Applications/Wi
+        602 601 40.0 /bin/zsh
+        """
+        expect(AgentBackgroundScanner.busyAgents(pids: [500, 600], cpuListing: electron, apps: [500: "Cursor", 600: "Windsurf"]) == [600], "an app counts as working only from work outside its bundle")
+        let retitled = "700 1 0.5 /Applications/Cu\n701 700 30.0 Cursor Helper (Plugin): extension-host Agents Window [1-1]\n702 700 9.0 Cursor: shared-process"
+        let fullComm = "800 1 0.8 /Applications/Cursor.app/Contents/MacOS/Cursor\n801 800 19.8 /Applications/Cursor.app/Contents/Frameworks/Cursor Helper.app/Contents/MacOS/Cursor Helper"
+        expect(AgentBackgroundScanner.busyAgents(pids: [800], cpuListing: fullComm, apps: [800: "Cursor"]).isEmpty, "helpers under the app's full bundle path are part of the app")
+        expect(AgentBackgroundScanner.busyAgents(pids: [700], cpuListing: retitled, apps: [700: "Cursor"]).isEmpty, "retitled Electron helpers are part of the app")
+        let promptBundle = AgentBackgroundScanner.parseProcesses("42002 1 00:30 /usr/local/bin/co /usr/local/bin/codex exec fix Foo.app/Contents/Info.plist", now: now, isExecutable: { $0 == "/usr/local/bin/codex" })
+        expect(promptBundle.map(\.provider) == ["Codex"], "a prompt mentioning a bundle path is still a Codex task")
+        let promptScript = AgentBackgroundScanner.parseProcesses("42003 1 00:30 /usr/local/bin/co /usr/local/bin/codex exec Review /tmp/codex.js app-server integration", now: now)
+        expect(promptScript.map(\.provider) == ["Codex"], "a prompt naming codex.js is still a Codex task")
+        var heldWaiting: [String: Date] = [:]
+        let waitingOC = AgentThread(id: "OpenCode-9", provider: "OpenCode", pid: 9, state: .waiting)
+        expect(AgentThread.holdingRecentlyBusy([waitingOC], lastBusy: &heldWaiting, now: now) == [waitingOC], "session-read waiting state is listed as is")
+        var codexNew = AgentSessionSnapshot(provider: "Codex"); codexNew.state = .waiting; codexNew.updatedAt = now.addingTimeInterval(-5)
+        var codexOld = AgentSessionSnapshot(provider: "Codex"); codexOld.state = .working; codexOld.updatedAt = now.addingTimeInterval(-3600)
+        expect(AgentSessionState.newest([codexOld, codexNew], provider: "Codex", since: now.addingTimeInterval(-60), now: now)?.state == .waiting, "Codex app takes the newest fresh transcript since it started")
+        expect(AgentSessionState.newest([codexOld], provider: "Codex", since: nil, now: now) == nil, "a stale transcript is not the app's")
         let full = AgentBackgroundScanner.parseProcesses(truncated, now: now)
         expect(full.count == 2 && full[0].pid == 200 && full[0].provider == "Codex" && full[1].pid == 203 && full[1].provider == "Claude Code", "truncated comm recovered from argv0; claude.exe matched; app-server skipped")
 

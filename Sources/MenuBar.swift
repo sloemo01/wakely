@@ -155,7 +155,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
                 menu.addItem(.separator())
                 let label = Self.agentSummaryTitle(working: agents.workingCount,
                                                    waiting: agents.waitingCount,
-                                                   total: agents.threads.count)
+                                                   total: agents.threads.count,
+                                                   idle: agents.threads.filter { $0.state == .idle }.count)
                 let row = NSMenuItem(title: label, action: nil, keyEquivalent: "")
                 row.isEnabled = false
                 menu.addItem(row)
@@ -165,6 +166,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
                     let entry = NSMenuItem(title: Self.agentRowTitle(for: thread), action: #selector(activateAgent(_:)), keyEquivalent: "")
                     entry.target = self
                     entry.representedObject = NSNumber(value: thread.pid)
+                    entry.image = NSImage(systemSymbolName: thread.isApp ? "macwindow" : "terminal",
+                                          accessibilityDescription: thread.isApp ? "App" : "CLI")
                     menu.addItem(entry)
                 }
             }
@@ -234,12 +237,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     /// Pure label seam: callers/tests can verify the fallback without a live
     /// agent. An empty or missing display name falls back to the provider.
-    static func agentSummaryTitle(working: Int, waiting: Int, total: Int) -> String {
+    static func agentSummaryTitle(working: Int, waiting: Int, total: Int, idle: Int = 0) -> String {
         if working > 0 {
             return "\(working) working\(waiting > 0 ? ", \(waiting) waiting on you" : "")"
         }
         if waiting > 0 { return "\(waiting) waiting on you" }
-        return total == 1 ? "1 agent running" : "\(total) agents running"
+        let running = total - idle
+        // A finished (idle) session is open but not running anything.
+        if running <= 0 { return idle == 1 ? "1 agent idle" : "\(idle) agents idle" }
+        return running == 1 ? "1 agent running" : "\(running) agents running"
     }
 
     static func agentRowTitle(for thread: AgentThread) -> String {
@@ -251,19 +257,30 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func activateAgent(_ sender: NSMenuItem) {
         guard let pid = sender.representedObject as? NSNumber else { return }
         if let application = NSRunningApplication(processIdentifier: pid.int32Value), application.activationPolicy == .regular {
-            application.activate(options: [])
+            Self.bringToFront(application)
         } else {
             let processID = pid.int32Value
             Task {
                 let ancestors = await Task.detached { Self.parentProcessIDs(of: processID) }.value
                 for ancestor in ancestors {
                     if let app = NSRunningApplication(processIdentifier: ancestor), app.activationPolicy == .regular {
-                        app.activate(options: [])
+                        Self.bringToFront(app)
                         return
                     }
                 }
                 NSSound.beep()
             }
+        }
+    }
+
+    /// macOS 14 ignores `activate` from a menu-bar app that isn't frontmost,
+    /// so reopen the app through Launch Services, which always raises it.
+    private static func bringToFront(_ application: NSRunningApplication) {
+        guard let url = application.bundleURL else { application.activate(options: [.activateAllWindows]); return }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
+        NSWorkspace.shared.openApplication(at: url, configuration: configuration) { _, error in
+            if error != nil { DispatchQueue.main.async { application.activate(options: [.activateAllWindows]) } }
         }
     }
 

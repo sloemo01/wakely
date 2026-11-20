@@ -253,7 +253,9 @@ final class GooMenuView: NSView {
             row.kind = GooMenuRowKind(item: item, interactive: interactive)
             row.title = item.title
             row.displayTitle = item.title
-            row.symbolName = MenuIconPolicy.symbolName(title: item.title, action: item.action, hasSubmenu: item.submenu != nil)
+            // Agent rows mark desktop apps on their image; CLIs keep the terminal glyph.
+            row.symbolName = item.image?.accessibilityDescription == "App" ? "macwindow"
+                : MenuIconPolicy.symbolName(title: item.title, action: item.action, hasSubmenu: item.submenu != nil)
             row.hasChevron = interactive && item.submenu != nil
             row.itemState = item.state
             row.reservesStateColumn = reservesStateColumn

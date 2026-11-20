@@ -127,6 +127,9 @@ struct AgentProcessDescriptor: Equatable, Sendable {
     let startedAt: Date?
     var parentPID: Int32? = nil
     var isLauncher = false
+    var isApp = false
+    /// The app's executable name, e.g. "Cursor"; its helpers are named after it.
+    var appName: String?
 
     /// Agents Wakely sees only as processes: they leave no transcript Wakely
     /// reads, so their task state stays unknown.
@@ -135,6 +138,21 @@ struct AgentProcessDescriptor: Equatable, Sendable {
         "cline": "Cline", "kilo": "Kilo", "kilocode": "Kilo", "aider": "Aider",
         "qwen": "Qwen Code", "dsh": "DeepSeek Harness", "hermes": "Hermes Agent",
     ]
+
+    /// Desktop apps that run agents, by their bundle executable. Matched only
+    /// on a `<Name>.app/Contents/MacOS/<Name>` path, never on a bare name, so
+    /// the Codex app is not mistaken for the Codex CLI.
+    static let desktopAppProviders: [String: String] = [
+        "DeepSeek Harness": "DeepSeek Harness", "Claude": "Claude", "Codex": "Codex App",
+        "Cursor": "Cursor", "OpenCode": "OpenCode", "Windsurf": "Windsurf", "Devin": "Devin",
+        "Kiro": "Kiro", "Hermes": "Hermes Agent", "Hermes Agent": "Hermes Agent",
+        // The Codex app ships as ChatGPT.app (com.openai.codex).
+        "ChatGPT": "Codex App",
+    ]
+
+    static var processOnlyProviderNames: Set<String> {
+        Set(processOnlyProviders.values).union(desktopAppProviders.values)
+    }
 
     static func provider(executable: String, arguments: [String]) -> String? {
         let name = URL(fileURLWithPath: executable).lastPathComponent.lowercased()
@@ -468,10 +486,10 @@ enum AgentSessionFiles {
 
     static func snapshots(home: URL, processes: [AgentProcessDescriptor]) -> [AgentSessionSnapshot] {
         var result: [AgentSessionSnapshot] = []
-        if processes.contains(where: { $0.provider == "Claude Code" }) {
+        if processes.contains(where: { $0.provider == "Claude Code" || $0.provider == "Claude" }) {
             result += read(root: home.appendingPathComponent(".claude/projects"), provider: "Claude Code", maxDepth: 1)
         }
-        if processes.contains(where: { $0.provider == "Codex" }) {
+        if processes.contains(where: { $0.provider == "Codex" || $0.provider == "Codex App" }) {
             result += read(root: home.appendingPathComponent(".codex/sessions"), provider: "Codex", maxDepth: 3)
         }
         return result
