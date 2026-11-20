@@ -77,19 +77,26 @@ enum AgentAppSessionState {
         let fm = FileManager.default
         guard let workspaces = try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil) else { return nil }
         let start = (since ?? .distantPast).addingTimeInterval(-5)
-        var newest: (url: URL, modified: Date)?
+        var recent: [(url: URL, modified: Date)] = []
         for workspace in workspaces where workspace.lastPathComponent != "cli" {
             for session in (try? fm.contentsOfDirectory(at: workspace, includingPropertiesForKeys: nil)) ?? []
             where session.lastPathComponent.hasPrefix("sess_") {
                 let messages = session.appendingPathComponent("messages.jsonl")
                 guard let modified = (try? fm.attributesOfItem(atPath: messages.path))?[.modificationDate] as? Date,
-                      modified >= start, modified > (newest?.modified ?? .distantPast) else { continue }
-                newest = (messages, modified)
+                      modified >= start else { continue }
+                recent.append((messages, modified))
             }
         }
-        guard let newest else { return .unknown }
-        guard let tail = tail(of: newest.url, bytes: 256 * 1024) else { return .unknown }
-        return kiro(lines: tail.split(separator: "\n")) ?? .unknown
+        // Several chats can run at once: one waiting or working outranks one that finished.
+        let states = recent.sorted { $0.modified > $1.modified }.prefix(8).compactMap { session in
+            tail(of: session.url, bytes: 256 * 1024).flatMap { kiro(lines: $0.split(separator: "\n")) }
+        }
+        return combined(states)
+    }
+
+    static func combined(_ states: [AgentTaskState]) -> AgentTaskState {
+        for state in [AgentTaskState.waiting, .working, .idle] where states.contains(state) { return state }
+        return .unknown
     }
 
     static func tail(of url: URL, bytes: Int) -> String? {
