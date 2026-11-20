@@ -42,6 +42,9 @@ enum AppUninstaller {
         try? await SMAppService.mainApp.unregister()
         run("/bin/launchctl", ["bootout", "gui/\(getuid())/\(HelperService.agentLabel)"])
         try? FileManager.default.removeItem(at: ManualAgentInstaller.launchAgentURL())
+        // The deletion watcher must not outlive a Delete Wakely: it would
+        // race this uninstaller and wipe the support directory twice.
+        UninstallWatcherInstaller.uninstall()
 
         // Accessibility, Location, Automation and every other TCC grant.
         run("/usr/bin/tccutil", ["reset", "All", bundleID])

@@ -39,6 +39,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Publish this instance before anything can arm: the watchdog needs a
         // PID plus kernel start time to tell this process from a later PID reuse.
         AppLiveness.beginIdle()
+        // Tell the deletion watcher and the helper where the app lives, and
+        // keep the watcher agent installed. Both survive an app update swap.
+        InstallRecord.publish()
+        _ = UninstallWatcherInstaller.installIfNeeded()
         // There is no install step: set the helper up quietly the first time,
         // and never block arming on it.
         Task { @MainActor in

@@ -19,6 +19,7 @@ TARGETS = {
     '.': 'dev.wakely.app',
     'Contents/MacOS/WakelyHelper': 'dev.wakely.helper',
     'Contents/MacOS/WakelyWatchdog': 'dev.wakely.watchdog',
+    'Contents/MacOS/WakelyUninstallWatcher': 'dev.wakely.uninstall-watcher',
     'Contents/Helpers/wakely-component': 'dev.wakely.component-tool',
 }
 

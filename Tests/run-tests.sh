@@ -53,6 +53,9 @@ run keep-awake-selection "${SWIFTC[@]}" Sources/KeepAwakeSelection.swift Tests/K
 run keep-awake-options python3 Tests/test_keep_awake_options.py
 run update-version "${SWIFTC[@]}" Sources/UpdateVersion.swift Tests/UpdateVersionTests.swift -o build/tests/update-version
 [[ -x build/tests/update-version ]] && run update-version-run build/tests/update-version
+run uninstall-watcher-policy "${SWIFTC[@]}" UninstallWatcher/Policy.swift Tests/UninstallWatcherPolicyTests.swift -o build/tests/uninstall-watcher-policy
+[[ -x build/tests/uninstall-watcher-policy ]] && run uninstall-watcher-policy-run build/tests/uninstall-watcher-policy
+run uninstall-watcher-structure python3 Tests/test_uninstall_watcher.py
 run typography-scale "${SWIFTC[@]}" Sources/Typography.swift Tests/TypographyMetricsTests.swift -o build/tests/typography-scale
 [[ -x build/tests/typography-scale ]] && run typography-scale-run build/tests/typography-scale
 run guide-content "${SWIFTC[@]}" Sources/ComponentCatalog.swift Sources/GuideContent.swift Tests/GuideContentTests.swift -o build/tests/guide-content

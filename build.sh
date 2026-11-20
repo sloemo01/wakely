@@ -55,7 +55,8 @@ if ls Helper/*.swift >/dev/null 2>&1; then
     -module-cache-path "$BUILD_CACHE" \
     -framework AppKit -framework IOKit -framework Foundation \
     -o "$APP/Contents/MacOS/WakelyHelper" \
-    Sources/HelperProtocol.swift Helper/*.swift
+    Sources/HelperProtocol.swift Helper/*.swift \
+    UninstallWatcher/Policy.swift UninstallWatcher/Presence.swift
   echo "   built WakelyHelper"
 else
   echo "   WARNING: Helper/ has no sources yet; the daemon will be missing"
@@ -69,6 +70,16 @@ if [ -f Watchdog/main.swift ]; then
     -o "$APP/Contents/MacOS/WakelyWatchdog" \
     Sources/HelperProtocol.swift Watchdog/Policy.swift Watchdog/main.swift
   echo "   built WakelyWatchdog"
+fi
+
+if [ -f UninstallWatcher/main.swift ]; then
+  swiftc \
+    -swift-version 5 -O -target arm64-apple-macos14.0 \
+    -module-cache-path "$BUILD_CACHE" \
+    -framework Foundation \
+    -o "$APP/Contents/MacOS/WakelyUninstallWatcher" \
+    UninstallWatcher/Policy.swift UninstallWatcher/Presence.swift UninstallWatcher/main.swift
+  echo "   built WakelyUninstallWatcher"
 fi
 
 cp Resources/dev.wakely.helper.plist "$APP/Contents/Library/LaunchDaemons/"
@@ -174,10 +185,11 @@ sign_target() {
 # So the stable path signs nested code, then seals the app without --deep.
 sign_nested() {
   local sign_args=("$@")
-  for target in "$APP/Contents/MacOS/WakelyHelper" "$APP/Contents/MacOS/WakelyWatchdog" "$APP/Contents/Helpers/wakely-component"; do
+  for target in "$APP/Contents/MacOS/WakelyHelper" "$APP/Contents/MacOS/WakelyWatchdog" "$APP/Contents/Helpers/wakely-component" "$APP/Contents/MacOS/WakelyUninstallWatcher"; do
     signing_id="dev.wakely.helper"
     if [ "${target##*/}" = "WakelyWatchdog" ]; then signing_id="dev.wakely.watchdog"; fi
     if [ "${target##*/}" = "wakely-component" ]; then signing_id="dev.wakely.component-tool"; fi
+    if [ "${target##*/}" = "WakelyUninstallWatcher" ]; then signing_id="dev.wakely.uninstall-watcher"; fi
     [ -f "$target" ] || continue
     sign_target "$target" "$signing_id" || return 1
   done
@@ -194,7 +206,7 @@ else
   echo "   ERROR: signing failed; refusing an identity-changing fallback" >&2
   exit 1
 fi
-for target in "$APP" "$APP/Contents/MacOS/WakelyHelper" "$APP/Contents/MacOS/WakelyWatchdog"; do
+for target in "$APP" "$APP/Contents/MacOS/WakelyHelper" "$APP/Contents/MacOS/WakelyWatchdog" "$APP/Contents/MacOS/WakelyUninstallWatcher"; do
   [ -f "$target" ] || continue
   # Drain codesign's output: early awk exit can SIGPIPE codesign under pipefail.
   identifier=$(codesign -dv --verbose=2 "$target" 2>&1 | awk -F= '/^Identifier=/{if (!seen++) print $2}')
