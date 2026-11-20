@@ -171,16 +171,20 @@ final class UpdateManager: ObservableObject {
             // never leave Wakely deleted or half-replaced.
             let backup = FileManager.default.temporaryDirectory
                 .appendingPathComponent("Wakely-backup-\(UUID().uuidString).app")
-            defer { try? FileManager.default.removeItem(at: backup) }
             try FileManager.default.copyItem(at: destination, to: backup)
             try FileManager.default.removeItem(at: destination)
             do {
                 try FileManager.default.copyItem(at: mountedApp, to: destination)
+                try? FileManager.default.removeItem(at: backup)
             } catch {
                 do {
+                    // Clear the partial copy before restoring the backup.
+                    try? FileManager.default.removeItem(at: destination)
                     try FileManager.default.copyItem(at: backup, to: destination)
+                    try? FileManager.default.removeItem(at: backup)
+                    Diagnostics.log("update restored the previous bundle")
                 } catch {
-                    Diagnostics.log("update restore failed: \(error.localizedDescription)")
+                    Diagnostics.log("update restore failed; backup kept at \(backup.path)")
                 }
                 throw error
             }
@@ -199,7 +203,12 @@ final class UpdateManager: ObservableObject {
     private static func verifySignature(_ app: URL) async throws {
         _ = try await run("/usr/bin/codesign", ["--verify", "--deep", "--strict", app.path], result: { _ in () })
         let details = try await run("/usr/bin/codesign", ["-dv", "--verbose=4", app.path], result: { $0 })
-        guard details.contains("TeamIdentifier=\(expectedTeamID)") else {
+        // Exact line match: the mount volume name appears in codesign's
+        // output paths, so a substring check could be spoofed.
+        let teamLine = "TeamIdentifier=\(expectedTeamID)"
+        let matched = details.components(separatedBy: .newlines)
+            .contains { $0.trimmingCharacters(in: .whitespaces) == teamLine }
+        guard matched else {
             throw UpdateError.verificationFailed("signed by an unexpected team")
         }
     }
