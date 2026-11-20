@@ -278,7 +278,11 @@ final class UpdateManager: ObservableObject {
         relaunch.standardOutput = FileHandle.nullDevice
         relaunch.standardError = FileHandle.nullDevice
         try? relaunch.run()
-        NSApp.terminate(nil)
+        // Quit from a run-loop timer, not from this task or a main-queue
+        // block: terminate waits in a nested run loop for the main-actor
+        // cleanup task, and the main queue cannot drain while it is already
+        // running a job, so the old process would hang instead of exiting.
+        NSApp.perform(#selector(NSApplication.terminate(_:)), with: nil, afterDelay: 0)
     }
 }
 
