@@ -270,7 +270,7 @@ enum AgentBackgroundScanner {
                let read = OpenCodeSessionState.state(row: row, hasChild: runsTool(process.pid), now: Date()) {
                 state = read
             }
-            if process.isApp, let read = AgentAppSessionState.read(provider: process.provider, home: home, since: process.startedAt) {
+            if process.isApp, let read = AgentAppSessionState.read(provider: process.provider, home: home, since: process.startedAt, pid: process.pid) {
                 state = read
             }
             // The Codex and Claude desktop apps write the same transcripts as

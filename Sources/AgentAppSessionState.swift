@@ -4,8 +4,9 @@ import Foundation
 /// VS Code forks whose terminals run the user's own servers, so when their store
 /// is readable it decides; Hermes only confirms work the CPU check may miss.
 enum AgentAppSessionState {
-    static func read(provider: String, home: URL, since: Date?, now: Date = Date()) -> AgentTaskState? {
+    static func read(provider: String, home: URL, since: Date?, pid: Int32 = 0, now: Date = Date()) -> AgentTaskState? {
         switch provider {
+        case "DeepSeek Harness": return deepSeek(home: home, since: since, app: executable(of: pid))
         case "Cursor": return cursor(home: home, since: since)
         case "Kiro": return kiro(home: home, since: since, now: now)
         case "Hermes Agent": return hermes(home: home, since: since, now: now)
@@ -131,5 +132,74 @@ enum AgentAppSessionState {
               let row = (try? JSONSerialization.jsonObject(with: Data(output.utf8)) as? [[String: Any]])?.first
         else { return nil }
         return hermes(leases: row["leases"] as? Int ?? 0, lastMessage: row["last"] as? Double, since: since)
+    }
+
+    // MARK: DeepSeek Harness
+
+    static func executable(of pid: Int32) -> String? {
+        var buffer = [CChar](repeating: 0, count: 4096)
+        guard pid > 0, proc_pidpath(pid, &buffer, UInt32(buffer.count)) > 0 else { return nil }
+        return String(cString: buffer)
+    }
+
+    static func deepSeek<S: StringProtocol>(events: [S]) -> AgentTaskState? {
+        var state: AgentTaskState?
+        for event in events {
+            switch event {
+            case "turn/start", "approval/decided": state = .working
+            case "approval/asked": state = .waiting
+            case "turn/end": state = .idle
+            default: break
+            }
+        }
+        return state
+    }
+
+    /// Harness appends a zstd frame per write to `session.v4.jsonl.zstd`. macOS has
+    /// no zstd, but the app is Electron, whose Node decodes one frame per call.
+    static let zstdEvents = #"""
+    const z=require("zlib"),b=require("fs").readFileSync(process.argv[process.argv.length-1]);let p=0,o=[];
+    while(p+4<=b.length){const m=b.readUInt32LE(p),s=p;
+    if((m&0xFFFFFFF0)===0x184D2A50){p+=8+b.readUInt32LE(p+4);continue}
+    if(m!==0xFD2FB528)break;const d=b[p+4];p+=5;if(!(d&32))p++;p+=[0,1,2,4][d&3];p+=[d&32?1:0,2,4,8][d>>6];
+    for(;;){if(p+3>b.length){p=b.length+1;break}const h=b[p]|b[p+1]<<8|b[p+2]<<16;p+=3+((h>>1&3)===1?1:h>>3);if(h&1)break}
+    if(d&4)p+=4;if(p>b.length)break;o.push(z.zstdDecompressSync(b.subarray(s,p)))}
+    for(const l of Buffer.concat(o).toString().split("\n"))try{const t=JSON.parse(l).type;if(/^(turn|approval)\//.test(t))console.log(t)}catch{}
+    """#
+
+    private static let cacheLock = NSLock()
+    nonisolated(unsafe) private static var cache: [String: (stamp: String, state: AgentTaskState?)] = [:]
+
+    static func deepSeek(home: URL, since: Date?, app: String?) -> AgentTaskState? {
+        guard let app else { return nil }
+        let root = home.appendingPathComponent(".dsh/sessions")
+        let fm = FileManager.default
+        let start = (since ?? .distantPast).addingTimeInterval(-5)
+        var recent: [(path: String, modified: Date, size: Int)] = []
+        for workspace in (try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)) ?? [] {
+            for session in (try? fm.contentsOfDirectory(at: workspace, includingPropertiesForKeys: nil)) ?? []
+            where session.lastPathComponent.hasPrefix("session-") {
+                let log = session.appendingPathComponent("session.v4.jsonl.zstd").path
+                guard let attributes = try? fm.attributesOfItem(atPath: log),
+                      let modified = attributes[.modificationDate] as? Date, modified >= start,
+                      let size = attributes[.size] as? Int, size < 32 * 1024 * 1024 else { continue }
+                recent.append((log, modified, size))
+            }
+        }
+        let states = recent.sorted { $0.modified > $1.modified }.prefix(4).compactMap { log -> AgentTaskState? in
+            let stamp = "\(log.modified.timeIntervalSince1970)-\(log.size)"
+            cacheLock.lock()
+            let hit = cache[log.path]
+            cacheLock.unlock()
+            if let hit, hit.stamp == stamp { return hit.state }
+            guard let output = AgentBackgroundScanner.command("/usr/bin/env", ["ELECTRON_RUN_AS_NODE=1", app, "-e", zstdEvents, log.path],
+                                                              timeout: 2, maxBytes: 256 * 1024) else { return nil }
+            let state = deepSeek(events: output.split(separator: "\n"))
+            cacheLock.lock()
+            cache[log.path] = (stamp, state)
+            cacheLock.unlock()
+            return state
+        }
+        return states.isEmpty ? nil : combined(states)
     }
 }
