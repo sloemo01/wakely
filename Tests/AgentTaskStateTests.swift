@@ -168,6 +168,10 @@ struct AgentTaskStateTests {
                                       "/Applications/Cursor.app/Contents/MacOS/Cursor"]
         let app = AgentBackgroundScanner.parseProcesses(desktopApp, now: now, isExecutable: installed.contains)
         expect(app.map(\.pid) == [41000, 41001, 41003, 41004, 94237] && app.map(\.provider) == ["Codex App", "Claude", "Codex", "Cursor", "DeepSeek Harness"], "DeepSeek Harness desktop app matched by its spaced bundle path; helpers and dsh-named folders ignored")
+        let host = "94237 1 01:10 /Applications/De /Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness\n" +
+            "94300 94237 01:09 /Applications/De /Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness --expose-internals /Applications/DeepSeek Harness.app/Contents/Resources/app.asar/dsh/node_modules/@deepseek-ai/dsh-desktop-host/lib/index.js"
+        expect(AgentBackgroundScanner.distinct(AgentBackgroundScanner.parseProcesses(host, now: now, isExecutable: installed.contains)).map(\.pid) == [94237],
+               "an app re-running its own executable as a Node host is one row")
         let start = now.timeIntervalSince1970 * 1000
         let open = #"{"role":"assistant","time":{"created":1}}"#
         let pending = #"{"type":"tool","tool":"bash","state":{"status":"running","time":{"start":\#(start - 10000)}}}"#

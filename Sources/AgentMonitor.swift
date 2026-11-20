@@ -163,14 +163,21 @@ final class AgentMonitor {
 enum AgentBackgroundScanner {
     private static let maxProcesses = 24
 
+    static func distinct(_ discovered: [AgentProcessDescriptor]) -> [AgentProcessDescriptor] {
+        discovered.filter { candidate in
+            // npm Codex launches a native Codex child. Don't count that wrapper as
+            // a second task (or make the real child's cwd correlation ambiguous).
+            if candidate.isLauncher, discovered.contains(where: { $0.parentPID == candidate.pid && $0.provider == candidate.provider }) {
+                return false
+            }
+            // Electron apps re-run their own executable as a Node host (DeepSeek Harness).
+            return !(candidate.isApp && discovered.contains { $0.pid == candidate.parentPID && $0.isApp && $0.provider == candidate.provider })
+        }
+    }
+
     static func scan(home: URL) -> [AgentThread] {
         guard let listing = command("/bin/ps", ["-axo", "pid=,ppid=,etime=,comm=,args="], timeout: 2, maxBytes: 2 * 1024 * 1024) else { return [] }
-        let discovered = parseProcesses(listing, now: Date())
-        // npm Codex launches a native Codex child. Don't count that wrapper as
-        // a second task (or make the real child's cwd correlation ambiguous).
-        var processes = discovered.filter { candidate in
-            !candidate.isLauncher || !discovered.contains { $0.parentPID == candidate.pid && $0.provider == candidate.provider }
-        }
+        var processes = distinct(parseProcesses(listing, now: Date()))
         processes = Array(processes.prefix(maxProcesses)).map { process in
             let cwd = process.sessionID == nil ? currentDirectory(pid: process.pid) : nil
             var descriptor = AgentProcessDescriptor(pid: process.pid, provider: process.provider,
