@@ -57,6 +57,7 @@ run uninstall-watcher-policy "${SWIFTC[@]}" UninstallWatcher/Policy.swift Tests/
 [[ -x build/tests/uninstall-watcher-policy ]] && run uninstall-watcher-policy-run build/tests/uninstall-watcher-policy
 run uninstall-watcher-structure python3 Tests/test_uninstall_watcher.py
 run agent-screen-structure python3 Tests/test_agent_screen.py
+run update-restart-structure python3 Tests/test_update_restart.py
 run typography-scale "${SWIFTC[@]}" Sources/Typography.swift Tests/TypographyMetricsTests.swift -o build/tests/typography-scale
 [[ -x build/tests/typography-scale ]] && run typography-scale-run build/tests/typography-scale
 run guide-content "${SWIFTC[@]}" Sources/ComponentCatalog.swift Sources/GuideContent.swift Tests/GuideContentTests.swift -o build/tests/guide-content
