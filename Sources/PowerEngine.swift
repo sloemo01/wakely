@@ -880,8 +880,15 @@ final class PowerEngine {
         guard closedSince == nil else { return }
         closedSince = Date()
         darkenDisplay()
-        requestLockScreen()
-        sleepDisplaysUnlessAgentsNeedThem()
+        if ComponentEngine.shared.isEnabled("agentScreen") {
+            // Agents can start after the lid shuts (a request from a phone).
+            // A lock or a display sleep would leave them only the lock screen
+            // or a black screenshot, so the panel stays dark but usable.
+            Diagnostics.log("agent screen: close keeps the screen unlocked and awake for agents")
+        } else {
+            requestLockScreen()
+            sleepDisplaysUnlessAgentsNeedThem()
+        }
         Diagnostics.log("closed-lid session started")
         onStateChange?()
     }

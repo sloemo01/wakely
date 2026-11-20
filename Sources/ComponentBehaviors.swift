@@ -685,7 +685,10 @@ final class ComponentEngine {
         // user-visible "two minutes after they stop" delay.
         let releaseDelay: TimeInterval = 10
         let displayGrace = TimeInterval(intSetting("agentScreen.minutes", default: 2, in: 1...60) * 60)
-        let holdDisplay = engine.isArmed && agents.needsDisplay(grace: displayGrace)
+        // An armed closed session holds the display whole: agents started
+        // from another device after the close still need a usable screen.
+        let holdDisplay = engine.isArmed
+            && (engine.closedSince != nil || agents.needsDisplay(grace: displayGrace))
         if holdDisplay && !displayAsserted {
             var id = IOPMAssertionID(0)
             let result = IOPMAssertionCreateWithName(
