@@ -1988,7 +1988,7 @@ struct ComponentOptions: View {
                 Text("Counts downloads, exports and backups; other apps' jobs are not waited for.")
                     .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "agentScreen":
-                Text("The display stays black but on while an agent uses it.")
+                Text("The display stays black but on while an agent uses it. An armed lid close does not lock your Mac while this is on.")
                     .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "agentNotifications":
                 VStack(alignment: .leading, spacing: 8) {

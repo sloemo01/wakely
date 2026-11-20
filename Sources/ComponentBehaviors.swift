@@ -685,7 +685,10 @@ final class ComponentEngine {
         // user-visible "two minutes after they stop" delay.
         let releaseDelay: TimeInterval = 10
         let displayGrace = TimeInterval(intSetting("agentScreen.minutes", default: 2, in: 1...60) * 60)
-        let holdDisplay = engine.isArmed && agents.needsDisplay(grace: displayGrace)
+        // An armed closed session holds the display whole: agents started
+        // from another device after the close still need a usable screen.
+        let holdDisplay = engine.isArmed
+            && (engine.closedSince != nil || agents.needsDisplay(grace: displayGrace))
         if holdDisplay && !displayAsserted {
             var id = IOPMAssertionID(0)
             let result = IOPMAssertionCreateWithName(
@@ -696,6 +699,7 @@ final class ComponentEngine {
                 displayAssertion = id
                 displayAsserted = true
                 Diagnostics.log("agent screen: display assertion held")
+                wakeDisplayForAgents()
             }
         }
         if holdDisplay { agentScreenIdleSince = nil }
@@ -703,6 +707,21 @@ final class ComponentEngine {
             agentScreenIdleSince = agentScreenIdleSince ?? Date()
             if Date().timeIntervalSince(agentScreenIdleSince!) >= releaseDelay { releaseDisplayAssertion() }
         }
+    }
+
+    /// The assertion only stops idle sleep: a display that already slept
+    /// (an armed close while no agent needed it) stays dark, and screenshots
+    /// come back black, until user activity wakes it.
+    private func wakeDisplayForAgents() {
+        var activity = IOPMAssertionID(0)
+        let result = IOPMAssertionDeclareUserActivity(
+            "Wakely: waking the screen for agents" as CFString, kIOPMUserActiveLocal, &activity)
+        guard result == kIOReturnSuccess else {
+            Diagnostics.log("agent screen: display wake failed (\(result))")
+            return
+        }
+        IOPMAssertionRelease(activity)
+        Diagnostics.log("agent screen: display woken")
     }
 
     private func releaseDisplayAssertion() {
