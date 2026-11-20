@@ -3,6 +3,7 @@
 // Entry point. Accessory (menu bar only) app, no dock icon, no windows until asked.
 
 import AppKit
+import ServiceManagement
 import SwiftUI
 import ApplicationServices
 
@@ -17,6 +18,19 @@ if CommandLine.arguments.contains("--install-agent") {
     print("agent_installed: \(ok)")
     print("agent_loaded: \(ManualAgentInstaller.isLoaded())")
     print("watchdog: \(ManualAgentInstaller.installedWatchdogURL().path)")
+    exit(0)
+}
+
+// Remove every Login Items & Extensions record Wakely registered (helper
+// daemon, watchdog agent, login item). Only the app's own identity can
+// unregister them, so the uninstall watcher runs the trashed copy with this.
+if CommandLine.arguments.contains("--unregister-services") {
+    for (name, service) in [("helper", SMAppService.daemon(plistName: HelperService.daemonPlistName)),
+                            ("agent", SMAppService.agent(plistName: HelperService.agentPlistName)),
+                            ("login item", SMAppService.mainApp)] {
+        do { try service.unregister(); print("\(name): unregistered") }
+        catch { print("\(name): \(error.localizedDescription)") }
+    }
     exit(0)
 }
 

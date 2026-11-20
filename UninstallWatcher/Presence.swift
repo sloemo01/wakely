@@ -91,10 +91,15 @@ enum WakelyPresence {
     /// every byte, and so does emptying the Trash before the wipe ran — the
     /// safe direction.
     static func trashContainsApp(homeDirectory: URL) -> Bool {
+        trashedAppURL(homeDirectory: homeDirectory) != nil
+    }
+
+    /// The trashed Wakely bundle, if one is in the user's Trash.
+    static func trashedAppURL(homeDirectory: URL) -> URL? {
         let trash = homeDirectory.appendingPathComponent(".Trash", isDirectory: true)
         guard let entries = try? FileManager.default.contentsOfDirectory(
-            at: trash, includingPropertiesForKeys: nil) else { return false }
-        return entries.contains { url in
+            at: trash, includingPropertiesForKeys: nil) else { return nil }
+        return entries.first { url in
             guard url.pathExtension == "app" else { return false }
             if url.lastPathComponent == "Wakely.app" { return true }
             guard let plist = try? Data(contentsOf: url.appendingPathComponent("Contents/Info.plist")),
