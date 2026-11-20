@@ -50,6 +50,8 @@ final class PowerEngine {
     private var lidAngleHealth = LidAngleSensorHealth()
     private(set) var armedAt: Date?
     private(set) var closedSince: Date?
+    private var agentScreenLockTimer = AgentScreenLockTimer()
+    var agentScreenLockExpired: Bool { agentScreenLockTimer.expired }
     private(set) var armSource: String = "you"
     private(set) var lastEndReason: String?
     private(set) var thermalBlocked = false
@@ -840,6 +842,10 @@ final class PowerEngine {
     /// screen)", then "pmset displaysleepnow completed"). "Needs them"
     /// is the tool-qualified policy, not any busy agent.
     private func sleepDisplaysUnlessAgentsNeedThem() {
+        sleepDisplays(force: false)
+    }
+
+    private func sleepDisplays(force: Bool) {
         // Same tool-qualified decision as Agent Screen: a working agent alone
         // is not enough; its last tool call must be screen/browser work.
         // The grace is the same value Agent Screen exposes as "Display off after".
@@ -847,11 +853,11 @@ final class PowerEngine {
         let grace = TimeInterval(min(60, max(1, screenMinutes)) * 60)
         let agentsNeedScreen = ComponentEngine.shared.isEnabled("agentScreen")
             && AgentMonitor.shared.needsDisplay(grace: grace)
-        if agentsNeedScreen {
+        if !force && agentsNeedScreen {
             Diagnostics.log("agent screen auto: close keeps the displays for agents")
             return
         }
-        Diagnostics.log("agent screen auto: close sleeps the displays (no agent needs the screen)")
+        Diagnostics.log(force ? "agent screen: lock timer sleeps the displays" : "agent screen auto: close sleeps the displays (no agent needs the screen)")
         // Neither process launch nor waiting may block lid polling, safety checks
         // or the power-notification acknowledgement deadline on the main actor.
         DispatchQueue.global(qos: .utility).async {
@@ -897,6 +903,7 @@ final class PowerEngine {
         guard closedSince != nil else { return }
         let seconds = Date().timeIntervalSince(closedSince!)
         closedSince = nil
+        agentScreenLockTimer = AgentScreenLockTimer()
         if restoreBrightness { restoreDisplay() }
         Diagnostics.log("closed-lid session ended after \(Int(seconds))s")
         onStateChange?()
@@ -913,6 +920,16 @@ final class PowerEngine {
     private var lastPowerSourceWasBattery: Bool?
 
     private func checkSafety() {
+        if agentScreenLockTimer.expireIfNeeded(
+            closedSince: closedSince,
+            enabled: isArmed && ComponentEngine.shared.isEnabled("agentScreen"),
+            now: Date(),
+            storedMinutes: UserDefaults.standard.object(forKey: "agentScreen.lockAfterMinutes") as? Int) {
+            Diagnostics.log("agent screen: closed-lid lock timer expired")
+            ComponentEngine.shared.releaseAgentScreenForLock()
+            requestLockScreen()
+            sleepDisplays(force: true)
+        }
         // Power-source changes clear the root-domain flag on some systems; it is
         // re-applied ("re-applied lid-close flag after power-source change").
         // Sampled here rather than on the 0.2 s lid timer.

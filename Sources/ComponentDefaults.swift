@@ -32,7 +32,7 @@ enum ComponentDefaults {
         case "finishJobsThenSleep":
             return ["finishJobsThenSleep.waitMinutes": 2,
                     "finishJobsThenSleep.maxHours": 8]
-        case "agentScreen": return ["agentScreen.minutes": 2]
+        case "agentScreen": return ["agentScreen.minutes": 2, "agentScreen.lockAfterMinutes": 720]
         case "agentNotifications":
             return ["agentNotifications.sound": true,
                     "agentNotifications.waiting": true,

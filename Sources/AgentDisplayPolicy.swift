@@ -15,6 +15,28 @@
 
 import Foundation
 
+struct AgentScreenLockTimer {
+    static let defaultMinutes = 720
+    private(set) var expired = false
+
+    static func clampedMinutes(_ stored: Int?) -> Int {
+        min(2880, max(15, stored ?? defaultMinutes))
+    }
+
+    mutating func expireIfNeeded(closedSince: Date?, enabled: Bool, now: Date,
+                                storedMinutes: Int?) -> Bool {
+        guard let closedSince else {
+            expired = false
+            return false
+        }
+        guard enabled, !expired,
+              now.timeIntervalSince(closedSince) >= TimeInterval(Self.clampedMinutes(storedMinutes) * 60)
+        else { return false }
+        expired = true
+        return true
+    }
+}
+
 /// OSS classification of a tool call in terms of what it needs from the
 /// display. The earlier implementation exposes a five-value `DisplayToolKind`; this
 /// OSS model deliberately collapses it to three buckets so that terminal-only
