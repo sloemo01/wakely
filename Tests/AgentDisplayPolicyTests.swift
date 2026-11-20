@@ -13,6 +13,30 @@ struct AgentDisplayPolicyTests {
         guard condition() else { fatalError("FAIL: \(name)") }
     }
 
+    private static func lockTimerChecks() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        expect(AgentScreenLockTimer.clampedMinutes(nil) == 720, "missing lock duration defaults to 12 hours")
+        expect(AgentScreenLockTimer.clampedMinutes(Int.min) == 15, "lock duration clamps low values")
+        expect(AgentScreenLockTimer.clampedMinutes(Int.max) == 2880, "lock duration clamps high values")
+        expect(AgentScreenLockTimer.clampedMinutes(45) == 45, "valid lock duration is unchanged")
+        var timer = AgentScreenLockTimer()
+        expect(!timer.expireIfNeeded(closedSince: nil, enabled: true, now: now, storedMinutes: 15), "no session does not expire")
+        let start = now.addingTimeInterval(-900)
+        expect(!timer.expireIfNeeded(closedSince: start, enabled: false, now: now, storedMinutes: 15), "disabled Agent Screen does not expire")
+        expect(!timer.expireIfNeeded(closedSince: start, enabled: true, now: now.addingTimeInterval(-1), storedMinutes: 15), "before deadline does not expire")
+        expect(timer.expireIfNeeded(closedSince: start, enabled: true, now: now, storedMinutes: 15), "exact deadline expires")
+        expect(timer.expired, "deadline latches assertion suppression")
+        expect(!timer.expireIfNeeded(closedSince: start, enabled: true, now: now.addingTimeInterval(1), storedMinutes: 2880), "duration changes cannot refire or undo expiration")
+        expect(timer.expired, "expired session remains suppressed")
+        expect(!timer.expireIfNeeded(closedSince: nil, enabled: true, now: now, storedMinutes: 15), "opening resets without firing")
+        expect(!timer.expired, "opening clears assertion suppression")
+        expect(timer.expireIfNeeded(closedSince: start, enabled: true, now: now, storedMinutes: -1), "new session can expire with clamped duration")
+        timer = AgentScreenLockTimer()
+        expect(!timer.expireIfNeeded(closedSince: now.addingTimeInterval(60), enabled: true, now: now, storedMinutes: 15), "future session timestamp does not expire")
+        expect(!timer.expireIfNeeded(closedSince: now.addingTimeInterval(-43199), enabled: true, now: now, storedMinutes: nil), "default duration waits 12 hours")
+        expect(timer.expireIfNeeded(closedSince: now.addingTimeInterval(-43200), enabled: true, now: now, storedMinutes: nil), "default expires at 12 hours")
+    }
+
     private static func thread(id: String = "same",
                                state: AgentTaskState,
                                tool: String? = nil,
@@ -28,6 +52,7 @@ struct AgentDisplayPolicyTests {
     }
 
     static func main() {
+        lockTimerChecks()
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         expect(AgentDisplayPolicy.defaultSelectedKinds == [.screen, .browser],
                "OSS default selected kinds are screen and browser")

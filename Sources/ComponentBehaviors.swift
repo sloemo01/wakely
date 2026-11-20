@@ -673,6 +673,10 @@ final class ComponentEngine {
     }
 
     private func agentScreen(agents: AgentMonitor, engine: PowerEngine) {
+        guard !engine.agentScreenLockExpired else {
+            releaseDisplayAssertion()
+            return
+        }
         // OSS policy: hold the display only for an explicitly working thread
         // whose last tool call is screen/browser work, active or completed
         // within the grace below. General "busy", waiting, unknown work, and
@@ -722,6 +726,10 @@ final class ComponentEngine {
         }
         IOPMAssertionRelease(activity)
         Diagnostics.log("agent screen: display woken")
+    }
+
+    func releaseAgentScreenForLock() {
+        releaseDisplayAssertion()
     }
 
     private func releaseDisplayAssertion() {

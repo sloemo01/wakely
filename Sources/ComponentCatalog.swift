@@ -33,7 +33,7 @@ enum ComponentCatalog {
         // MARK: Agents
         ComponentDefinition(id: "agentScreen", name: "Agent Screen",
             tagline: "Agents can use the screen with the lid closed.",
-            detail: "Keeps the built-in display awake while an agent is working, so computer-use agents and screenshots still have a screen with the lid shut. While it is on, closing the lid on an armed Mac does not lock it, so agents see your desktop rather than the lock screen. Turns the display off {value} after they stop.",
+            detail: "Keeps the built-in display awake while an agent is working, so computer-use agents and screenshots still have a screen with the lid shut. Closing the lid on an armed Mac initially leaves it unlocked, so agents see your desktop rather than the lock screen. With the lid open, turns the display off {value} after they stop. With the lid closed, the display turns off and your Mac locks after {lockAfter}.",
             category: .agents, icon: "agentScreen", needsHelper: false),
         ComponentDefinition(id: "agentStatus", name: "Agent Status",
             tagline: "See what your agents are doing from the menu bar.",

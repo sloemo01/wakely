@@ -1241,6 +1241,9 @@ struct ComponentTunable {
     /// own setting, so one component can carry several independent values.
     static func forToken(_ token: String, componentID: String) -> ComponentTunable? {
         switch (componentID, token) {
+        case ("agentScreen", "{lockAfter}"):
+            return ComponentTunable(key: "agentScreen.lockAfterMinutes", label: "Lock after", fallback: 720,
+                                    range: 15...2880, step: 15, style: .minutes)
         case ("finishWorkThenSleep", "{hours}"):
             return ComponentTunable(key: "finishWorkThenSleep.maxHours", label: "Longest stretch", fallback: 12,
                                     range: 1...24, step: 1, style: .hours)
@@ -1379,7 +1382,7 @@ private struct ComponentDetailContent: View {
     /// Every inline control this component's sentence can carry.
     private var inlineChips: [String: AnyView]? {
         var chips: [String: AnyView] = [:]
-        for token in ["{value}", "{hours}"] where component.detail.contains(token) {
+        for token in ["{value}", "{hours}", "{lockAfter}"] where component.detail.contains(token) {
             guard let tunable = ComponentTunable.forToken(token, componentID: component.id) else { continue }
             chips[token] = AnyView(
                 InlineValueChip(value: tunable.binding,
@@ -1988,7 +1991,7 @@ struct ComponentOptions: View {
                 Text("Counts downloads, exports and backups; other apps' jobs are not waited for.")
                     .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "agentScreen":
-                Text("The display stays black but on while an agent uses it. An armed lid close does not lock your Mac while this is on.")
+                Text("The display stays black but usable for agents until the closed-lid lock timer expires. It then turns off and your Mac locks, even if an agent still needs the screen.")
                     .font(ClamType.body(11.5)).foregroundStyle(Theme.textSecondary)
             case "agentNotifications":
                 VStack(alignment: .leading, spacing: 8) {
