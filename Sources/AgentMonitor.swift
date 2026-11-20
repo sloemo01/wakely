@@ -272,7 +272,8 @@ enum AgentBackgroundScanner {
             }
             if !process.isApp, let read = AgentAppSessionState.cli(provider: process.provider, home: home, since: process.startedAt,
                                                                     pids: [process.pid] + (children[process.pid] ?? []),
-                                                                    runningShell: runsShell(process.pid)) {
+                                                                    // Qwen runs a tool's command as its own direct child, not via a shell.
+                                                                    runningShell: runsShell(process.pid) || !(children[process.pid] ?? []).isEmpty) {
                 state = read
             }
             // An app's own startup (sign-in, indexing, updates) is not agent work.
