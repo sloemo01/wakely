@@ -98,9 +98,10 @@ enum AgentAppSessionState {
         let size = (try? handle.seekToEnd()) ?? 0
         let offset = size > UInt64(bytes) ? size - UInt64(bytes) : 0
         try? handle.seek(toOffset: offset)
-        guard let data = try? handle.readToEnd(), var text = String(data: data, encoding: .utf8) else { return nil }
-        if offset > 0, let newline = text.firstIndex(of: "\n") { text = String(text[text.index(after: newline)...]) }
-        return text
+        guard var data = try? handle.readToEnd() else { return nil }
+        // Cut the partial first line as bytes: the offset may split a UTF-8 character.
+        if offset > 0, let newline = data.firstIndex(of: UInt8(ascii: "\n")) { data = data[data.index(after: newline)...] }
+        return String(data: data, encoding: .utf8)
     }
 
     // MARK: Hermes
