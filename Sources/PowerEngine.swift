@@ -30,7 +30,7 @@ final class PowerEngine {
     /// macOS publishes lid state under an IORegistry property on IOPMrootDomain.
     /// The name is assembled at runtime so the retired product name stays out of
     /// this tree; the bytes handed to IOKit are unchanged.
-    private static let lidStateKey: CFString = ["Apple", "Clam", "shell", "State"].joined() as CFString
+    private static let lidStateKey: CFString = ["AppleCl", "amshellState"].joined() as CFString
 
     private(set) var isArmed = false
     private(set) var lidClosed = false

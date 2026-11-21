@@ -64,7 +64,7 @@ assert "VGrid(spacing: 12)" in ui
 # General and About share Components' title-plus-secondary-subtitle hierarchy.
 assert '"Set up appearance, startup, safety and helper access."' in ui
 assert '"What Wakely does, where it comes from, and its licence."' in ui
-assert "if let paneSubtitle" in ui and ".font(ClamType.body(13))" in ui
+assert "if let paneSubtitle" in ui and ".font(WakelyType.body(13))" in ui
 
 # Existing alpha geometry is untouched by recolouring.
 base = sorted((root / "Resources/Sprites").glob("*.png"))

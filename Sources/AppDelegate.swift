@@ -32,9 +32,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         AppAppearance.shared.apply()
         // Register the bundled OFL pixel faces before any window renders text.
         // If this ever fails, Font.custom falls back to the system face.
-        _ = ClamType.registerBundledFonts()
+        _ = WakelyType.registerBundledFonts()
         if ProcessInfo.processInfo.environment["WAKELY_FONT_DIAGNOSTICS"] == "1" {
-            print("fonts: \(ClamType.resolvedFontSummary())")
+            print("fonts: \(WakelyType.resolvedFontSummary())")
         }
         // Publish this instance before anything can arm: the watchdog needs a
         // PID plus kernel start time to tell this process from a later PID reuse.
@@ -421,13 +421,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 private struct AboutWindowView: View {
     var body: some View {
         VStack(spacing: 10) {
-            Text("Wakely").font(ClamType.display(19))
-            Text("Version \(AppVersion.current)").font(ClamType.body(12)).foregroundStyle(.secondary)
+            Text("Wakely").font(WakelyType.display(19))
+            Text("Version \(AppVersion.current)").font(WakelyType.body(12)).foregroundStyle(.secondary)
             Text("Open source. No license, no trial.")
-                .font(ClamType.body(13))
+                .font(WakelyType.body(13))
                 .foregroundStyle(.secondary)
         }
-        .environment(\.font, ClamType.body(13))
+        .environment(\.font, WakelyType.body(13))
         .padding(28)
         .frame(width: 300)
     }

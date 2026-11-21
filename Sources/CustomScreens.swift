@@ -306,7 +306,7 @@ final class CustomScreenStore: ObservableObject {
           editing. Inventory every working feature, data source, action, setting,
           permission flow, persistence key, refresh path and error/empty state.
         - If the Wakely checkout is available, READ Sources/Typography.swift,
-          Sources/PixelUI.swift, Theme + ComponentCard + ClamSwitch + GeneralPane
+          Sources/PixelUI.swift, Theme + ComponentCard + WakelySwitch + GeneralPane
           in Sources/SettingsUI.swift, and Sources/CustomScreenUI.swift. Inspect
           Sources/AppAppearance.swift and Sources/GlassSurfacePolicy.swift for
           appearance/material behavior if available. Do not infer the design from
@@ -317,8 +317,8 @@ final class CustomScreenStore: ObservableObject {
           and use the self-contained recipes here; do not claim you inspected it.
 
         Wakely visual contract (implement locally in Screen.swift):
-        - Plugins cannot import Wakely's internal ClamType, Theme, PixelShape,
-          PixelButtonStyle, ClamSwitch or EdgeScrollView. Define private equivalents;
+        - Plugins cannot import Wakely's internal WakelyType, Theme, PixelShape,
+          PixelButtonStyle, WakelySwitch or EdgeScrollView. Define private equivalents;
           do not reference those internal symbols or link against app sources.
         - ALL text uses Pixel Operator, already registered by the host. Geist is a
           legacy bundled font, NOT the active UI. No system-font body/live content.

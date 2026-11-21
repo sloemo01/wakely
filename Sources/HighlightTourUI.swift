@@ -187,18 +187,18 @@ struct HighlightTourCoach: View {
         VStack(alignment: .leading, spacing: compact ? 8 : 10) {
             HStack {
                 Text("TOUR · \(guide.displayedStep) OF \(guide.displayedStepCount)")
-                    .font(ClamType.label(9)).foregroundStyle(Theme.textTertiary)
+                    .font(WakelyType.label(9)).foregroundStyle(Theme.textTertiary)
                 Spacer(minLength: 8)
                 Button("Skip") { guide.dismiss() }
-                    .buttonStyle(.plain).font(ClamType.body(11.5))
+                    .buttonStyle(.plain).font(WakelyType.body(11.5))
                     .foregroundStyle(Theme.textSecondary)
                     .accessibilityLabel("Skip tour and keep your place")
             }
-            Text(step.title).font(ClamType.name(compact ? 15 : 17))
+            Text(step.title).font(WakelyType.name(compact ? 15 : 17))
                 .accessibilityAddTraits(.isHeader).accessibilityFocused($headingFocused)
                 .fixedSize(horizontal: false, vertical: true)
             ScrollView {
-                Text(explanation).font(ClamType.body(compact ? 11.5 : 12.5))
+                Text(explanation).font(WakelyType.body(compact ? 11.5 : 12.5))
                     .foregroundStyle(Theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -209,7 +209,7 @@ struct HighlightTourCoach: View {
 
             if (step == .addComponent || step == .addScreen), !guide.creationPreviewOpened {
                 Button("Show the form") { HighlightTourNavigation.shared.previewCreation() }
-                    .font(ClamType.body(11.5))
+                    .font(WakelyType.body(11.5))
             }
             HStack(spacing: 8) {
                 Button("Back") { guide.previous() }.disabled(guide.progress.step == 0)
@@ -229,7 +229,7 @@ struct HighlightTourCoach: View {
         .overlay(PixelShape(cut: 4).strokeBorder(Theme.gold.opacity(0.75), lineWidth: 1))
         .foregroundStyle(Theme.ink)
         .buttonStyle(PixelButtonStyle())
-        .environment(\.font, ClamType.body(12))
+        .environment(\.font, WakelyType.body(12))
         .onAppear {
             headingFocused = true
             if step != .optionEditor { primaryFocused = true }
