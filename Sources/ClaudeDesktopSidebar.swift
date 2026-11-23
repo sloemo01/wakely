@@ -27,7 +27,8 @@ enum ClaudeDesktopSidebar {
     /// A session button's text children: its title first, then status and
     /// location labels.
     static func row(texts: [String]) -> Row? {
-        let cloud = texts.dropFirst().contains { $0.trimmingCharacters(in: .whitespaces).lowercased() == "cloud" }
+        // The location label comes last on a sidebar row.
+        let cloud = texts.count > 1 && texts.last?.trimmingCharacters(in: .whitespaces).lowercased() == "cloud"
         // The open session's banner ("Waiting", title, "Asked a question") leads
         // with a status and never says "Cloud"; it repeats a sidebar row, so it is skipped.
         guard let title = texts.first?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty,

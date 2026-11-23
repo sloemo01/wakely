@@ -68,6 +68,8 @@ struct AgentTaskStateTests {
                "the open session's banner is not a second row")
         expect(ClaudeDesktopSidebar.row(texts: ["Thinking", "Awaiting input", "Cloud"])?.state == .waiting,
                "a cloud session titled with a status word is still read")
+        expect(ClaudeDesktopSidebar.row(texts: ["Waiting", "Cloud", "Asked a question"]) == nil,
+               "the banner of a session titled Cloud is not a row")
         let local = ClaudeDesktopSidebar.row(texts: ["Sleep test", "Running"])
         expect(local?.cloud == false, "a local session is not a cloud session")
         var covered = AgentThread(id: "claude-1", provider: "Claude", pid: 9, state: .idle, displayName: "Sleep test")
