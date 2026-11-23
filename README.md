@@ -27,12 +27,38 @@ while the screen is dark.
 </div>
 
 <p align="center">
-<a href="docs/wakely-launch.mp4"><img src="docs/wakely-launch.jpg" width="88%" alt="Wakely launch video: Claude Code working in Agent Status from the menu bar"></a>
+<a href="docs/wakely-launch.mp4"><img src="docs/wakely-launch.gif" width="88%" alt="Wakely launch video: arming Wakely, Claude Code working in Agent Status, and the Components grid"></a>
 </p>
 
 <p align="center">
-<sub><b>Watch the launch video.</b> Arm from the menu bar, hand Claude Code a task, and Agent Status follows it while the lid is closed.</sub>
+<sub><b>Click for the full-quality video.</b> Arm from the menu bar, hand Claude Code a task, and Agent Status follows it while the lid is closed.</sub>
 </p>
+
+## Install
+
+Paste this into Terminal:
+
+```bash
+curl -fsSL https://wake-ly.app/install.sh | bash
+```
+
+It checks for Apple silicon and macOS 14 or later, downloads the signed disk
+image, checks that it is signed by the Wakely team, quits any running copy, installs
+**Wakely.app** into **Applications** and opens it.
+
+To install by hand instead:
+
+1. Quit any running copy of Wakely.
+2. Drag **Wakely.app** into **Applications**, or copy `build/Wakely.app` there
+   for a local build.
+3. Keep one installed copy with a stable signing identity.
+4. Enable only the components you need. Wakely asks for Accessibility, Location,
+   notifications or helper access at the point a component needs it.
+
+Accessibility is required for Cleaning Lock. Wi-Fi detection needs Location. Components that change protected
+system settings share one helper installation, available from
+**General → Privileged Helper**. Basic awake assertions need none of these
+grants.
 
 Wakely holds two macOS power assertions, darkens the built-in display on lid
 close, and keeps the framebuffer live. Opening the lid or disarming ends the
@@ -107,32 +133,6 @@ xcrun stapler staple dist/Wakely-2.0.1.dmg
 ```
 
 Test the notarized image on a clean macOS account before publishing it.
-
-## Install
-
-Paste this into Terminal:
-
-```bash
-curl -fsSL https://wake-ly.app/install.sh | bash
-```
-
-It checks for Apple silicon and macOS 14 or later, downloads the signed disk
-image, verifies its signature, quits any running copy, installs
-**Wakely.app** into **Applications** and opens it.
-
-To install by hand instead:
-
-1. Quit any running copy of Wakely.
-2. Drag **Wakely.app** into **Applications**, or copy `build/Wakely.app` there
-   for a local build.
-3. Keep one installed copy with a stable signing identity.
-4. Enable only the components you need. Wakely asks for Accessibility, Location,
-   notifications or helper access at the point a component needs it.
-
-Accessibility is required for Cleaning Lock. Wi-Fi detection needs Location. Components that change protected
-system settings share one helper installation, available from
-**General → Privileged Helper**. Basic awake assertions need none of these
-grants.
 
 ## Use
 
