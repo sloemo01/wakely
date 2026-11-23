@@ -110,6 +110,18 @@ Test the notarized image on a clean macOS account before publishing it.
 
 ## Install
 
+Paste this into Terminal:
+
+```bash
+curl -fsSL https://wake-ly.app/install.sh | bash
+```
+
+It checks for Apple silicon and macOS 14 or later, downloads the signed disk
+image, verifies its signature, quits any running copy, installs
+**Wakely.app** into **Applications** and opens it.
+
+To install by hand instead:
+
 1. Quit any running copy of Wakely.
 2. Drag **Wakely.app** into **Applications**, or copy `build/Wakely.app` there
    for a local build.
