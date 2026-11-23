@@ -112,10 +112,10 @@ run component-store "${SWIFTC[@]}" -framework AppKit Sources/ComponentValidator.
 run component-kit-launcher "${SWIFTC[@]}" Sources/ComponentKitLauncher.swift Tests/ComponentKitLauncherTests.swift -o build/tests/component-kit-launcher
 [[ -x build/tests/component-kit-launcher ]] && run component-kit-launcher-run build/tests/component-kit-launcher
 
-run agent-state "${SWIFTC[@]}" Sources/AgentTaskState.swift Sources/AgentMonitor.swift Sources/AgentAppSessionState.swift Tests/AgentTaskStateTests.swift -o build/tests/agent-state
+run agent-state "${SWIFTC[@]}" Sources/AgentTaskState.swift Sources/AgentMonitor.swift Sources/ClaudeDesktopSidebar.swift Sources/AgentAppSessionState.swift Tests/AgentTaskStateTests.swift -o build/tests/agent-state
 [[ -x build/tests/agent-state ]] && run agent-state-run build/tests/agent-state
 
-run agent-display-policy "${SWIFTC[@]}" Sources/AgentTaskState.swift Sources/AgentMonitor.swift Sources/AgentAppSessionState.swift Sources/AgentDisplayPolicy.swift Tests/AgentDisplayPolicyTests.swift -o build/tests/agent-display-policy
+run agent-display-policy "${SWIFTC[@]}" Sources/AgentTaskState.swift Sources/AgentMonitor.swift Sources/ClaudeDesktopSidebar.swift Sources/AgentAppSessionState.swift Sources/AgentDisplayPolicy.swift Tests/AgentDisplayPolicyTests.swift -o build/tests/agent-display-policy
 [[ -x build/tests/agent-display-policy ]] && run agent-display-policy-run build/tests/agent-display-policy
 
 run custom-screens "${SWIFTC[@]}" Sources/SupportPaths.swift Sources/CustomScreens.swift Tests/CustomScreensTests.swift -o build/tests/custom-screens

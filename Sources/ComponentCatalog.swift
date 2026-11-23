@@ -37,7 +37,7 @@ enum ComponentCatalog {
             category: .agents, icon: "agentScreen", needsHelper: false),
         ComponentDefinition(id: "agentStatus", name: "Agent Status",
             tagline: "See what your agents are doing from the menu bar.",
-            detail: "A menu bar row shows how many Claude Code and Codex agents are working or waiting on you. Open it to see each one by name, and click one to bring its app forward. Nothing in your agents is set up or changed.",
+            detail: "A menu bar row shows how many Claude Code and Codex agents are working or waiting on you. Open it to see each one by name, and click one to bring its app forward. With Accessibility access, the Claude app's Code tab sessions show up too, local and cloud. Nothing in your agents is set up or changed.",
             category: .agents, icon: "agentStatus", needsHelper: false),
         ComponentDefinition(id: "finishWorkThenSleep", name: "Finish Work, Then Sleep",
             tagline: "Let your agents finish, then let your Mac sleep.",

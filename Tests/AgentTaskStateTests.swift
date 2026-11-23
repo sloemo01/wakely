@@ -54,8 +54,42 @@ struct AgentTaskStateTests {
         return AgentTaskAdapter.snapshot(provider: "Claude Code", header: data, tail: data, tailStartsMidLine: false)
     }
 
+    private static func claudeDesktopSidebar() {
+        let waiting = ClaudeDesktopSidebar.row(texts: ["Swift compilation", "Awaiting input", "Cloud"])
+        expect(waiting == ClaudeDesktopSidebar.Row(title: "Swift compilation", state: .waiting, cloud: true),
+               "a cloud session awaiting input is waiting")
+        expect(ClaudeDesktopSidebar.row(texts: ["Fix tests", "Running", "Cloud"])?.state == .working, "a running session is working")
+        expect(ClaudeDesktopSidebar.row(texts: ["Fix tests", "Needs approval", "Cloud"])?.state == .waiting, "an approval prompt is waiting")
+        expect(ClaudeDesktopSidebar.row(texts: ["Attribution toggle", "Cloud"]) == nil, "a session without a status is not shown")
+        expect(ClaudeDesktopSidebar.row(texts: ["New"]) == nil, "navigation buttons are ignored")
+        expect(ClaudeDesktopSidebar.row(texts: ["Fix tests", "Archived", "Cloud"]) == nil, "an unknown status stays unshown")
+        expect(ClaudeDesktopSidebar.row(texts: ["", "Running"]) == nil, "an untitled row is ignored")
+        expect(ClaudeDesktopSidebar.row(texts: ["Waiting", "Swift compilation", "Asked a question"]) == nil,
+               "the open session's banner is not a second row")
+        expect(ClaudeDesktopSidebar.row(texts: ["Thinking", "Awaiting input", "Cloud"])?.state == .waiting,
+               "a cloud session titled with a status word is still read")
+        expect(ClaudeDesktopSidebar.row(texts: ["Waiting", "Cloud", "Asked a question"]) == nil,
+               "the banner of a session titled Cloud is not a row")
+        let local = ClaudeDesktopSidebar.row(texts: ["Sleep test", "Running"])
+        expect(local?.cloud == false, "a local session is not a cloud session")
+        var covered = AgentThread(id: "claude-1", provider: "Claude", pid: 9, state: .idle, displayName: "Sleep test")
+        covered.isApp = true
+        let cli = AgentThread(id: "cc-1", provider: "Claude Code", pid: 11, state: .idle, displayName: "Swift compilation")
+        let merged = ClaudeDesktopSidebar.merge([waiting!, local!, ClaudeDesktopSidebar.Row(title: "Swift compilation", state: .working, cloud: true)],
+                                               into: [covered, cli], pid: 7)
+        expect(merged.count == 4, "each sidebar session is listed once")
+        expect(merged.first { $0.id == "claude-1" }?.state == .working, "a local session the registry calls idle takes the sidebar's Running")
+        expect(merged.first { $0.id == "cc-1" }?.state == .idle, "a terminal Claude Code session is left alone")
+        let cloud = merged.first { $0.id == "claude-desktop-Swift compilation" }
+        expect(cloud?.state == .waiting && cloud?.isApp == true && cloud?.provider == "Claude" && cloud?.pid == 7,
+               "a cloud session becomes its own Claude app row")
+        let twins = ClaudeDesktopSidebar.merge([waiting!, waiting!, local!], into: [covered], pid: 7)
+        expect(twins.count == 3 && Set(twins.map(\.id)).count == 3, "sessions sharing a title each keep a row")
+    }
+
     static func main() throws {
         try claudeLiveSessions()
+        claudeDesktopSidebar()
         expect(codex([]).state == .unknown, "process/session metadata alone is unknown")
         expect(codex(["task_started"]).state == .working, "Codex task started")
         expect(codex(["task_started", "task_complete"]).state == .idle, "Codex task completion")
