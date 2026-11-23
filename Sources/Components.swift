@@ -341,15 +341,11 @@ final class ComponentStore: ObservableObject {
         let installedVersion = (try? String(contentsOf: versionFile, encoding: .utf8))?
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        if installedVersion == ComponentKitLauncher.kitVersion {
-            seedStarterComponents()
-            return
-        }
+        if installedVersion == ComponentKitLauncher.kitVersion { return }
 
         guard let source = Bundle.main.resourceURL?.appendingPathComponent("ComponentsKit", isDirectory: true),
               fm.fileExists(atPath: source.path) else {
             Diagnostics.log("component kit not refreshed: ComponentsKit is missing from the app bundle")
-            seedStarterComponents()
             return
         }
 
@@ -359,7 +355,6 @@ final class ComponentStore: ObservableObject {
         let sourceSDK = source.appendingPathComponent("sdk", isDirectory: true)
         guard fm.fileExists(atPath: sourceSDK.path) else {
             Diagnostics.log("component kit sdk not refreshed: sdk is missing from the app bundle")
-            seedStarterComponents()
             return
         }
 
@@ -384,13 +379,11 @@ final class ComponentStore: ObservableObject {
             }
             try? fm.removeItem(at: previous)
             Diagnostics.log("component kit sdk refresh failed: \(error.localizedDescription)")
-            seedStarterComponents()
             return
         }
         try? fm.removeItem(at: previous)
 
         guard installComponentToolLauncher(in: sdk) else {
-            seedStarterComponents()
             return
         }
 
@@ -398,7 +391,6 @@ final class ComponentStore: ObservableObject {
             // Leave the version unrecorded so the next launch retries, as with a
             // failed sdk or launcher refresh.
             Diagnostics.log("component kit documents not refreshed; the kit version stays at \(installedVersion ?? "unrecorded")")
-            seedStarterComponents()
             return
         }
 
@@ -410,7 +402,6 @@ final class ComponentStore: ObservableObject {
             Diagnostics.log("component kit version file write failed: \(error.localizedDescription)")
         }
 
-        seedStarterComponents()
     }
 
     /// Refresh the kit's three documents from the app bundle on a version change.
@@ -498,23 +489,6 @@ final class ComponentStore: ObservableObject {
             Diagnostics.log("component tool launcher installed")
         }
         return true
-    }
-
-    /// Starter components that ship inside the app, copied in once.
-    private func seedStarterComponents() {
-        // A user who removes the starter examples should not have them copied
-        // back on every launch. The marker is intentionally local to this kit.
-        let marker = supportDirectory.appendingPathComponent("Components/.starter-components-disabled")
-        if FileManager.default.fileExists(atPath: marker.path) { return }
-        guard let source = Bundle.main.resourceURL?
-            .appendingPathComponent("SeedComponents", isDirectory: true) else { return }
-        let entries = (try? FileManager.default.contentsOfDirectory(at: source, includingPropertiesForKeys: nil)) ?? []
-        for folder in entries where folder.hasDirectoryPath {
-            let destination = componentsDirectory.appendingPathComponent(folder.lastPathComponent)
-            if FileManager.default.fileExists(atPath: destination.path) { continue }
-            try? FileManager.default.copyItem(at: folder, to: destination)
-            Diagnostics.log("seeded component \(folder.lastPathComponent)")
-        }
     }
 }
 
