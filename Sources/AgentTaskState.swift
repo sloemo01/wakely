@@ -151,7 +151,7 @@ struct AgentProcessDescriptor: Equatable, Sendable {
     ]
 
     static var processOnlyProviderNames: Set<String> {
-        Set(processOnlyProviders.values).union(desktopAppProviders.values)
+        Set(processOnlyProviders.values).union(desktopAppProviders.values).subtracting(["Claude"])
     }
 
     static func provider(executable: String, arguments: [String]) -> String? {
@@ -198,7 +198,7 @@ struct AgentProcessDescriptor: Equatable, Sendable {
         return nil
     }
 
-    private static func validSessionID(_ value: String) -> Bool {
+    static func validSessionID(_ value: String) -> Bool {
         // Session IDs are identifiers, not filesystem paths, prompts, or flags.
         !value.isEmpty && value.count <= 128 && value != "latest" && value != "last"
             && !value.hasPrefix("-")
@@ -272,12 +272,12 @@ enum AgentTaskAdapter {
         // a new turn. A call that never got its result before that prompt is
         // no longer active, so it must not keep the display alive.
         if let text = message["content"] as? String, !text.isEmpty {
-            clearActiveActivity(&result)
+            result.activity = nil
             return
         }
         guard let content = message["content"] as? [[String: Any]] else { return }
         if !content.contains(where: { $0["type"] as? String == "tool_result" }) {
-            clearActiveActivity(&result)
+            result.activity = nil
             return
         }
         for block in content where block["type"] as? String == "tool_result" {
@@ -497,7 +497,7 @@ enum AgentSessionFiles {
 
     static func snapshots(home: URL, processes: [AgentProcessDescriptor]) -> [AgentSessionSnapshot] {
         var result: [AgentSessionSnapshot] = []
-        if processes.contains(where: { $0.provider == "Claude Code" || $0.provider == "Claude" }) {
+        if processes.contains(where: { $0.provider == "Claude Code" }) {
             result += read(root: home.appendingPathComponent(".claude/projects"), provider: "Claude Code", maxDepth: 1)
         }
         if processes.contains(where: { $0.provider == "Codex" || $0.provider == "Codex App" }) {
@@ -616,6 +616,47 @@ enum ClaudeSessionRegistry {
             }
         }
         return snapshot
+    }
+
+    /// Both hosts write sessions/<pid>.json. Verify the OS process start
+    /// (procStart in UTC), not startedAt, which dates the interactive session.
+    static func liveRecord(for process: AgentProcessDescriptor, roots: [URL]) -> ClaudeRegistryRecord? {
+        guard let started = process.startedAt else { return nil }
+        let keys: Set<URLResourceKey> = [.isSymbolicLinkKey, .isRegularFileKey, .isDirectoryKey, .fileSizeKey]
+        let matches: [ClaudeRegistryRecord] = roots.compactMap { root in
+            let directory = root.appendingPathComponent("sessions", isDirectory: true)
+            let file = directory.appendingPathComponent("\(process.pid).json")
+            guard [root, directory].allSatisfy({ url in
+                guard let metadata = try? url.resourceValues(forKeys: keys) else { return false }
+                return metadata.isDirectory == true && metadata.isSymbolicLink == false
+            }), let metadata = try? file.resourceValues(forKeys: keys),
+                metadata.isRegularFile == true, metadata.isSymbolicLink == false,
+                let size = metadata.fileSize, size <= lineByteLimit,
+                let handle = try? FileHandle(forReadingFrom: file) else { return nil }
+            defer { try? handle.close() }
+            guard let data = try? handle.read(upToCount: lineByteLimit + 1), data.count <= lineByteLimit,
+                  let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+                  var record = record(from: object), record.pid == process.pid, record.pidDomain == "darwin",
+                  let id = record.sessionID, AgentProcessDescriptor.validSessionID(id),
+                  let procStart = object["procStart"] as? String, procStart.count <= 32 else { return nil }
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            formatter.dateFormat = "EEE MMM d HH:mm:ss yyyy"
+            guard let recorded = formatter.date(from: procStart),
+                  abs(recorded.timeIntervalSince(started)) <= 2 else { return nil }
+            record.processStart = recorded
+            record.statusUpdatedAt = AgentTimestamps.date(object["statusUpdatedAt"])
+            return record
+        }
+        return matches.count == 1 ? matches[0] : nil
+    }
+
+    static func liveState(for record: ClaudeRegistryRecord, now: Date) -> AgentTaskState? {
+        guard let started = record.processStart, let updated = record.statusUpdatedAt,
+              updated >= started, updated <= now.addingTimeInterval(2),
+              let status = record.status else { return nil }
+        return status == .idle ? .idle : status.claimedState
     }
 
     /// Registry metadata for one process. An explicit session ID must match;
