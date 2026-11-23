@@ -54,8 +54,29 @@ struct AgentTaskStateTests {
         return AgentTaskAdapter.snapshot(provider: "Claude Code", header: data, tail: data, tailStartsMidLine: false)
     }
 
+    private static func claudeDesktopSidebar() {
+        let waiting = ClaudeDesktopSidebar.row(texts: ["Swift compilation", "Awaiting input", "Cloud"])
+        expect(waiting == ClaudeDesktopSidebar.Row(title: "Swift compilation", state: .waiting, cloud: true),
+               "a cloud session awaiting input is waiting")
+        expect(ClaudeDesktopSidebar.row(texts: ["Fix tests", "Running", "Cloud"])?.state == .working, "a running session is working")
+        expect(ClaudeDesktopSidebar.row(texts: ["Fix tests", "Needs approval", "Cloud"])?.state == .waiting, "an approval prompt is waiting")
+        expect(ClaudeDesktopSidebar.row(texts: ["Attribution toggle", "Cloud"]) == nil, "a session without a status is not shown")
+        expect(ClaudeDesktopSidebar.row(texts: ["New"]) == nil, "navigation buttons are ignored")
+        expect(ClaudeDesktopSidebar.row(texts: ["Fix tests", "Archived", "Cloud"]) == nil, "an unknown status stays unshown")
+        expect(ClaudeDesktopSidebar.row(texts: ["", "Running"]) == nil, "an untitled row is ignored")
+        let local = ClaudeDesktopSidebar.row(texts: ["Sleep test", "Running"])
+        expect(local?.cloud == false, "a local session is not a cloud session")
+        let rows = [waiting!, local!, ClaudeDesktopSidebar.Row(title: "Swift compilation", state: .working, cloud: true),
+                    ClaudeDesktopSidebar.Row(title: "Covered", state: .working, cloud: true)]
+        let threads = ClaudeDesktopSidebar.threads(rows, pid: 7, excluding: ["Covered"])
+        expect(threads.count == 1 && threads[0].state == .waiting && threads[0].isApp && threads[0].provider == "Claude"
+               && threads[0].pid == 7 && threads[0].displayName == "Swift compilation",
+               "only uncovered cloud sessions become one app row each")
+    }
+
     static func main() throws {
         try claudeLiveSessions()
+        claudeDesktopSidebar()
         expect(codex([]).state == .unknown, "process/session metadata alone is unknown")
         expect(codex(["task_started"]).state == .working, "Codex task started")
         expect(codex(["task_started", "task_complete"]).state == .idle, "Codex task completion")
