@@ -229,7 +229,7 @@ build.sh      compile, assemble and sign
 
 Thanks to [GMI Cloud](https://www.gmicloud.ai) for the credits with which I was
 able to make this software possible, and thanks to [Devin](https://devin.ai)
-for bug hunting and fixes.
+for bug hunting and fixes and a few implementations
 
 ## License
 
