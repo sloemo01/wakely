@@ -35,6 +35,8 @@ final class UpdateManager: ObservableObject {
     private static let remindInterval: TimeInterval = 24 * 3600
 
     private var autoCheckTimer: Timer?
+    /// The new bundle is on disk; only a restart is left, so never offer it again.
+    private var installedPendingRestart = false
 
     @Published private(set) var status: UpdateStatus = .idle
     @Published var automaticChecks: Bool {
@@ -60,14 +62,13 @@ final class UpdateManager: ObservableObject {
     }
 
     private func automaticCheck() {
-        guard automaticChecks, !installing, status != .checking else { return }
-        if case .available = status, let release = availableRelease {
-            promptIfNeeded(release)
-            return
-        }
+        guard automaticChecks, !installing, !installedPendingRestart, status != .checking else { return }
         let last = UserDefaults.standard.object(forKey: Self.lastCheckKey) as? Date ?? .distantPast
-        guard Date().timeIntervalSince(last) > Self.autoCheckInterval else { return }
-        Task { await checkForUpdates(prompt: true) }
+        if Date().timeIntervalSince(last) > Self.autoCheckInterval {
+            Task { await checkForUpdates(prompt: true) }
+        } else if let release = availableRelease {
+            promptIfNeeded(release)
+        }
     }
 
     private var availableRelease: LatestRelease? {
@@ -151,9 +152,8 @@ final class UpdateManager: ObservableObject {
         if defaults.string(forKey: Self.dismissedKey) == release.version,
            let remindAfter = defaults.object(forKey: Self.remindAfterKey) as? Date,
            Date() < remindAfter { return }
-        // The alert runs modally, which pauses default-mode timers such as the
-        // safety checks, so never raise it unprompted during a session; the
-        // hourly tick asks again once the session ends.
+        // Never raise it unprompted during a session, when the user is likely
+        // away; the hourly tick asks again once the session ends.
         guard !PowerEngine.shared.isArmed else { return }
         prompting = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
@@ -227,6 +227,7 @@ final class UpdateManager: ObservableObject {
                 throw error
             }
             Diagnostics.log("update installed over \(destination.path)")
+            installedPendingRestart = true
             offerRestart()
         } catch {
             Diagnostics.log("update install failed: \(error.localizedDescription)")
