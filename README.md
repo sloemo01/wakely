@@ -208,10 +208,16 @@ Helper/       optional privileged helper
 Watchdog/     crash-recovery watchdog
 Resources/    icons, fonts, sounds, localizations and SDK kit
 Tests/        policy, model, UI-safety and integration checks
-docs/         signing, capability report and screenshots
+docs/         signing, capability report and launch video
 tools/        DMG background generator
 build.sh      compile, assemble and sign
 ```
+
+## Credits
+
+Thanks to [GMI Cloud](https://www.gmicloud.ai) for the credits with which I was
+able to make this software possible, and thanks to [Devin](https://devin.ai)
+for bug hunting and fixes.
 
 ## License
 
