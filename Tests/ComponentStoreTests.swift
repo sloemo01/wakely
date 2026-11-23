@@ -58,14 +58,14 @@ enum Diagnostics {
         try fm.createDirectory(at: folder, withIntermediateDirectories: true)
         try save()
         store.setEnabled("desk-mode", true)
-        store.removeUnchangedStarterComponents()
-        precondition(!fm.fileExists(atPath: store.componentsDirectory.appendingPathComponent("desk-mode").path), "unchanged starter is removed")
-        precondition(!fm.fileExists(atPath: store.componentsDirectory.appendingPathComponent("night-render").path), "unchanged starter is removed")
-        precondition(fm.fileExists(atPath: edited.path), "edited starter is the user's and stays")
+        store.removeStarterComponents()
+        for id in ["desk-mode", "night-render", "session-budget"] {
+            precondition(!fm.fileExists(atPath: store.componentsDirectory.appendingPathComponent(id).path), "starter \(id) is removed")
+        }
         precondition(fm.fileExists(atPath: folder.path), "user components are untouched")
         precondition(!store.isEnabled("desk-mode"), "removed starter is disabled")
         try fm.copyItem(at: examples.appendingPathComponent("night-render"), to: store.componentsDirectory.appendingPathComponent("night-render"))
-        store.removeUnchangedStarterComponents()
+        store.removeStarterComponents()
         precondition(fm.fileExists(atPath: store.componentsDirectory.appendingPathComponent("night-render").path), "cleanup runs only once")
         print("Component store: load, invalid edit retention, description, import, traversal, symlink, remove and starter cleanup PASS")
     }
