@@ -29,7 +29,7 @@ final class UpdateManager: ObservableObject {
     private static let remindAfterKey = "updates.remindAfter"
     /// Wakely runs for days in the menu bar, so checks repeat while it runs,
     /// not only at launch.
-    private static let autoCheckInterval: TimeInterval = 6 * 3600
+    private static let autoCheckInterval: TimeInterval = 10 * 3600
     private static let autoCheckTick: TimeInterval = 3600
     /// "Later" snoozes the prompt for a day instead of silencing a release.
     private static let remindInterval: TimeInterval = 24 * 3600
