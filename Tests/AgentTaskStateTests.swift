@@ -589,9 +589,11 @@ struct AgentTaskStateTests {
                     sessions: [cliTranscript, desktopTranscript], home: home, now: now, environment: [:])
             }
             try record(42, "cli", "cli", "waiting")
+            try write(line(["sessionId": "cli", "chosenName": "Saved task"]) + "\n", to: registryIndex(home))
             let cliOnly = rows([process(42), process(44)])
             expect(cliOnly.count == 1 && cliOnly.first?.state == .waiting && cliOnly.first?.isApp == false,
                    "CLI permission prompt supersedes transcript; idle desktop and helper get no task row")
+            expect(cliOnly.first?.displayName == "Saved task", "name from matching index survives a live record without a name")
             try record(43, "desktop", "claude-desktop", "waiting")
             let concurrent = rows([process(42), process(43), process(44)])
             let desktop = concurrent.first(where: \.isApp)

@@ -686,20 +686,24 @@ enum ClaudeSessionRegistry {
 
     static func displayName(provider: String,
                             record: ClaudeRegistryRecord?,
+                            fallback: ClaudeRegistryRecord? = nil,
                             sessionID: String?,
                             cwd: String?) -> (name: String?, source: AgentNameSource?) {
-        if let record {
+        let records = [record, fallback].compactMap { $0 }
+        for record in records {
             if let chosen = sanitize(record.chosenName ?? "", limit: nameLimit), !isDerivedSentinel(chosen) {
                 return (chosen, .chosen)
             }
+        }
+        for record in records {
             if let supplied = sanitize(record.name ?? "", limit: nameLimit), !isDerivedSentinel(supplied),
                record.nameSource != .derived {
                 return (supplied, record.nameSource ?? .generated)
             }
         }
         return derivedDisplayName(provider: provider,
-                                  cwd: cwd ?? record?.cwd,
-                                  sessionID: sessionID ?? record?.sessionID)
+                                  cwd: cwd ?? record?.cwd ?? fallback?.cwd,
+                                  sessionID: sessionID ?? record?.sessionID ?? fallback?.sessionID)
     }
 
     static func derivedDisplayName(provider: String,

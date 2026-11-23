@@ -333,8 +333,8 @@ enum AgentBackgroundScanner {
             }
             let snapshot = correlation.session
             let liveState = record.flatMap { ClaudeSessionRegistry.liveState(for: $0, now: now) }
-            let metadata = record ?? index.record(sessionID: id)
-            let name = ClaudeSessionRegistry.displayName(provider: provider, record: metadata,
+            let saved = index.record(sessionID: id)
+            let name = ClaudeSessionRegistry.displayName(provider: provider, record: record, fallback: saved,
                 sessionID: id, cwd: snapshot?.cwd ?? record?.cwd).name
             let activity = snapshot?.activity.flatMap { activity -> AgentDisplayActivity? in
                 guard let started = process.startedAt, activity.startedAt >= started.addingTimeInterval(-2) else { return nil }
@@ -342,7 +342,7 @@ enum AgentBackgroundScanner {
             }
             let key = id.map { "claude-session-\($0)" } ?? "claude-pid-\(process.pid)"
             var thread = AgentThread(id: key, provider: provider, pid: process.pid,
-                                     state: liveState ?? correlation.state, displayName: name, host: metadata?.host,
+                                     state: liveState ?? correlation.state, displayName: name, host: record?.host ?? saved?.host,
                                      sessionID: id, activity: activity,
                                      updatedAt: liveState == nil ? snapshot?.updatedAt : record?.statusUpdatedAt)
             thread.isApp = isApp
