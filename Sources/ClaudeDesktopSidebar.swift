@@ -10,8 +10,7 @@ enum ClaudeDesktopSidebar {
     struct Row: Equatable, Sendable {
         let title: String
         let state: AgentTaskState
-        /// Runs in Anthropic's cloud. Local sessions already have a registry
-        /// record and a process, so only cloud rows are added from here.
+        /// Runs in Anthropic's cloud rather than on this Mac.
         var cloud = false
     }
 
@@ -28,21 +27,41 @@ enum ClaudeDesktopSidebar {
     /// A session button's text children: its title first, then status and
     /// location labels.
     static func row(texts: [String]) -> Row? {
-        guard let title = texts.first?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty else { return nil }
+        // The open session's banner ("Waiting", title, "Asked a question") leads
+        // with a status; it repeats a sidebar row, so it is skipped.
+        guard let title = texts.first?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty,
+              state(status: title) == nil else { return nil }
         let states = texts.dropFirst().compactMap(state(status:))
         guard let state = states.contains(.waiting) ? .waiting : states.first else { return nil }
         return Row(title: title, state: state, cloud: texts.dropFirst().contains { $0.trimmingCharacters(in: .whitespaces).lowercased() == "cloud" })
     }
 
-    static func threads(_ rows: [Row], pid: Int32, excluding names: Set<String>) -> [AgentThread] {
-        var seen = Set<String>()
-        return rows.compactMap { row in
-            guard row.cloud, !names.contains(row.title), seen.insert(row.title).inserted else { return nil }
-            var thread = AgentThread(id: "claude-desktop-\(row.title)", provider: "Claude", pid: pid,
-                                     state: row.state, displayName: row.title)
+    /// Folds the sidebar into the registry-backed Claude rows. A local Code-tab
+    /// session's registry status can read "idle" while it runs, so the sidebar's
+    /// status wins for a matching title; every other session, cloud or local,
+    /// gets its own app row.
+    static func merge(_ rows: [Row], into threads: [AgentThread], pid: Int32) -> [AgentThread] {
+        var merged = threads
+        var matched = Set<Int>()
+        var counts: [String: Int] = [:]
+        for row in rows {
+            if let index = merged.indices.first(where: {
+                !matched.contains($0) && merged[$0].provider == "Claude" && merged[$0].displayName == row.title
+            }) {
+                matched.insert(index)
+                merged[index].state = row.state
+                continue
+            }
+            // Sessions can share a title; each keeps its own row.
+            let count = counts[row.title, default: 0]
+            counts[row.title] = count + 1
+            var thread = AgentThread(id: "claude-desktop-\(row.title)" + (count == 0 ? "" : "-\(count)"), provider: "Claude",
+                                     pid: pid, state: row.state, displayName: row.title)
             thread.isApp = true
-            return thread
+            merged.append(thread)
+            matched.insert(merged.count - 1)
         }
+        return merged
     }
 
     /// Reads the sidebar of the Claude app at `pid`. Without Accessibility
@@ -57,7 +76,7 @@ enum ClaudeDesktopSidebar {
         var rows: [Row] = []
         // The "Sidebar" landmark doesn't contain the session list in the
         // accessibility tree, so every button is checked; only a recognised
-        // status plus the "Cloud" label makes a row count.
+        // status after the title makes a row count.
         func find(_ element: AXUIElement, depth: Int) {
             visited += 1
             guard visited <= nodeLimit, depth < 64 else { return }

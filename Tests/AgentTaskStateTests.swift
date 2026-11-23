@@ -64,14 +64,23 @@ struct AgentTaskStateTests {
         expect(ClaudeDesktopSidebar.row(texts: ["New"]) == nil, "navigation buttons are ignored")
         expect(ClaudeDesktopSidebar.row(texts: ["Fix tests", "Archived", "Cloud"]) == nil, "an unknown status stays unshown")
         expect(ClaudeDesktopSidebar.row(texts: ["", "Running"]) == nil, "an untitled row is ignored")
+        expect(ClaudeDesktopSidebar.row(texts: ["Waiting", "Swift compilation", "Asked a question"]) == nil,
+               "the open session's banner is not a second row")
         let local = ClaudeDesktopSidebar.row(texts: ["Sleep test", "Running"])
         expect(local?.cloud == false, "a local session is not a cloud session")
-        let rows = [waiting!, local!, ClaudeDesktopSidebar.Row(title: "Swift compilation", state: .working, cloud: true),
-                    ClaudeDesktopSidebar.Row(title: "Covered", state: .working, cloud: true)]
-        let threads = ClaudeDesktopSidebar.threads(rows, pid: 7, excluding: ["Covered"])
-        expect(threads.count == 1 && threads[0].state == .waiting && threads[0].isApp && threads[0].provider == "Claude"
-               && threads[0].pid == 7 && threads[0].displayName == "Swift compilation",
-               "only uncovered cloud sessions become one app row each")
+        var covered = AgentThread(id: "claude-1", provider: "Claude", pid: 9, state: .idle, displayName: "Sleep test")
+        covered.isApp = true
+        let cli = AgentThread(id: "cc-1", provider: "Claude Code", pid: 11, state: .idle, displayName: "Swift compilation")
+        let merged = ClaudeDesktopSidebar.merge([waiting!, local!, ClaudeDesktopSidebar.Row(title: "Swift compilation", state: .working, cloud: true)],
+                                               into: [covered, cli], pid: 7)
+        expect(merged.count == 4, "each sidebar session is listed once")
+        expect(merged.first { $0.id == "claude-1" }?.state == .working, "a local session the registry calls idle takes the sidebar's Running")
+        expect(merged.first { $0.id == "cc-1" }?.state == .idle, "a terminal Claude Code session is left alone")
+        let cloud = merged.first { $0.id == "claude-desktop-Swift compilation" }
+        expect(cloud?.state == .waiting && cloud?.isApp == true && cloud?.provider == "Claude" && cloud?.pid == 7,
+               "a cloud session becomes its own Claude app row")
+        let twins = ClaudeDesktopSidebar.merge([waiting!, waiting!, local!], into: [covered], pid: 7)
+        expect(twins.count == 3 && Set(twins.map(\.id)).count == 3, "sessions sharing a title each keep a row")
     }
 
     static func main() throws {

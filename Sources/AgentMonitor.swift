@@ -286,11 +286,11 @@ enum AgentBackgroundScanner {
             thread.isApp = process.isApp
             return thread
         }
-        let sidebar = discovered.filter { $0.provider == "Claude" && $0.isApp }.prefix(1).flatMap { app in
-            ClaudeDesktopSidebar.threads(ClaudeDesktopSidebar.read(pid: app.pid), pid: app.pid,
-                                         excluding: Set(claude.compactMap(\.displayName)))
-        }
-        return (claude + sidebar + otherThreads).sorted { $0.id < $1.id }
+        let claudeApp = discovered.first { $0.provider == "Claude" && $0.isApp }
+        let withSidebar = claudeApp.map { app in
+            ClaudeDesktopSidebar.merge(ClaudeDesktopSidebar.read(pid: app.pid), into: claude, pid: app.pid)
+        } ?? claude
+        return (withSidebar + otherThreads).sorted { $0.id < $1.id }
     }
 
     static func parentPIDs(_ listing: String) -> [Int32: Int32] {
