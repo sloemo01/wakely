@@ -27,13 +27,14 @@ enum ClaudeDesktopSidebar {
     /// A session button's text children: its title first, then status and
     /// location labels.
     static func row(texts: [String]) -> Row? {
+        let cloud = texts.dropFirst().contains { $0.trimmingCharacters(in: .whitespaces).lowercased() == "cloud" }
         // The open session's banner ("Waiting", title, "Asked a question") leads
-        // with a status; it repeats a sidebar row, so it is skipped.
+        // with a status and never says "Cloud"; it repeats a sidebar row, so it is skipped.
         guard let title = texts.first?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty,
-              state(status: title) == nil else { return nil }
+              cloud || state(status: title) == nil else { return nil }
         let states = texts.dropFirst().compactMap(state(status:))
         guard let state = states.contains(.waiting) ? .waiting : states.first else { return nil }
-        return Row(title: title, state: state, cloud: texts.dropFirst().contains { $0.trimmingCharacters(in: .whitespaces).lowercased() == "cloud" })
+        return Row(title: title, state: state, cloud: cloud)
     }
 
     /// Folds the sidebar into the registry-backed Claude rows. A local Code-tab
