@@ -27,21 +27,11 @@ while the screen is dark.
 </div>
 
 <p align="center">
-<a href="docs/screens/components-v2.png"><img src="docs/screens/components-v2.png" width="88%" alt="Wakely components grid"></a>
+<a href="docs/wakely-launch.mp4"><img src="docs/wakely-launch.jpg" width="88%" alt="Wakely launch video: Claude Code working in Agent Status from the menu bar"></a>
 </p>
 
 <p align="center">
-<sub><b>Components.</b> Thirty-one behaviours, one switch each. The explanation is the setting.</sub>
-</p>
-
-<p align="center">
-<a href="docs/screens/general-v2.png"><img src="docs/screens/general-v2.png" width="43%" alt="Wakely General settings"></a>
-&nbsp;
-<a href="docs/installer.png"><img src="docs/installer.png" width="43%" alt="Wakely drag-to-Applications installer"></a>
-</p>
-
-<p align="center">
-<sub><b>General.</b> Appearance, startup, helper and safety. &nbsp;·&nbsp; <b>Install.</b> Drag, drop, done.</sub>
+<sub><b>Watch the launch video.</b> Arm from the menu bar, hand Claude Code a task, and Agent Status follows it while the lid is closed.</sub>
 </p>
 
 Wakely holds two macOS power assertions, darkens the built-in display on lid
