@@ -40,9 +40,6 @@ for f in README.txt AGENTS.md CLAUDE.md; do
   [ -f "harvest/components-kit/$f" ] && cp "harvest/components-kit/$f" "$APP/Contents/Resources/ComponentsKit/$f"
 done
 
-mkdir -p "$APP/Contents/Resources/SeedComponents"
-cp -R harvest/components-kit/sdk/examples/. "$APP/Contents/Resources/SeedComponents/"
-
 cp Info.plist "$APP/Contents/Info.plist"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 

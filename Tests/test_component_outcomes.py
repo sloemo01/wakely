@@ -45,6 +45,6 @@ assert 'id != "homeServer"' in beh
 assert 'if id == "homeServer" { return true }' in beh
 assert 'capability(.autoRestartAfterPowerLoss)' in beh
 assert '"homeServer"' not in perms.split('static let helperIDs: Set<String> = [', 1)[1].split(']', 1)[0]
-assert '.starter-components-disabled' in components
-assert 'if FileManager.default.fileExists(atPath: marker.path) { return }' in components
+assert 'seedStarterComponents' not in components
+assert 'SeedComponents' not in components
 print('PASS: lock observation, timer audio recovery, keep-awake request state, reset generations/ownership, custom baselines/values, helperless Home Server')

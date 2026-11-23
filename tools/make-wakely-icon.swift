@@ -17,14 +17,12 @@ func put(_ x: Int, _ y: Int, _ hex: UInt32) {
 }
 
 let ink = UInt32(0x0B1220)
-let edge = UInt32(0x26324A)
 
-// Full square: Finder and the Dock already present it on the system's rounded
-// tile, so the artwork itself stays a hard-edged pixel square.
+// Full square with no border: Finder and the Dock already present it on the
+// system's rounded tile, and a lighter edge would show as a stroke inside it.
 for y in 0..<grid {
     for x in 0..<grid {
-        let border = x == 0 || y == 0 || x == grid - 1 || y == grid - 1
-        put(x, y, border ? edge : ink)
+        put(x, y, ink)
     }
 }
 
