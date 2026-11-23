@@ -49,6 +49,24 @@ enum Diagnostics {
         precondition(fm.fileExists(atPath: sentinel.path), "symlink cannot escape component directory")
         store.remove("test-component")
         precondition(store.components.isEmpty && !fm.fileExists(atPath: folder.path))
-        print("Component store: load, invalid edit retention, description, import, traversal, symlink and remove PASS")
+        let examples = URL(fileURLWithPath: "harvest/components-kit/sdk/examples", isDirectory: true)
+        for id in ["desk-mode", "night-render", "session-budget"] {
+            try fm.copyItem(at: examples.appendingPathComponent(id), to: store.componentsDirectory.appendingPathComponent(id))
+        }
+        let edited = store.componentsDirectory.appendingPathComponent("session-budget/component.json")
+        try (try String(contentsOf: edited, encoding: .utf8) + "\n").write(to: edited, atomically: true, encoding: .utf8)
+        try fm.createDirectory(at: folder, withIntermediateDirectories: true)
+        try save()
+        store.setEnabled("desk-mode", true)
+        store.removeUnchangedStarterComponents()
+        precondition(!fm.fileExists(atPath: store.componentsDirectory.appendingPathComponent("desk-mode").path), "unchanged starter is removed")
+        precondition(!fm.fileExists(atPath: store.componentsDirectory.appendingPathComponent("night-render").path), "unchanged starter is removed")
+        precondition(fm.fileExists(atPath: edited.path), "edited starter is the user's and stays")
+        precondition(fm.fileExists(atPath: folder.path), "user components are untouched")
+        precondition(!store.isEnabled("desk-mode"), "removed starter is disabled")
+        try fm.copyItem(at: examples.appendingPathComponent("night-render"), to: store.componentsDirectory.appendingPathComponent("night-render"))
+        store.removeUnchangedStarterComponents()
+        precondition(fm.fileExists(atPath: store.componentsDirectory.appendingPathComponent("night-render").path), "cleanup runs only once")
+        print("Component store: load, invalid edit retention, description, import, traversal, symlink, remove and starter cleanup PASS")
     }
 }

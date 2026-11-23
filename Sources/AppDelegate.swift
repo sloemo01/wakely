@@ -60,7 +60,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         Diagnostics.truncateIfNeeded()
         Diagnostics.log("launch")
-        // Throttled to once a day; the prompt itself is once per release.
+        // Checks now and every few hours while running; "Later" snoozes a day.
         UpdateManager.shared.checkOnLaunch()
         CapsLockLight.reportTrust()
         CapsLockLight.onCapsLockChange = { on in
@@ -96,6 +96,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         engine.startMonitoringIfNeeded()
         ComponentStore.shared.installKitIfNeeded()
+        ComponentStore.shared.removeUnchangedStarterComponents()
         ComponentStore.shared.reload()
         ComponentStore.shared.startWatching()
         // Home Server owns the one documented launch arm. It runs before the

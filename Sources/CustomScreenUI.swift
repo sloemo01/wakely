@@ -8,6 +8,7 @@ struct CustomScreenPane: View {
     @ObservedObject private var model = SettingsModel.shared
     @ObservedObject private var store = CustomScreenStore.shared
     @ObservedObject private var state = AppState.shared
+    @ObservedObject private var components = ComponentStore.shared
     @State private var confirmDelete = false
 
     private var screen: CustomScreen? { store.screen(for: model.tab) }
@@ -171,26 +172,34 @@ struct CustomScreenPane: View {
     @ViewBuilder
     private func componentRow(_ id: String) -> some View {
         if let component = ComponentCatalog.definition(for: id) {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(component.name)
-                        .font(WakelyType.body(12.5, .medium))
-                    Text(component.tagline)
-                        .font(WakelyType.body(11))
-                        .foregroundStyle(Theme.textSecondary)
-                        .lineLimit(1)
-                }
-                Spacer(minLength: 10)
-                WakelySwitch(isOn: model.isOn(id)) {
-                    model.setOn(id, !model.isOn(id))
-                }
-                .accessibilityLabel("Enable \(component.name)")
+            componentRow(name: component.name, tagline: component.tagline, isOn: model.isOn(id)) {
+                model.setOn(id, !model.isOn(id))
+            }
+        } else if let custom = components.components.first(where: { $0.id == id }) {
+            componentRow(name: custom.name, tagline: custom.tagline, isOn: components.isEnabled(id)) {
+                components.setEnabled(id, !components.isEnabled(id))
             }
         } else {
             Text("Component unavailable")
                 .font(WakelyType.body(11.5))
                 .foregroundStyle(Theme.textTertiary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func componentRow(name: String, tagline: String, isOn: Bool, toggle: @escaping () -> Void) -> some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(name)
+                    .font(WakelyType.body(12.5, .medium))
+                Text(tagline)
+                    .font(WakelyType.body(11))
+                    .foregroundStyle(Theme.textSecondary)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 10)
+            WakelySwitch(isOn: isOn, action: toggle)
+                .accessibilityLabel("Enable \(name)")
         }
     }
 }
@@ -201,6 +210,7 @@ struct ScreenEditorSheet: View {
     var onClose: () -> Void
     @ObservedObject private var store = CustomScreenStore.shared
     @ObservedObject private var model = SettingsModel.shared
+    @ObservedObject private var customComponents = ComponentStore.shared
     @State private var draft: CustomScreen
     @State private var errorMessage: String?
     @State private var confirmDelete = false
@@ -353,6 +363,26 @@ struct ScreenEditorSheet: View {
         .overlay(PixelShape(cut: 3).strokeBorder(Theme.stroke, lineWidth: 1))
     }
 
+    private func componentName(_ id: String) -> String {
+        ComponentCatalog.definition(for: id)?.name
+            ?? customComponents.components.first { $0.id == id }?.name
+            ?? id
+    }
+
+    private func addComponentButton(id: String, name: String, block: Binding<CustomScreenBlock>) -> some View {
+        Button {
+            guard !block.wrappedValue.componentIDs.contains(id),
+                  block.wrappedValue.componentIDs.count < 8 else { return }
+            block.wrappedValue.componentIDs.append(id)
+        } label: {
+            if block.wrappedValue.componentIDs.contains(id) {
+                Label(name, systemImage: "checkmark")
+            } else {
+                Text(name)
+            }
+        }
+    }
+
     private func blockEditor(block: Binding<CustomScreenBlock>) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -386,7 +416,7 @@ struct ScreenEditorSheet: View {
             } else {
                 ForEach(block.wrappedValue.componentIDs, id: \.self) { id in
                     HStack {
-                        Text(ComponentCatalog.definition(for: id)?.name ?? id)
+                        Text(componentName(id))
                             .font(WakelyType.body(11.5))
                         Spacer()
                         Button {
@@ -396,21 +426,17 @@ struct ScreenEditorSheet: View {
                         }
                         .buttonStyle(.plain)
                         .foregroundStyle(Theme.textTertiary)
-                        .accessibilityLabel("Remove \(ComponentCatalog.definition(for: id)?.name ?? id)")
+                        .accessibilityLabel("Remove \(componentName(id))")
                     }
                 }
                 Menu("Add component") {
                     ForEach(ComponentCatalog.all) { component in
-                        Button {
-                            guard !block.wrappedValue.componentIDs.contains(component.id),
-                                  block.wrappedValue.componentIDs.count < 8 else { return }
-                            block.wrappedValue.componentIDs.append(component.id)
-                        } label: {
-                            if block.wrappedValue.componentIDs.contains(component.id) {
-                                Label(component.name, systemImage: "checkmark")
-                            } else {
-                                Text(component.name)
-                            }
+                        addComponentButton(id: component.id, name: component.name, block: block)
+                    }
+                    if !customComponents.components.isEmpty {
+                        Divider()
+                        ForEach(customComponents.components) { component in
+                            addComponentButton(id: component.id, name: component.name, block: block)
                         }
                     }
                 }

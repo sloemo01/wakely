@@ -5,6 +5,7 @@
 // The schema, the vocabulary and the semantics follow the shipped SDK reference
 // (harvest/components-kit/sdk/reference.md) one for one.
 
+import CryptoKit
 import Foundation
 import AppKit
 
@@ -168,6 +169,49 @@ final class ComponentStore: ObservableObject {
             }
         }
         return parts.sorted().joined(separator: "|")
+    }
+
+    // MARK: - Starter cleanup
+
+    /// SHA-256 of component.json and icon.txt for the four examples that
+    /// releases up to 2.0.11 copied into every install.
+    static let starterFingerprints: [String: [String: String]] = [
+        "desk-mode": ["component.json": "8af2648adecade8f390db15fde26fb973a9d84ebc6de2d7c0dca4cb9df2faad5",
+                      "icon.txt": "8c60718ee24d4d81d6e83881f9a411fa279fd080f05c8a7a8b25b08a69baa0bd"],
+        "night-render": ["component.json": "1f71fc47bd4c82105d6e0fa447fc9d2b75e582f87c7a3099c2b12e94a898bb25",
+                         "icon.txt": "b48515acf670b2033729cbf4c79d146bf8f7ff5a56d710770e90d1a559d64adf"],
+        "session-budget": ["component.json": "75ba06fcf6f81d063252991441b455049f7546d56c074260e7b7ac2048b1fad2",
+                           "icon.txt": "98b6ceae27bc2f6c979632eb27b28e572e0471919964b36324ad7da693b7cdc4"],
+        "short-sessions": ["component.json": "40e92329e97692bc936752d45925632b6fc6b5203365242dca9c4d4aedc05475",
+                           "icon.txt": "fa52182eb5d55b3de7015965aa20ae47b2b35eb1db6270175f637e7c28589a74"]
+    ]
+    private static let starterCleanupKey = "starterComponentsRemoved"
+
+    /// Runs once: removes starter copies that are still byte-identical to what
+    /// Wakely shipped. An edited copy is the user's own work and stays.
+    func removeUnchangedStarterComponents() {
+        guard !defaults.bool(forKey: Self.starterCleanupKey) else { return }
+        defaults.set(true, forKey: Self.starterCleanupKey)
+        var ids = enabledIDs
+        var values = defaults.dictionary(forKey: valuesKey) ?? [:]
+        for (id, files) in Self.starterFingerprints {
+            let folder = componentsDirectory.appendingPathComponent(id, isDirectory: true)
+            let unchanged = files.allSatisfy { name, hash in
+                guard let data = try? Data(contentsOf: folder.appendingPathComponent(name)) else { return false }
+                return SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined() == hash
+            }
+            guard unchanged else { continue }
+            do { try FileManager.default.removeItem(at: folder) }
+            catch {
+                Diagnostics.log("starter cleanup failed for \(id): \(error.localizedDescription)")
+                continue
+            }
+            ids.remove(id)
+            values[id] = nil
+            Diagnostics.log("removed unchanged starter component \(id)")
+        }
+        enabledIDs = ids
+        defaults.set(values, forKey: valuesKey)
     }
 
     // MARK: - Import / remove

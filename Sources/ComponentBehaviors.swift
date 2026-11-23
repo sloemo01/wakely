@@ -272,6 +272,7 @@ final class ComponentEngine {
         timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
         }
+        if let timer { RunLoop.main.add(timer, forMode: .common) }
         if isEnabled("capsLock") {
             _ = CapsLockLight.startWatching()
             _ = CapsLockLight.installTypingFilter(active: PowerEngine.shared.isArmed)

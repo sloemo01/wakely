@@ -462,6 +462,7 @@ final class PowerEngine {
             Task { @MainActor in self?.checkSafety() }
         }
         safetyTimer?.tolerance = 2
+        if let safetyTimer { RunLoop.main.add(safetyTimer, forMode: .common) }
     }
 
     private func handleSystemPower(message: UInt32, token: Int) {

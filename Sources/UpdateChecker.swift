@@ -26,8 +26,17 @@ final class UpdateManager: ObservableObject {
     private static let automaticKey = "updates.automaticChecks"
     private static let lastCheckKey = "updates.lastCheck"
     private static let dismissedKey = "updates.dismissedVersion"
-    /// One automatic check per day is plenty for a hand-shipped app.
-    private static let autoCheckInterval: TimeInterval = 20 * 3600
+    private static let remindAfterKey = "updates.remindAfter"
+    /// Wakely runs for days in the menu bar, so checks repeat while it runs,
+    /// not only at launch.
+    private static let autoCheckInterval: TimeInterval = 6 * 3600
+    private static let autoCheckTick: TimeInterval = 3600
+    /// "Later" snoozes the prompt for a day instead of silencing a release.
+    private static let remindInterval: TimeInterval = 24 * 3600
+
+    private var autoCheckTimer: Timer?
+    /// The new bundle is on disk; only a restart is left, so never offer it again.
+    private var installedPendingRestart = false
 
     @Published private(set) var status: UpdateStatus = .idle
     @Published var automaticChecks: Bool {
@@ -42,15 +51,32 @@ final class UpdateManager: ObservableObject {
 
     var currentVersion: String { AppVersion.current }
 
-    /// Launch entry point: throttled automatic check plus the one-time prompt.
+    /// Launch entry point: a throttled check now, then the same check every hour
+    /// for as long as Wakely runs.
     func checkOnLaunch() {
-        guard automaticChecks else { return }
-        let last = UserDefaults.standard.object(forKey: Self.lastCheckKey) as? Date ?? .distantPast
-        guard Date().timeIntervalSince(last) > Self.autoCheckInterval else { return }
-        Task { await checkForUpdates() }
+        autoCheckTimer?.invalidate()
+        autoCheckTimer = Timer.scheduledTimer(withTimeInterval: Self.autoCheckTick, repeats: true) { _ in
+            Task { @MainActor in UpdateManager.shared.automaticCheck() }
+        }
+        automaticCheck()
     }
 
-    func checkForUpdates() async {
+    private func automaticCheck() {
+        guard automaticChecks, !installing, !installedPendingRestart, status != .checking else { return }
+        let last = UserDefaults.standard.object(forKey: Self.lastCheckKey) as? Date ?? .distantPast
+        if Date().timeIntervalSince(last) > Self.autoCheckInterval {
+            Task { await checkForUpdates(prompt: true) }
+        } else if let release = availableRelease {
+            promptIfNeeded(release)
+        }
+    }
+
+    private var availableRelease: LatestRelease? {
+        if case .available(let version, let url) = status { return LatestRelease(version: version, downloadURL: url) }
+        return nil
+    }
+
+    func checkForUpdates(prompt: Bool = false) async {
         status = .checking
         UserDefaults.standard.set(Date(), forKey: Self.lastCheckKey)
         do {
@@ -58,7 +84,7 @@ final class UpdateManager: ObservableObject {
             Diagnostics.log("update check: \(currentVersion) → \(release.version)")
             if UpdateVersion.isNewer(release.version, than: currentVersion) {
                 status = .available(version: release.version, downloadURL: release.downloadURL ?? Self.fallbackDownloadURL)
-                promptIfNeeded(release)
+                if prompt { promptIfNeeded(release) }
             } else {
                 status = .upToDate
             }
@@ -118,12 +144,23 @@ final class UpdateManager: ObservableObject {
 
     // MARK: - Prompt
 
+    private var prompting = false
+
     private func promptIfNeeded(_ release: LatestRelease) {
-        guard let downloadURL = statusDownloadURL else { return }
-        let dismissed = UserDefaults.standard.string(forKey: Self.dismissedKey)
-        guard dismissed != release.version else { return }
+        guard statusDownloadURL != nil, !prompting else { return }
+        let defaults = UserDefaults.standard
+        if defaults.string(forKey: Self.dismissedKey) == release.version,
+           let remindAfter = defaults.object(forKey: Self.remindAfterKey) as? Date,
+           Date() < remindAfter { return }
+        // Never raise it unprompted during a session, when the user is likely
+        // away; the hourly tick asks again once the session ends.
+        guard !PowerEngine.shared.isArmed else { return }
+        prompting = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self, case .available = self.status else { return }
+            guard let self else { return }
+            defer { self.prompting = false }
+            guard case .available = self.status, let downloadURL = self.statusDownloadURL,
+                  !self.installing, !PowerEngine.shared.isArmed else { return }
             let alert = NSAlert()
             alert.messageText = "Wakely \(release.version) is available"
             alert.informativeText = "You're running Wakely \(self.currentVersion). Download and install the update now?"
@@ -136,6 +173,7 @@ final class UpdateManager: ObservableObject {
                 Task { await self.installUpdate(from: downloadURL) }
             } else {
                 UserDefaults.standard.set(release.version, forKey: Self.dismissedKey)
+                UserDefaults.standard.set(Date().addingTimeInterval(Self.remindInterval), forKey: Self.remindAfterKey)
             }
         }
     }
@@ -189,6 +227,7 @@ final class UpdateManager: ObservableObject {
                 throw error
             }
             Diagnostics.log("update installed over \(destination.path)")
+            installedPendingRestart = true
             offerRestart()
         } catch {
             Diagnostics.log("update install failed: \(error.localizedDescription)")
