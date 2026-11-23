@@ -96,7 +96,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         engine.startMonitoringIfNeeded()
         ComponentStore.shared.installKitIfNeeded()
-        ComponentStore.shared.removeUnchangedStarterComponents()
+        ComponentStore.shared.removeStarterComponents()
         ComponentStore.shared.reload()
         ComponentStore.shared.startWatching()
         // Home Server owns the one documented launch arm. It runs before the
