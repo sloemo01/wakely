@@ -1780,7 +1780,7 @@ private struct AboutPane: View {
                 Label("Holds the power assertions that stop lid-close sleep", systemImage: "checkmark.seal")
                 Label("Darkens the built-in display while a session is held", systemImage: "checkmark.seal")
                 Label("Opt-in components for power, security, connections and agents", systemImage: "checkmark.seal")
-                Label("Runs entirely on your Mac; no telemetry leaves the app", systemImage: "checkmark.seal")
+                Label("Runs on your Mac; update checks send only a random install ID and the version", systemImage: "checkmark.seal")
             }
             .font(WakelyType.body(12))
             .foregroundStyle(Theme.textSecondary)

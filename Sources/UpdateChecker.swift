@@ -29,12 +29,21 @@ final class UpdateManager: ObservableObject {
     private static let remindAfterKey = "updates.remindAfter"
     /// Wakely runs for days in the menu bar, so checks repeat while it runs,
     /// not only at launch.
-    private static let autoCheckInterval: TimeInterval = 6 * 3600
+    private static let autoCheckInterval: TimeInterval = 10 * 3600
     private static let autoCheckTick: TimeInterval = 3600
     /// "Later" snoozes the prompt for a day instead of silencing a release.
     private static let remindInterval: TimeInterval = 24 * 3600
 
     private var autoCheckTimer: Timer?
+    private static let installIDKey = "updates.installID"
+
+    /// Random and unrelated to the user, the Mac or its files.
+    private var installID: String {
+        if let id = UserDefaults.standard.string(forKey: Self.installIDKey) { return id }
+        let id = UUID().uuidString.lowercased()
+        UserDefaults.standard.set(id, forKey: Self.installIDKey)
+        return id
+    }
     /// The new bundle is on disk; only a restart is left, so never offer it again.
     private var installedPendingRestart = false
 
@@ -107,6 +116,12 @@ final class UpdateManager: ObservableObject {
         var request = URLRequest(url: Self.fallbackDownloadURL)
         // /dl redirects to the versioned DMG; a one-byte range keeps the check cheap.
         request.setValue("bytes=0-0", forHTTPHeaderField: "Range")
+        // A random per-install ID lets wake-ly.app count active Macs; turning
+        // off automatic checks stops sending it.
+        if automaticChecks {
+            request.setValue(installID, forHTTPHeaderField: "X-Wakely-Install")
+            request.setValue(AppVersion.current, forHTTPHeaderField: "X-Wakely-Version")
+        }
         request.timeoutInterval = 20
         let (_, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode),
