@@ -51,6 +51,8 @@ final class ComponentRuntime {
         timer = Timer.scheduledTimer(withTimeInterval: tickInterval, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
         }
+        // Common modes keep rules running while a modal alert is open.
+        if let timer { RunLoop.main.add(timer, forMode: .common) }
         wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.didWake() }
         }
