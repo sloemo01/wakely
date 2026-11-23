@@ -423,7 +423,7 @@ private struct AboutWindowView: View {
         VStack(spacing: 10) {
             Text("Wakely").font(WakelyType.display(19))
             Text("Version \(AppVersion.current)").font(WakelyType.body(12)).foregroundStyle(.secondary)
-            Text("Open source. No license, no trial.")
+            Text("Keep your Mac working with the lid closed.")
                 .font(WakelyType.body(13))
                 .foregroundStyle(.secondary)
         }

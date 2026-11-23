@@ -1771,7 +1771,7 @@ private struct AboutPane: View {
                     Text("Version \(AppVersion.current) · MIT licensed").font(WakelyType.body(11.5)).foregroundStyle(Theme.textSecondary)
                 }
             }
-            Text("Wakely is a free, MIT-licensed utility for Apple Silicon Macs. It keeps your Mac awake with the lid closed, so long downloads, renders, builds and agent sessions keep running while the machine stays shut.")
+            Text("Wakely is an open-source utility for Apple Silicon Macs. It keeps your Mac awake with the lid closed, so long downloads, renders, builds and agent sessions keep running while the machine stays shut.")
                 .font(WakelyType.body(12.5))
                 .lineSpacing(2)
                 .foregroundStyle(Theme.textSecondary)

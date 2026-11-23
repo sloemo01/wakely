@@ -62,8 +62,8 @@ grants.
 
 Wakely holds two macOS power assertions, darkens the built-in display on lid
 close, and keeps the framebuffer live. Opening the lid or disarming ends the
-session and restores normal sleep. Nothing leaves the Mac: no account, no
-telemetry, no background service unless you opt into a privileged component.
+session and restores normal sleep. Nothing leaves the Mac: no telemetry and no
+background service unless you opt into a privileged component.
 
 ## What it does
 
@@ -204,7 +204,7 @@ subtitle, and the Bayer-dithered scroll edges used by the built-in panes.
 
 ## Privacy
 
-- No analytics, accounts or network calls for normal operation.
+- No analytics or network calls for normal operation.
 - Components request access only when enabled; opening a settings pane does not
   grant it.
 - Diagnostics stay local in `~/Library/Application Support/Wakely/diagnostics.log`
