@@ -55,6 +55,7 @@ struct AgentTaskStateTests {
     }
 
     static func main() throws {
+        try claudeLiveSessions()
         expect(codex([]).state == .unknown, "process/session metadata alone is unknown")
         expect(codex(["task_started"]).state == .working, "Codex task started")
         expect(codex(["task_started", "task_complete"]).state == .idle, "Codex task completion")
@@ -559,5 +560,69 @@ struct AgentTaskStateTests {
         // Remove only the explicit UUID fixture root created above.
         try FileManager.default.removeItem(at: fixture)
         print("PASS: \(checks) fixture-only agent task-state checks")
+    }
+
+    private static func claudeLiveSessions() throws {
+        try fixture("claude-live") { home in
+            let started = date("2026-01-01T12:00:00Z")
+            let now = started.addingTimeInterval(60)
+            let cwd = "/fixture/shared"
+            func process(_ pid: Int32, id: String? = nil) -> AgentProcessDescriptor {
+                AgentProcessDescriptor(pid: pid, provider: "Claude Code", sessionID: id, cwd: cwd, startedAt: started)
+            }
+            func record(_ pid: Int32, _ id: String, _ entrypoint: String, _ status: String,
+                        start: String = "Thu Jan  1 12:00:00 2026") throws {
+                let fields: [String: Any] = ["pid": pid, "sessionId": id, "pidDomain": "darwin", "procStart": start,
+                    "startedAt": Int64(started.addingTimeInterval(23).timeIntervalSince1970 * 1000),
+                    "statusUpdatedAt": Int64(now.timeIntervalSince1970 * 1000), "entrypoint": entrypoint,
+                    "status": status, "cwd": cwd]
+                try write(line(fields), to: home.appendingPathComponent(".claude/sessions/\(pid).json"))
+            }
+            var cliTranscript = AgentSessionSnapshot(provider: "Claude Code", sessionID: "cli", cwd: cwd,
+                state: .working, updatedAt: now,
+                activity: AgentDisplayActivity(tool: "Bash", startedAt: now, endedAt: nil))
+            let desktopTranscript = AgentSessionSnapshot(provider: "Claude Code", sessionID: "desktop", cwd: cwd,
+                state: .working, updatedAt: now.addingTimeInterval(-5),
+                activity: AgentDisplayActivity(tool: "mcp__computer__screenshot", startedAt: now.addingTimeInterval(-5), endedAt: nil))
+            func rows(_ processes: [AgentProcessDescriptor]) -> [AgentThread] {
+                AgentBackgroundScanner.claudeThreads(processes: processes, desktopPIDs: [40], parents: [43: 41, 44: 41, 41: 40],
+                    sessions: [cliTranscript, desktopTranscript], home: home, now: now, environment: [:])
+            }
+            try record(42, "cli", "cli", "waiting")
+            try write(line(["sessionId": "cli", "chosenName": "Saved task"]) + "\n", to: registryIndex(home))
+            let cliOnly = rows([process(42), process(44)])
+            expect(cliOnly.count == 1 && cliOnly.first?.state == .waiting && cliOnly.first?.isApp == false,
+                   "CLI permission prompt supersedes transcript; idle desktop and helper get no task row")
+            expect(cliOnly.first?.displayName == "Saved task", "name from matching index survives a live record without a name")
+            try record(43, "desktop", "claude-desktop", "waiting")
+            let concurrent = rows([process(42), process(43), process(44)])
+            let desktop = concurrent.first(where: \.isApp)
+            expect(concurrent.count == 2 && desktop?.state == .waiting && desktop?.pid == 43,
+                   "desktop permission prompt is attributed to the worker, not to the newest transcript")
+            expect(desktop?.activity == desktopTranscript.activity, "desktop uses its own tool metadata")
+            expect(concurrent.first(where: { !$0.isApp })?.activity == cliTranscript.activity, "CLI uses its own tool metadata")
+            try record(42, "cli", "cli", "shell")
+            try record(43, "desktop", "claude-desktop", "idle")
+            let completing = rows([process(42), process(43)])
+            expect(completing.first(where: { !$0.isApp })?.state == .working, "approved shell work becomes working")
+            expect(AgentThread.finishedTransitions(from: concurrent, to: completing).map(\.sessionID) == ["desktop"],
+                   "owned desktop completion goes idle without completing the CLI")
+            let mirrored = rows([process(42, id: "desktop"), process(43), process(45, id: "desktop")])
+            expect(mirrored.count == 2 && mirrored.filter(\.isApp).count == 1,
+                   "live ownership beats original argv; an argv-only mirror adds no duplicate row")
+            try record(45, "desktop", "cli", "busy")
+            let ambiguous = rows([process(43), process(45)])
+            expect(ambiguous.count == 1 && ambiguous.first?.state == .unknown && ambiguous.first?.activity == nil,
+                   "two verified owners are not counted twice or treated as working")
+            try record(42, "cli", "cli", "waiting", start: "Wed Dec 31 12:00:00 2025")
+            let reused = rows([process(42)])
+            expect(reused.first?.state == .unknown && reused.first?.sessionID == nil,
+                   "reused PID and same cwd cannot claim any transcript or approval")
+            cliTranscript.updatedAt = started.addingTimeInterval(-60)
+            cliTranscript.activity = AgentDisplayActivity(tool: "computer_click", startedAt: started.addingTimeInterval(-60), endedAt: nil)
+            let resumed = rows([process(42, id: "cli")])
+            expect(resumed.first?.state == .unknown && resumed.first?.activity == nil,
+                   "old work and its display activity cannot survive a process restart")
+        }
     }
 }

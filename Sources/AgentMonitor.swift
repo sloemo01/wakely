@@ -176,9 +176,15 @@ enum AgentBackgroundScanner {
     }
 
     static func scan(home: URL) -> [AgentThread] {
+        let now = Date()
         guard let listing = command("/bin/ps", ["-axo", "pid=,ppid=,etime=,comm=,args="], timeout: 2, maxBytes: 2 * 1024 * 1024) else { return [] }
-        var processes = distinct(parseProcesses(listing, now: Date()))
-        processes = Array(processes.prefix(maxProcesses)).map { process in
+        let discovered = distinct(parseProcesses(listing, now: now))
+        let candidates = Array(discovered.filter { $0.provider != "Claude" }.prefix(maxProcesses))
+        let sessions = AgentSessionFiles.snapshots(home: home, processes: candidates)
+        let claude = claudeThreads(processes: candidates.filter { $0.provider == "Claude Code" },
+                                   desktopPIDs: Set(discovered.filter { $0.provider == "Claude" }.map(\.pid)),
+                                   parents: parentPIDs(listing), sessions: sessions, home: home, now: now)
+        let processes = candidates.filter { $0.provider != "Claude Code" }.map { process in
             let cwd = process.sessionID == nil ? currentDirectory(pid: process.pid) : nil
             var descriptor = AgentProcessDescriptor(pid: process.pid, provider: process.provider,
                                                     sessionID: process.sessionID, cwd: cwd, startedAt: process.startedAt)
@@ -186,14 +192,6 @@ enum AgentBackgroundScanner {
             descriptor.appName = process.appName
             return descriptor
         }
-        guard !processes.isEmpty else { return [] }
-        let sessions = AgentSessionFiles.snapshots(home: home, processes: processes)
-        // The Claude registry is optional and absent on many Macs. Failure to
-        // find it simply leaves identity derived from the transcript. Only
-        // touch it when a Claude process is present.
-        let registry = processes.contains { $0.provider == "Claude Code" }
-            ? ClaudeSessionRegistry.load(home: home)
-            : ClaudeRegistrySnapshot()
         let processOnly = AgentProcessDescriptor.processOnlyProviderNames
         let busy: Set<Int32> = processes.contains { processOnly.contains($0.provider) }
             ? busyAgents(pids: processes.filter { processOnly.contains($0.provider) }.map(\.pid),
@@ -234,36 +232,20 @@ enum AgentBackgroundScanner {
             }
             return false
         }
-        return processes.map { process in
+        let otherThreads = processes.map { process in
             let correlation = AgentTaskCorrelation.correlation(for: process, sessions: sessions, processes: processes)
             var snapshot = correlation.session ?? AgentSessionSnapshot(provider: process.provider)
             snapshot.sessionID = snapshot.sessionID ?? process.sessionID
             snapshot.cwd = snapshot.cwd ?? process.cwd
 
-            let record = ClaudeSessionRegistry.record(for: process,
-                                                     transcriptSessionID: snapshot.sessionID,
-                                                     registry: registry)
-            if let record {
-                snapshot.sessionID = snapshot.sessionID ?? record.sessionID
-                snapshot.cwd = snapshot.cwd ?? record.cwd
-                snapshot.host = snapshot.host ?? record.host
-                snapshot.updatedAt = snapshot.updatedAt ?? record.statusUpdatedAt
-            }
             let resolved = ClaudeSessionRegistry.displayName(provider: process.provider,
-                                                             record: record,
+                                                             record: nil,
                                                              sessionID: snapshot.sessionID,
                                                              cwd: snapshot.cwd)
             snapshot.name = resolved.name
             snapshot.nameSource = resolved.source
 
-            // The transcript is authoritative. A registry claim is used only
-            // when the transcript has no state, and only for positive
-            // busy/waiting claims (never to invent a completion).
             var state = correlation.state
-            if state == .unknown, let record,
-               let claimed = ClaudeSessionRegistry.claimedState(for: record, process: process) {
-                state = claimed
-            }
             // A quiet CPU is not proof the task finished (the agent may be
             // waiting on its model), so a non-busy process-only agent is unknown.
             // A CLI's tool command (e.g. `sleep`) can sit idle on CPU; its shell shows the tool is running.
@@ -279,7 +261,7 @@ enum AgentBackgroundScanner {
             // An app's own startup (sign-in, indexing, updates) is not agent work.
             if process.isApp, let started = process.startedAt, Date().timeIntervalSince(started) < 45 { state = .unknown }
             // Electron apps idle above the CPU threshold; trust their transcripts only.
-            if process.provider == "Codex App" || process.provider == "Claude" { state = .unknown }
+            if process.provider == "Codex App" { state = .unknown }
             if let database = OpenCodeSessionState.database(provider: process.provider, home: home),
                let row = OpenCodeSessionState.latest(database: database, cwd: process.isApp ? nil : process.cwd, since: process.startedAt,
                                                      excluding: processes.filter { $0.pid != process.pid && $0.provider == process.provider }
@@ -290,10 +272,8 @@ enum AgentBackgroundScanner {
             if process.isApp, let read = AgentAppSessionState.read(provider: process.provider, home: home, since: process.startedAt, pid: process.pid) {
                 state = read
             }
-            // The Codex and Claude desktop apps write the same transcripts as
-            // their CLIs; the app owns the newest one written since it started.
-            if let transcriptProvider = ["Codex App": "Codex", "Claude": "Claude Code"][process.provider],
-               let newest = AgentSessionState.newest(sessions, provider: transcriptProvider, since: process.startedAt, now: Date()),
+            if process.provider == "Codex App",
+               let newest = AgentSessionState.newest(sessions, provider: "Codex", since: process.startedAt, now: Date()),
                newest.state != .unknown {
                 state = newest.state
             }
@@ -305,7 +285,82 @@ enum AgentBackgroundScanner {
                                      updatedAt: snapshot.updatedAt)
             thread.isApp = process.isApp
             return thread
-        }.sorted { $0.id < $1.id }
+        }
+        return (claude + otherThreads).sorted { $0.id < $1.id }
+    }
+
+    static func parentPIDs(_ listing: String) -> [Int32: Int32] {
+        var parents: [Int32: Int32] = [:]
+        for line in listing.split(separator: "\n") {
+            let fields = line.split(maxSplits: 2, whereSeparator: { $0 == " " || $0 == "\t" })
+            if fields.count > 1, let pid = Int32(fields[0]), let parent = Int32(fields[1]) {
+                parents[pid] = parent
+            }
+        }
+        return parents
+    }
+
+    static func claudeThreads(processes: [AgentProcessDescriptor], desktopPIDs: Set<Int32>,
+                              parents: [Int32: Int32], sessions: [AgentSessionSnapshot],
+                              home: URL, now: Date, environment: [String: String] = ProcessInfo.processInfo.environment) -> [AgentThread] {
+        guard !processes.isEmpty else { return [] }
+        let roots = ClaudeSessionRegistry.candidateRoots(home: home, environment: environment)
+        let index = ClaudeSessionRegistry.load(home: home, environment: environment)
+        func hasDesktopAncestor(_ pid: Int32) -> Bool {
+            var current = pid
+            for _ in 0..<32 {
+                guard let parent = parents[current], parent > 1, parent != current else { break }
+                if desktopPIDs.contains(parent) { return true }
+                current = parent
+            }
+            return false
+        }
+        var rows: [String: (thread: AgentThread, verified: Bool)] = [:]
+        for process in processes {
+            let record = ClaudeSessionRegistry.liveRecord(for: process, roots: roots)
+            if hasDesktopAncestor(process.pid) && record?.entrypoint != "claude-desktop" { continue }
+            let isApp = record?.entrypoint == "claude-desktop"
+            let provider = isApp ? "Claude" : "Claude Code"
+            // Resume may change the session after launch; prefer the live PID record.
+            let id = record?.sessionID ?? process.sessionID
+            let correlation: (state: AgentTaskState, session: AgentSessionSnapshot?)
+            if let id {
+                let owned = AgentProcessDescriptor(pid: process.pid, provider: "Claude Code", sessionID: id,
+                                                   cwd: nil, startedAt: process.startedAt)
+                correlation = AgentTaskCorrelation.correlation(for: owned, sessions: sessions, processes: [])
+            } else {
+                correlation = (.unknown, nil)
+            }
+            let snapshot = correlation.session
+            let liveState = record.flatMap { ClaudeSessionRegistry.liveState(for: $0, now: now) }
+            let saved = index.record(sessionID: id)
+            let name = ClaudeSessionRegistry.displayName(provider: provider, record: record, fallback: saved,
+                sessionID: id, cwd: snapshot?.cwd ?? record?.cwd).name
+            let activity = snapshot?.activity.flatMap { activity -> AgentDisplayActivity? in
+                guard let started = process.startedAt, activity.startedAt >= started.addingTimeInterval(-2) else { return nil }
+                return activity
+            }
+            let key = id.map { "claude-session-\($0)" } ?? "claude-pid-\(process.pid)"
+            var thread = AgentThread(id: key, provider: provider, pid: process.pid,
+                                     state: liveState ?? correlation.state, displayName: name, host: record?.host ?? saved?.host,
+                                     sessionID: id, activity: activity,
+                                     updatedAt: liveState == nil ? snapshot?.updatedAt : record?.statusUpdatedAt)
+            thread.isApp = isApp
+            let verified = record != nil
+            if let prior = rows[key] {
+                if prior.verified && !verified { continue }
+                if prior.verified == verified {
+                    // Two equally credible owners cannot drive state or display.
+                    var ambiguous = prior.thread
+                    ambiguous.state = .unknown
+                    ambiguous.activity = nil
+                    rows[key] = (ambiguous, verified)
+                    continue
+                }
+            }
+            rows[key] = (thread, verified)
+        }
+        return rows.values.map(\.thread)
     }
 
     /// "/Applications/Cursor.app/" for a full `comm`; the whole cut-off `comm` otherwise.

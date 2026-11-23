@@ -81,6 +81,15 @@ struct AgentDisplayPolicyTests {
                                                      now: now), "active screen call holds")
         expect(AgentDisplayPolicy.threadNeedsDisplay(thread(state: .working, tool: "browser_navigate"),
                                                      now: now), "active browser call holds")
+        var desktopClaude = AgentThread(id: "desktop-claude", provider: "Claude", pid: 2, state: .working,
+                                        activity: AgentDisplayActivity(tool: "Bash", startedAt: now, endedAt: nil))
+        desktopClaude.isApp = true
+        expect(!AgentDisplayPolicy.threadNeedsDisplay(desktopClaude, now: now), "desktop Claude Bash is not display work")
+        desktopClaude.state = .waiting
+        desktopClaude.activity = AgentDisplayActivity(tool: "mcp__computer__screenshot", startedAt: now, endedAt: nil)
+        expect(!AgentDisplayPolicy.threadNeedsDisplay(desktopClaude, now: now), "desktop screen tool waiting for approval does not hold")
+        desktopClaude.state = .working
+        expect(AgentDisplayPolicy.threadNeedsDisplay(desktopClaude, now: now), "approved desktop screen tool holds")
 
         // Recent vs stale completions and the grace boundary.
         let recent = thread(state: .working, tool: "browser_navigate",
